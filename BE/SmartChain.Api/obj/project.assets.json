@@ -2,6 +2,49 @@
   "version": 3,
   "targets": {
     "net6.0": {
+      "ErrorOr/2.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/ErrorOr.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/ErrorOr.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "MediatR/12.5.0": {
+        "type": "package",
+        "dependencies": {
+          "MediatR.Contracts": "[2.0.1, 3.0.0)",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0"
+        },
+        "compile": {
+          "lib/net6.0/MediatR.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/MediatR.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "MediatR.Contracts/2.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/MediatR.Contracts.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/MediatR.Contracts.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.Extensions.ApiDescription.Server/6.0.5": {
         "type": "package",
         "build": {
@@ -11,6 +54,22 @@
         "buildMultiTargeting": {
           "buildMultiTargeting/Microsoft.Extensions.ApiDescription.Server.props": {},
           "buildMultiTargeting/Microsoft.Extensions.ApiDescription.Server.targets": {}
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions/8.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "buildTransitive/net6.0/_._": {}
         }
       },
       "Microsoft.OpenApi/1.2.3": {
@@ -88,10 +147,108 @@
         "frameworkReferences": [
           "Microsoft.AspNetCore.App"
         ]
+      },
+      "SmartChain.Application/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "SmartChain.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/SmartChain.Application.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SmartChain.Application.dll": {}
+        }
+      },
+      "SmartChain.Contracts/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "compile": {
+          "bin/placeholder/SmartChain.Contracts.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SmartChain.Contracts.dll": {}
+        }
+      },
+      "SmartChain.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "ErrorOr": "2.0.1",
+          "MediatR": "12.5.0"
+        },
+        "compile": {
+          "bin/placeholder/SmartChain.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SmartChain.Domain.dll": {}
+        }
+      },
+      "SmartChain.Infrastructure/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "SmartChain.Application": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/SmartChain.Infrastructure.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SmartChain.Infrastructure.dll": {}
+        }
       }
     }
   },
   "libraries": {
+    "ErrorOr/2.0.1": {
+      "sha512": "aje9lUVEAsusPFmaRcVM5EUqWBofd7hYtb9N8+ycgPYrtOzyFajMpzRgIO4uuiCllNLBc3x48+cpA+4v4koUDQ==",
+      "type": "package",
+      "path": "erroror/2.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "erroror.2.0.1.nupkg.sha512",
+        "erroror.nuspec",
+        "icon-square.png",
+        "lib/net6.0/ErrorOr.dll",
+        "lib/net6.0/ErrorOr.xml",
+        "lib/netstandard2.0/ErrorOr.dll",
+        "lib/netstandard2.0/ErrorOr.xml"
+      ]
+    },
+    "MediatR/12.5.0": {
+      "sha512": "vqm2H8/nqL5NAJHPhsG1JOPwfkmbVrPyh4svdoRzu+uZh6Ex7PRoHBGsLYC0/RWCEJFqD1ohHNpteQvql9OktA==",
+      "type": "package",
+      "path": "mediatr/12.5.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "gradient_128x128.png",
+        "lib/net6.0/MediatR.dll",
+        "lib/net6.0/MediatR.xml",
+        "lib/netstandard2.0/MediatR.dll",
+        "lib/netstandard2.0/MediatR.xml",
+        "mediatr.12.5.0.nupkg.sha512",
+        "mediatr.nuspec"
+      ]
+    },
+    "MediatR.Contracts/2.0.1": {
+      "sha512": "FYv95bNT4UwcNA+G/J1oX5OpRiSUxteXaUt2BJbRSdRNiIUNbggJF69wy6mnk2wYToaanpdXZdCwVylt96MpwQ==",
+      "type": "package",
+      "path": "mediatr.contracts/2.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "gradient_128x128.png",
+        "lib/netstandard2.0/MediatR.Contracts.dll",
+        "lib/netstandard2.0/MediatR.Contracts.xml",
+        "mediatr.contracts.2.0.1.nupkg.sha512",
+        "mediatr.contracts.nuspec"
+      ]
+    },
     "Microsoft.Extensions.ApiDescription.Server/6.0.5": {
       "sha512": "Ckb5EDBUNJdFWyajfXzUIMRkhf52fHZOQuuZg/oiu8y7zDCVwD0iHhew6MnThjHmevanpxL3f5ci2TtHQEN6bw==",
       "type": "package",
@@ -323,6 +480,38 @@
         "tools/netcoreapp2.1/System.Diagnostics.DiagnosticSource.dll"
       ]
     },
+    "Microsoft.Extensions.DependencyInjection.Abstractions/8.0.0": {
+      "sha512": "cjWrLkJXK0rs4zofsK4bSdg+jhDLTaxrkXu4gS6Y7MAlCvRyNNgwY/lJi5RDlQOnSZweHqoyvgvbdvQsRIW+hg==",
+      "type": "package",
+      "path": "microsoft.extensions.dependencyinjection.abstractions/8.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "PACKAGE.md",
+        "THIRD-PARTY-NOTICES.TXT",
+        "buildTransitive/net461/Microsoft.Extensions.DependencyInjection.Abstractions.targets",
+        "buildTransitive/net462/_._",
+        "buildTransitive/net6.0/_._",
+        "buildTransitive/netcoreapp2.0/Microsoft.Extensions.DependencyInjection.Abstractions.targets",
+        "lib/net462/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+        "lib/net462/Microsoft.Extensions.DependencyInjection.Abstractions.xml",
+        "lib/net6.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+        "lib/net6.0/Microsoft.Extensions.DependencyInjection.Abstractions.xml",
+        "lib/net7.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+        "lib/net7.0/Microsoft.Extensions.DependencyInjection.Abstractions.xml",
+        "lib/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+        "lib/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.xml",
+        "lib/netstandard2.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+        "lib/netstandard2.0/Microsoft.Extensions.DependencyInjection.Abstractions.xml",
+        "lib/netstandard2.1/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+        "lib/netstandard2.1/Microsoft.Extensions.DependencyInjection.Abstractions.xml",
+        "microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
+        "microsoft.extensions.dependencyinjection.abstractions.nuspec",
+        "useSharedDesignerContext.txt"
+      ]
+    },
     "Microsoft.OpenApi/1.2.3": {
       "sha512": "Nug3rO+7Kl5/SBAadzSMAVgqDlfGjJZ0GenQrLywJ84XGKO0uRqkunz5Wyl0SDwcR71bAATXvSdbdzPrYRYKGw==",
       "type": "package",
@@ -429,10 +618,33 @@
         "swashbuckle.aspnetcore.swaggerui.6.5.0.nupkg.sha512",
         "swashbuckle.aspnetcore.swaggerui.nuspec"
       ]
+    },
+    "SmartChain.Application/1.0.0": {
+      "type": "project",
+      "path": "../SmartChain.Application/SmartChain.Application.csproj",
+      "msbuildProject": "../SmartChain.Application/SmartChain.Application.csproj"
+    },
+    "SmartChain.Contracts/1.0.0": {
+      "type": "project",
+      "path": "../SmartChain.Contracts/SmartChain.Contracts.csproj",
+      "msbuildProject": "../SmartChain.Contracts/SmartChain.Contracts.csproj"
+    },
+    "SmartChain.Domain/1.0.0": {
+      "type": "project",
+      "path": "../SmartChain.Domain/SmartChain.Domain.csproj",
+      "msbuildProject": "../SmartChain.Domain/SmartChain.Domain.csproj"
+    },
+    "SmartChain.Infrastructure/1.0.0": {
+      "type": "project",
+      "path": "../SmartChain.Infrastructure/SmartChain.Infrastructure.csproj",
+      "msbuildProject": "../SmartChain.Infrastructure/SmartChain.Infrastructure.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net6.0": [
+      "SmartChain.Application >= 1.0.0",
+      "SmartChain.Contracts >= 1.0.0",
+      "SmartChain.Infrastructure >= 1.0.0",
       "Swashbuckle.AspNetCore >= 6.5.0"
     ]
   },
@@ -442,11 +654,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Api\\SmartChain.Api.csproj",
+      "projectUniqueName": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\SmartChain.Api.csproj",
       "projectName": "SmartChain.Api",
-      "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Api\\SmartChain.Api.csproj",
+      "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\SmartChain.Api.csproj",
       "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Api\\obj\\",
+      "outputPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -463,7 +675,17 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\SmartChain.Application.csproj": {
+              "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\SmartChain.Application.csproj"
+            },
+            "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\SmartChain.Contracts.csproj": {
+              "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\SmartChain.Contracts.csproj"
+            },
+            "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

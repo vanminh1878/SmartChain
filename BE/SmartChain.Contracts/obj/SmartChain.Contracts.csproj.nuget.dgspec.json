@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Contracts\\SmartChain.Contracts.csproj": {}
+    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\SmartChain.Contracts.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Contracts\\SmartChain.Contracts.csproj": {
+    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\SmartChain.Contracts.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Contracts\\SmartChain.Contracts.csproj",
+        "projectUniqueName": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\SmartChain.Contracts.csproj",
         "projectName": "SmartChain.Contracts",
-        "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Contracts\\SmartChain.Contracts.csproj",
+        "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\SmartChain.Contracts.csproj",
         "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Contracts\\obj\\",
+        "outputPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",

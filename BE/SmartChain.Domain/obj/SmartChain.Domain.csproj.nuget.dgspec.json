@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Domain\\SmartChain.Domain.csproj": {}
+    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\SmartChain.Domain.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Domain\\SmartChain.Domain.csproj": {
+    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\SmartChain.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Domain\\SmartChain.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\SmartChain.Domain.csproj",
         "projectName": "SmartChain.Domain",
-        "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Domain\\SmartChain.Domain.csproj",
+        "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\SmartChain.Domain.csproj",
         "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Domain\\obj\\",
+        "outputPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -45,6 +45,16 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
+          "dependencies": {
+            "ErrorOr": {
+              "target": "Package",
+              "version": "[2.0.1, )"
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[12.5.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

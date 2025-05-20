@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Api\\SmartChain.Api.csproj": {}
+    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\SmartChain.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Api\\SmartChain.Api.csproj": {
+    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\SmartChain.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Api\\SmartChain.Api.csproj",
+        "projectUniqueName": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\SmartChain.Api.csproj",
         "projectName": "SmartChain.Api",
-        "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Api\\SmartChain.Api.csproj",
+        "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\SmartChain.Api.csproj",
         "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\SmartChain.Api\\obj\\",
+        "outputPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -28,7 +28,17 @@
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\SmartChain.Application.csproj": {
+                "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\SmartChain.Application.csproj"
+              },
+              "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\SmartChain.Contracts.csproj": {
+                "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\SmartChain.Contracts.csproj"
+              },
+              "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
@@ -66,6 +76,268 @@
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
             },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\SmartChain.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\SmartChain.Application.csproj",
+        "projectName": "SmartChain.Application",
+        "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\SmartChain.Application.csproj",
+        "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\SmartChain.Domain.csproj": {
+                "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\SmartChain.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\SmartChain.Contracts.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\SmartChain.Contracts.csproj",
+        "projectName": "SmartChain.Contracts",
+        "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\SmartChain.Contracts.csproj",
+        "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Contracts\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\SmartChain.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\SmartChain.Domain.csproj",
+        "projectName": "SmartChain.Domain",
+        "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\SmartChain.Domain.csproj",
+        "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "ErrorOr": {
+              "target": "Package",
+              "version": "[2.0.1, )"
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[12.5.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj",
+        "projectName": "SmartChain.Infrastructure",
+        "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\SmartChain.Application.csproj": {
+                "projectPath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\SmartChain.Application.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
