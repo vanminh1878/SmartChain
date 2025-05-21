@@ -4,7 +4,7 @@ namespace SmartChain.Domain.Common
     using System.Collections.Generic;
     public abstract class Entity {
         public Guid Id { get; protected set; }
-        private readonly List<IDomainEvent> _domainEvents = new List<IDomainEvent>();
+        protected readonly List<IDomainEvent> _domainEvents = new List<IDomainEvent>();
         protected Entity(Guid? id = null) {
             Id = id ?? Guid.NewGuid();
         }

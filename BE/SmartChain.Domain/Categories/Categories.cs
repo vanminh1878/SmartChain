@@ -1,4 +1,5 @@
 using ErrorOr;
+using SmartChain.Domain.Categories.Events;
 using SmartChain.Domain.Common;
 using System;
 
@@ -12,7 +13,7 @@ namespace SmartChain.Domain.Categories
         public DateTime CreatedAt { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
 
-        public Category(string name, Guid storeId, bool status, Guid? id = null) : base(id)
+        public Category(string name, Guid storeId, Guid? id = null) : base(id)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -24,7 +25,7 @@ namespace SmartChain.Domain.Categories
             }
             Name = name;
             StoreId = storeId;
-            Status = status;
+            Status = false;
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -37,13 +38,21 @@ namespace SmartChain.Domain.Categories
             Name = newname;
             Status = newstatus;
             UpdatedAt = DateTime.UtcNow;
+
+            _domainEvents.Add(new CategoryUpdatedEvent(Id, newname, newstatus));
+            
             return Result.Success;
         }
 
-        public ErrorOr<Success> ToggleStatus()
+        public ErrorOr<Success> DeletedStatus()
         {
+            if (!Status) // nếu đã bị xoá thì không xoá nữa
+            {
+                return Error.Conflict("Category was deleted");
+            }
             Status = !Status;
             UpdatedAt = DateTime.UtcNow;
+            _domainEvents.Add(new CategoryDeletedEvent(Id, Status));
             return Result.Success;
         }
     }
