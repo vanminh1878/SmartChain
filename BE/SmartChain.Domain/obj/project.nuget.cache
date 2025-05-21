@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "52KR8aP6zQ0=",
+  "dgSpecHash": "0zSBdH1Facs=",
   "success": true,
   "projectFilePath": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\SmartChain.Domain.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\ADMIN\\.nuget\\packages\\erroror\\2.0.1\\erroror.2.0.1.nupkg.sha512",
+    "C:\\Users\\ADMIN\\.nuget\\packages\\erroror\\2.1.0\\erroror.2.1.0.nupkg.sha512",
     "C:\\Users\\ADMIN\\.nuget\\packages\\mediatr\\12.5.0\\mediatr.12.5.0.nupkg.sha512",
     "C:\\Users\\ADMIN\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512",
+    "C:\\Users\\ADMIN\\.nuget\\packages\\microsoft.bcl.hashcode\\1.1.1\\microsoft.bcl.hashcode.1.1.1.nupkg.sha512",
     "C:\\Users\\ADMIN\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512"
   ],
   "logs": []

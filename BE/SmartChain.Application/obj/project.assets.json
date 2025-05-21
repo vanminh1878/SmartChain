@@ -2,15 +2,18 @@
   "version": 3,
   "targets": {
     "net6.0": {
-      "ErrorOr/2.0.1": {
+      "ErrorOr/2.1.0": {
         "type": "package",
+        "dependencies": {
+          "Microsoft.Bcl.HashCode": "1.1.1"
+        },
         "compile": {
-          "lib/net6.0/ErrorOr.dll": {
+          "lib/netstandard2.0/ErrorOr.dll": {
             "related": ".xml"
           }
         },
         "runtime": {
-          "lib/net6.0/ErrorOr.dll": {
+          "lib/netstandard2.0/ErrorOr.dll": {
             "related": ".xml"
           }
         }
@@ -45,6 +48,17 @@
           }
         }
       },
+      "Microsoft.Bcl.HashCode/1.1.1": {
+        "type": "package",
+        "compile": {
+          "ref/netcoreapp2.1/Microsoft.Bcl.HashCode.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp2.1/Microsoft.Bcl.HashCode.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.Extensions.DependencyInjection.Abstractions/8.0.0": {
         "type": "package",
         "compile": {
@@ -65,7 +79,7 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
         "dependencies": {
-          "ErrorOr": "2.0.1",
+          "ErrorOr": "2.1.0",
           "MediatR": "12.5.0"
         },
         "compile": {
@@ -78,19 +92,19 @@
     }
   },
   "libraries": {
-    "ErrorOr/2.0.1": {
-      "sha512": "aje9lUVEAsusPFmaRcVM5EUqWBofd7hYtb9N8+ycgPYrtOzyFajMpzRgIO4uuiCllNLBc3x48+cpA+4v4koUDQ==",
+    "ErrorOr/2.1.0": {
+      "sha512": "lA3hsherg67AQhMmldZveDmqCSRrVsWzhVTQhBUilOpFV/DTBdoaEhxe0DSz+CA25nXA02x+ZO9bWM3vDlYRbw==",
       "type": "package",
-      "path": "erroror/2.0.1",
+      "path": "erroror/2.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "README.md",
-        "erroror.2.0.1.nupkg.sha512",
+        "erroror.2.1.0.nupkg.sha512",
         "erroror.nuspec",
         "icon-square.png",
-        "lib/net6.0/ErrorOr.dll",
-        "lib/net6.0/ErrorOr.xml",
+        "lib/net8.0/ErrorOr.dll",
+        "lib/net8.0/ErrorOr.xml",
         "lib/netstandard2.0/ErrorOr.dll",
         "lib/netstandard2.0/ErrorOr.xml"
       ]
@@ -124,6 +138,34 @@
         "lib/netstandard2.0/MediatR.Contracts.xml",
         "mediatr.contracts.2.0.1.nupkg.sha512",
         "mediatr.contracts.nuspec"
+      ]
+    },
+    "Microsoft.Bcl.HashCode/1.1.1": {
+      "sha512": "MalY0Y/uM/LjXtHfX/26l2VtN4LDNZ2OE3aumNOHDLsT4fNYy2hiHXI4CXCqKpNUNm7iJ2brrc4J89UdaL56FA==",
+      "type": "package",
+      "path": "microsoft.bcl.hashcode/1.1.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/net461/Microsoft.Bcl.HashCode.dll",
+        "lib/net461/Microsoft.Bcl.HashCode.xml",
+        "lib/netcoreapp2.1/Microsoft.Bcl.HashCode.dll",
+        "lib/netcoreapp2.1/Microsoft.Bcl.HashCode.xml",
+        "lib/netstandard2.0/Microsoft.Bcl.HashCode.dll",
+        "lib/netstandard2.0/Microsoft.Bcl.HashCode.xml",
+        "lib/netstandard2.1/Microsoft.Bcl.HashCode.dll",
+        "lib/netstandard2.1/Microsoft.Bcl.HashCode.xml",
+        "microsoft.bcl.hashcode.1.1.1.nupkg.sha512",
+        "microsoft.bcl.hashcode.nuspec",
+        "ref/net461/Microsoft.Bcl.HashCode.dll",
+        "ref/netcoreapp2.1/Microsoft.Bcl.HashCode.dll",
+        "ref/netstandard2.0/Microsoft.Bcl.HashCode.dll",
+        "ref/netstandard2.1/Microsoft.Bcl.HashCode.dll",
+        "useSharedDesignerContext.txt",
+        "version.txt"
       ]
     },
     "Microsoft.Extensions.DependencyInjection.Abstractions/8.0.0": {
