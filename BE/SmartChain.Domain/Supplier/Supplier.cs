@@ -78,7 +78,7 @@ public class Supplier : Entity
         {
             return Error.Failure("Email cannot be empty");
         }
-        if (IsValidEmail(newEmail))
+        if (!IsValidEmail(newEmail))
         {
             return Error.Failure("Invalid email format");
         }
