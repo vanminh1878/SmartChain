@@ -49,9 +49,8 @@ public class StoreConfigurations : IEntityTypeConfiguration<Store>
 
         // Thuộc tính Status
         builder.Property(s => s.Status)
-            .IsRequired()
-            .HasColumnType("tinyint(1)")
-            .HasDefaultValue(1); // Mặc định: active
+            .HasColumnType("bit")
+            .HasDefaultValue(true); // Mặc định: active
 
         // Thuộc tính OwnerId (Guid)
         builder.Property(s => s.OwnerId)
@@ -75,6 +74,7 @@ public class StoreConfigurations : IEntityTypeConfiguration<Store>
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(s => s.OwnerId)
-            .HasConstraintName("FK_Store_User");
+            .HasConstraintName("FK_Store_User")
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

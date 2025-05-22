@@ -9,7 +9,7 @@ public class Account : Entity
 {
     public string Username { get; private set; }
     public string Password { get; private set; }
-    public bool Status { get; private set; } // true: active, false: locked
+    public bool? Status { get; private set; } // true: active, false: locked
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
@@ -73,4 +73,5 @@ public class Account : Entity
         _domainEvents.Add(new AccountStatusUpdatedEvent(Id, newStatus));
         return Result.Success;
     }
+    private Account() {}
 }

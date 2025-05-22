@@ -1,0 +1,10 @@
+dotnet ef migrations add InitialCreate --startup-project "../SmartChain.Api"
+hoặc
+dotnet ef migrations add InitialCreate --project "SmartChain.Infrastructure" --startup-project "SmartChain.Api"
+
+dotnet ef database update --project SmartChain.Infrastructure --startup-project SmartChain.Web
+
+cài đặt:
+dotnet tool install --global dotnet-ef
+
+To undo this action, use 'ef migrations remove'

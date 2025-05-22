@@ -9,7 +9,7 @@ public class Employee : Entity
 {
     public Guid UserId { get; private set; }
     public Guid StoreId { get; private set; }
-    public bool Status { get; private set; } // true: active, false: locked
+    public bool? Status { get; private set; } // true: active, false: locked
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
@@ -39,4 +39,5 @@ public class Employee : Entity
         _domainEvents.Add(new EmployeeStatusUpdatedEvent(Id, newStatus));
         return Result.Success;
     }
+    private Employee() {}
 }

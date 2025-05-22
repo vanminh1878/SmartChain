@@ -14,7 +14,7 @@ public class Supplier : Entity
     public string PhoneNumber { get; private set; }
     public string Email { get; private set; }
     public string Address { get; private set; }
-    public bool Status { get; private set; }
+    public bool? Status { get; private set; }
     public Guid StoreId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
@@ -111,5 +111,5 @@ public class Supplier : Entity
             return false;
         }
     }
-
+    private Supplier() {}
 }

@@ -44,4 +44,5 @@ public class Role : Entity
         _domainEvents.Add(new RoleUpdatedEvent(Id, newName));
         return Result.Success;
     }
+    private Role() {}
 }

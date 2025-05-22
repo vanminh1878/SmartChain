@@ -35,9 +35,8 @@ public class CategoryConfigurations : IEntityTypeConfiguration<Category>
 
         // Thuộc tính Status (bool sang tinyint)
         builder.Property(c => c.Status)
-            .IsRequired()
-            .HasColumnType("tinyint(1)")
-            .HasDefaultValue(1); // Mặc định: active
+            .HasColumnType("bit")
+            .HasDefaultValue(true); // Mặc định: active
 
         // Thuộc tính CreatedAt
         builder.Property(c => c.CreatedAt)

@@ -163,4 +163,5 @@ public class StockIntake : Entity
         decimal total = _stockIntakeDetails.Sum(sid => sid.Quantity * sid.UnitPrice);
         return total;
     }
+    private StockIntake() {}
 }

@@ -60,4 +60,5 @@ public class Report : Entity
 
         _domainEvents.Add(new ReportCreatedEvent(id ?? Guid.NewGuid(), storeId, reportType, generatedBy));
     }
+    private Report() {}
 }

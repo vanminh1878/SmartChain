@@ -11,7 +11,7 @@ public class Store : Entity
     public string Address { get; private set; }
     public string PhoneNumber { get; private set; }
     public string Email { get; private set; }
-    public bool Status { get; private set; } // true: active, false: locked
+    public bool? Status { get; private set; } // true: active, false: locked
     public Guid OwnerId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
@@ -91,4 +91,5 @@ public class Store : Entity
             return false;
         }
     }
+    private Store() {}
 }

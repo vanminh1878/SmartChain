@@ -66,4 +66,5 @@ public class OrderDetail : Entity
     {
         return Quantity * UnitPrice;
     }
+    private OrderDetail() {}
 }

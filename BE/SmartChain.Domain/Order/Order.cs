@@ -157,4 +157,5 @@ public class Order : Entity
     {
         TotalAmount = _orderDetails.Sum(od => od.Quantity * od.UnitPrice);
     }
+    private Order() {}
 }

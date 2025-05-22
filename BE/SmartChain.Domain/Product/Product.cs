@@ -92,4 +92,6 @@ public class Product : Entity
         _domainEvents.Add(new ProductStockUpdatedEvent(Id, newStockQuantity));
         return Result.Success;
     }
+
+    private Product() {}
 }

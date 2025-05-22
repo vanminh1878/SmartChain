@@ -51,7 +51,7 @@ public class Cart : Entity
         if (cartDetail != null)
         {
             // Update quantity
-            cartDetail.UpdateQuantity(cartDetail.Quantity + quantity); 
+            cartDetail.UpdateQuantity(cartDetail.Quantity + quantity);
         }
         else
         {
@@ -108,4 +108,5 @@ public class Cart : Entity
         decimal total = _cartDetails.Sum(cd => cd.Quantity * cd.UnitPrice);
         return total;
     }
+    private Cart() {}
 }

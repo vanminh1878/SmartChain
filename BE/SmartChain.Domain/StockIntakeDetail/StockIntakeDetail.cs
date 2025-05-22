@@ -66,4 +66,5 @@ public class StockIntakeDetail : Entity
     {
         return Quantity * UnitPrice;
     }
+    private StockIntakeDetail() {}
 }

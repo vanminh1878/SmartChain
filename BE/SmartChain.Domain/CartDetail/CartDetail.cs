@@ -68,4 +68,5 @@ public class CartDetail : Entity
     {
         return Quantity * UnitPrice;
     }
+    private CartDetail() {}
 }

@@ -14,11 +14,10 @@ public class AccountConfigurations : IEntityTypeConfiguration<Account>
         // Khóa chính
         builder.HasKey(a => a.Id);
 
-        // Ánh xạ Id (int, tự động tăng)
         builder.Property(a => a.Id)
             .HasColumnName("Id")
-            .HasColumnType("int")
-            .ValueGeneratedOnAdd(); // Tự động tăng
+            .HasColumnType("uniqueidentifier")
+            .HasDefaultValueSql("newid()");
 
         // Thuộc tính Username
         builder.Property(a => a.Username)
@@ -38,9 +37,8 @@ public class AccountConfigurations : IEntityTypeConfiguration<Account>
 
         // Thuộc tính Status (bool sang tinyint)
         builder.Property(a => a.Status)
-            .IsRequired()
-            .HasColumnType("tinyint(1)")
-            .HasDefaultValue(1); // Mặc định: active
+            .HasColumnType("bit")
+            .HasDefaultValue(true); // Mặc định: active
 
         // Thuộc tính CreatedAt
         builder.Property(a => a.CreatedAt)

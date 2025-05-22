@@ -53,9 +53,8 @@ public class SupplierConfigurations : IEntityTypeConfiguration<Supplier>
 
         // Thuộc tính Status
         builder.Property(s => s.Status)
-            .IsRequired()
-            .HasColumnType("tinyint(1)")
-            .HasDefaultValue(1); // Mặc định: active
+            .HasColumnType("bit")
+            .HasDefaultValue(true); // Mặc định: active
 
         // Thuộc tính StoreId (Guid)
         builder.Property(s => s.StoreId)
@@ -79,6 +78,7 @@ public class SupplierConfigurations : IEntityTypeConfiguration<Supplier>
         builder.HasOne<Store>()
             .WithMany()
             .HasForeignKey(s => s.StoreId)
-            .HasConstraintName("FK_Supplier_Store");
+            .HasConstraintName("FK_Supplier_Store")
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -61,4 +61,5 @@ public class Schedule : Entity
         _domainEvents.Add(new ScheduleUpdatedEvent(Id, EmployeeId, startTime, endTime));
         return Result.Success;
     }
+    private Schedule() {}
 }

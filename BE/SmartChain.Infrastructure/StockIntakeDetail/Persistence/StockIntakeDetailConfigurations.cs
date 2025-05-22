@@ -53,7 +53,8 @@ public class StockIntakeDetailConfigurations : IEntityTypeConfiguration<StockInt
         builder.HasOne<Product>()
             .WithMany()
             .HasForeignKey(sid => sid.ProductId)
-            .HasConstraintName("FK_StockIntakeDetail_Product");
+            .HasConstraintName("FK_StockIntakeDetail_Product")
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Mối quan hệ khóa ngoại với StockIntake
         builder.HasOne<StockIntake>()

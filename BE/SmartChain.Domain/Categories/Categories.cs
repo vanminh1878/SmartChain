@@ -9,7 +9,7 @@ namespace SmartChain.Domain.Categories
     {
         public string Name { get; private set; }
         public Guid StoreId { get; private set; }
-        public bool Status { get; private set; }
+        public bool? Status { get; private set; }
         public DateTime CreatedAt { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
 
@@ -40,20 +40,18 @@ namespace SmartChain.Domain.Categories
             UpdatedAt = DateTime.UtcNow;
 
             _domainEvents.Add(new CategoryUpdatedEvent(Id, newname, newstatus));
-            
+
             return Result.Success;
         }
 
-        public ErrorOr<Success> DeletedStatus()
+        public ErrorOr<Success> DeletedStatus(bool newStatus)
         {
-            if (!Status) // nếu đã bị xoá thì không xoá nữa
-            {
-                return Error.Conflict("Category was deleted");
-            }
-            Status = !Status;
+            Status = newStatus;
             UpdatedAt = DateTime.UtcNow;
-            _domainEvents.Add(new CategoryDeletedEvent(Id, Status));
+            _domainEvents.Add(new CategoryDeletedEvent(Id, newStatus));
             return Result.Success;
         }
+        private Category() {}
     }
+    
 }

@@ -66,12 +66,14 @@ public class ReportConfigurations : IEntityTypeConfiguration<Report>
         builder.HasOne<Store>()
             .WithMany()
             .HasForeignKey(r => r.StoreId)
-            .HasConstraintName("FK_Report_Store");
+            .HasConstraintName("FK_Report_Store")
+            .OnDelete(DeleteBehavior.Restrict); // Thêm Restrict để thay CASCADE
 
         // Mối quan hệ khóa ngoại với User (GeneratedBy)
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(r => r.GeneratedBy)
-            .HasConstraintName("FK_Report_User");
+            .HasConstraintName("FK_Report_User")
+            .OnDelete(DeleteBehavior.Restrict); // Thêm Restrict để thay CASCADE
     }
 }

@@ -61,13 +61,15 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
         builder.HasOne<Customer>()
             .WithMany()
             .HasForeignKey(o => o.CustomerId)
-            .HasConstraintName("FK_Order_Customer");
+            .HasConstraintName("FK_Order_Customer")
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Mối quan hệ khóa ngoại với Store
         builder.HasOne<Store>()
             .WithMany()
             .HasForeignKey(o => o.StoreId)
-            .HasConstraintName("FK_Order_Store");
+            .HasConstraintName("FK_Order_Store")
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Mối quan hệ một-nhiều với OrderDetail
         builder.HasMany(o => o.OrderDetails)

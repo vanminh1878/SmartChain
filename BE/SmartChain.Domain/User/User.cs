@@ -96,4 +96,5 @@ public class User : Entity
             return false;
         }
     }
+    private User() {}
 }

@@ -50,13 +50,16 @@ public class CartConfigurations : IEntityTypeConfiguration<Cart>
         builder.HasOne<Customer>()
             .WithMany()
             .HasForeignKey(c => c.CustomerId)
-            .HasConstraintName("FK_Cart_Customer");
+            .HasConstraintName("FK_Cart_Customer")
+            .OnDelete(DeleteBehavior.Restrict);
+            
 
         // Mối quan hệ khóa ngoại với Store
         builder.HasOne<Store>()
             .WithMany()
             .HasForeignKey(c => c.StoreId)
-            .HasConstraintName("FK_Cart_Store");
+            .HasConstraintName("FK_Cart_Store")
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Mối quan hệ một-nhiều với CartDetail
         builder.HasMany(c => c.CartDetails)

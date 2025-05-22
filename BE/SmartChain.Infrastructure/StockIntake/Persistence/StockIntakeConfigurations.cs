@@ -43,7 +43,7 @@ public class StockIntakeConfigurations : IEntityTypeConfiguration<StockIntake>
         // Thuộc tính Status
         builder.Property(si => si.Status)
             .IsRequired()
-            .HasColumnType("tinyint(1)")
+            .HasColumnType("int")
             .HasDefaultValue(0); // Mặc định: pending
 
         // Thuộc tính CreatedBy (Guid)
@@ -74,32 +74,36 @@ public class StockIntakeConfigurations : IEntityTypeConfiguration<StockIntake>
         builder.HasOne<Supplier>()
             .WithMany()
             .HasForeignKey(si => si.SupplierId)
-            .HasConstraintName("FK_StockIntake_Supplier");
+            .HasConstraintName("FK_StockIntake_Supplier")
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Mối quan hệ khóa ngoại với Store
         builder.HasOne<Store>()
             .WithMany()
             .HasForeignKey(si => si.StoreId)
-            .HasConstraintName("FK_StockIntake_Store");
+            .HasConstraintName("FK_StockIntake_Store")
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Mối quan hệ khóa ngoại với User (CreatedBy)
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(si => si.CreatedBy)
-            .HasConstraintName("FK_StockIntake_CreatedBy_User");
+            .HasConstraintName("FK_StockIntake_CreatedBy_User")
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Mối quan hệ khóa ngoại với User (ApprovedBy)
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(si => si.ApprovedBy)
             .HasConstraintName("FK_StockIntake_ApprovedBy_User")
-            .IsRequired(false);
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Mối quan hệ một-nhiều với StockIntakeDetail
         builder.HasMany(si => si.StockIntakeDetails)
             .WithOne()
             .HasForeignKey("StockIntakeId") // Giả sử StockIntakeDetail có thuộc tính StockIntakeId
             .HasConstraintName("FK_StockIntakeDetail_StockIntake")
-            .OnDelete(DeleteBehavior.Cascade); // Xóa StockIntake thì xóa luôn StockIntakeDetail
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

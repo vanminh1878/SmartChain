@@ -56,7 +56,7 @@ public class UserConfigurations : IEntityTypeConfiguration<User>
         // Thuộc tính Sex
         builder.Property(u => u.Sex)
             .IsRequired()
-            .HasColumnType("tinyint(1)");
+            .HasColumnType("bit");
 
         // Thuộc tính Avatar
         builder.Property(u => u.Avatar)

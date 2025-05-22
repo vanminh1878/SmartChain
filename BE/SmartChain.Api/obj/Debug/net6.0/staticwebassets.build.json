@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "ppb6uQoEtvge5z0ni6wR0Ra/Jonnlf1CYGqv+L0RNCY=",
+  "Source": "SmartChain.Api",
+  "BasePath": "_content/SmartChain.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

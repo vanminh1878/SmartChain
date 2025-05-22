@@ -1,12 +1,12 @@
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\bin\Debug\net6.0\SmartChain.Domain.deps.json
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\bin\Debug\net6.0\SmartChain.Domain.dll
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\bin\Debug\net6.0\SmartChain.Domain.pdb
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\obj\Debug\net6.0\SmartChain.Domain.csproj.AssemblyReference.cache
 C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\obj\Debug\net6.0\SmartChain.Domain.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\obj\Debug\net6.0\SmartChain.Domain.AssemblyInfoInputs.cache
 C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\obj\Debug\net6.0\SmartChain.Domain.AssemblyInfo.cs
 C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\obj\Debug\net6.0\SmartChain.Domain.csproj.CoreCompileInputs.cache
 C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\obj\Debug\net6.0\SmartChain.Domain.sourcelink.json
-C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\bin\Debug\net6.0\SmartChain.Domain.deps.json
-C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\bin\Debug\net6.0\SmartChain.Domain.dll
-C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\bin\Debug\net6.0\SmartChain.Domain.pdb
-C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\obj\Debug\net6.0\SmartChain.Domain.csproj.AssemblyReference.cache
 C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\obj\Debug\net6.0\SmartChain.Domain.dll
 C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\obj\Debug\net6.0\refint\SmartChain.Domain.dll
 C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Domain\obj\Debug\net6.0\SmartChain.Domain.pdb

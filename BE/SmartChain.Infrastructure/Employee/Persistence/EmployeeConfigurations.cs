@@ -34,11 +34,10 @@ public class EmployeeConfigurations : IEntityTypeConfiguration<Employee>
             .HasColumnName("Store_id")
             .HasColumnType("uniqueidentifier");
 
-        // Thuộc tính Status (bool sang tinyint)
+        // Thuộc tính Status (bool sang bit)
         builder.Property(e => e.Status)
-            .IsRequired()
-            .HasColumnType("tinyint(1)")
-            .HasDefaultValue(1); // Mặc định: active
+            .HasColumnType("bit")
+            .HasDefaultValue(true); // Mặc định: active
 
         // Thuộc tính CreatedAt
         builder.Property(e => e.CreatedAt)
@@ -56,12 +55,14 @@ public class EmployeeConfigurations : IEntityTypeConfiguration<Employee>
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.UserId)
-            .HasConstraintName("FK_Employee_User");
+            .HasConstraintName("FK_Employee_User")
+            .OnDelete(DeleteBehavior.Restrict); // Thay CASCADE bằng Restrict (NO ACTION)
 
         // Mối quan hệ khóa ngoại với Store
         builder.HasOne<Store>()
             .WithMany()
             .HasForeignKey(e => e.StoreId)
-            .HasConstraintName("FK_Employee_Store");
+            .HasConstraintName("FK_Employee_Store")
+            .OnDelete(DeleteBehavior.Restrict); // Thay CASCADE bằng Restrict (NO ACTION)
     }
 }

@@ -70,12 +70,14 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         builder.HasOne<Category>()
             .WithMany()
             .HasForeignKey(p => p.CategoryId)
-            .HasConstraintName("FK_Product_Category");
+            .HasConstraintName("FK_Product_Category")
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Mối quan hệ khóa ngoại với Store
         builder.HasOne<Store>()
             .WithMany()
             .HasForeignKey(p => p.StoreId)
-            .HasConstraintName("FK_Product_Store");
+            .HasConstraintName("FK_Product_Store")
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
