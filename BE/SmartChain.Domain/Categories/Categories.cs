@@ -25,7 +25,7 @@ namespace SmartChain.Domain.Categories
             }
             Name = name;
             StoreId = storeId;
-            Status = false;
+            Status = true;
             CreatedAt = DateTime.UtcNow;
         }
 

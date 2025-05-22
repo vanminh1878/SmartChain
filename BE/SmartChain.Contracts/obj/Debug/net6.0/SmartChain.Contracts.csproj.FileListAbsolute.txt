@@ -1,0 +1,12 @@
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Contracts\bin\Debug\net6.0\SmartChain.Contracts.deps.json
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Contracts\bin\Debug\net6.0\SmartChain.Contracts.dll
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Contracts\bin\Debug\net6.0\SmartChain.Contracts.pdb
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Contracts\obj\Debug\net6.0\SmartChain.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Contracts\obj\Debug\net6.0\SmartChain.Contracts.AssemblyInfoInputs.cache
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Contracts\obj\Debug\net6.0\SmartChain.Contracts.AssemblyInfo.cs
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Contracts\obj\Debug\net6.0\SmartChain.Contracts.csproj.CoreCompileInputs.cache
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Contracts\obj\Debug\net6.0\SmartChain.Contracts.sourcelink.json
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Contracts\obj\Debug\net6.0\SmartChain.Contracts.dll
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Contracts\obj\Debug\net6.0\refint\SmartChain.Contracts.dll
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Contracts\obj\Debug\net6.0\SmartChain.Contracts.pdb
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Contracts\obj\Debug\net6.0\ref\SmartChain.Contracts.dll

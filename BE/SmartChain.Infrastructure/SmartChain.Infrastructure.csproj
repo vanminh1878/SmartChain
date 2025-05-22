@@ -2,11 +2,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SmartChain.Application\SmartChain.Application.csproj" />
+    <ProjectReference Include="..\SmartChain.Domain\SmartChain.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.36" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.30" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.30" />
   </ItemGroup>
 
   <PropertyGroup>

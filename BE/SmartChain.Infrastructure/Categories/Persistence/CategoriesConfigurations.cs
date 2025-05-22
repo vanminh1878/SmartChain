@@ -1,45 +1,60 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartChain.Domain.Categories;
-//using SmartChain.Domain.Products; // Giả định namespace của Product
+using SmartChain.Domain.Store;
 
-namespace SmartChain.Infrastructure.Categories.Persistence;
+namespace SmartChain.Infrastructure.Persistence.Configurations;
 
 public class CategoryConfigurations : IEntityTypeConfiguration<Category>
 {
     public void Configure(EntityTypeBuilder<Category> builder)
     {
-        // Định nghĩa khóa chính
+        // Định nghĩa bảng
+        builder.ToTable("Category");
+
+        // Khóa chính
         builder.HasKey(c => c.Id);
 
-        // Cấu hình Id không tự động sinh
+        // Ánh xạ Id (Guid)
         builder.Property(c => c.Id)
-            .ValueGeneratedNever();
+            .HasColumnName("Id")
+            .HasColumnType("uniqueidentifier")
+            .HasDefaultValueSql("newid()"); // Sinh Guid tự động
 
-        // Cấu hình thuộc tính Name
+        // Thuộc tính Name
         builder.Property(c => c.Name)
             .IsRequired()
-            .HasMaxLength(255); // Giới hạn độ dài chuỗi
+            .HasMaxLength(50)
+            .HasColumnType("varchar(50)");
 
-        // Cấu hình thuộc tính StoreId
+        // Thuộc tính StoreId (Guid)
         builder.Property(c => c.StoreId)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnName("Store_id")
+            .HasColumnType("uniqueidentifier");
 
-        // Cấu hình thuộc tính Status
+        // Thuộc tính Status (bool sang tinyint)
         builder.Property(c => c.Status)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnType("tinyint(1)")
+            .HasDefaultValue(1); // Mặc định: active
 
-        // Cấu hình thuộc tính CreatedAt
+        // Thuộc tính CreatedAt
         builder.Property(c => c.CreatedAt)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnType("datetime")
+            .HasColumnName("Created_at");
 
-        // Cấu hình thuộc tính UpdatedAt
-        builder.Property(c => c.UpdatedAt);
+        // Thuộc tính UpdatedAt
+        builder.Property(c => c.UpdatedAt)
+            .IsRequired(false) // Nullable
+            .HasColumnType("datetime")
+            .HasColumnName("Updated_at");
 
-        // // Định nghĩa quan hệ một-nhiều với Product
-        // builder.HasMany<Product>() // Giả định Product là entity
-        //     .WithOne(p => p.Category) // Navigation property từ Product về Category
-        //     .HasForeignKey(p => p.CategoryId) // Khóa ngoại trong Product
-        //     .OnDelete(DeleteBehavior.Cascade); // Xóa Category sẽ xóa các Product liên quan (tùy chọn)
+        // Mối quan hệ khóa ngoại với Store
+        builder.HasOne<Store>() 
+            .WithMany()
+            .HasForeignKey(c => c.StoreId)
+            .HasConstraintName("FK_Category_Store");
     }
 }
