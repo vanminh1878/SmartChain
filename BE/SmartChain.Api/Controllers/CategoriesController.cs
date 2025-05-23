@@ -12,7 +12,6 @@ using SmartChain.Domain.Categories;
 namespace SmartChain.Api.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("stores/{storeId:guid}/categories")]
 public class CategoriesController : ApiController
 {

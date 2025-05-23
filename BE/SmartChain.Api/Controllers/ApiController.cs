@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace SmartChain.Api.Controllers;
 
 [ApiController]
-[Authorize]
+
 public class ApiController : ControllerBase
 {
     protected ActionResult Problem(List<Error> errors)
