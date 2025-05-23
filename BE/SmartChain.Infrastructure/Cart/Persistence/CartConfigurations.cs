@@ -46,13 +46,17 @@ public class CartConfigurations : IEntityTypeConfiguration<Cart>
             .HasColumnType("datetime")
             .HasColumnName("Updated_at");
 
+        // Thêm chỉ mục duy nhất trên CustomerId
+        builder.HasIndex(c => c.CustomerId)
+            .IsUnique()
+            .HasDatabaseName("IX_Cart_CustomerId_Unique");
+
         // Mối quan hệ khóa ngoại với Customer
         builder.HasOne<Customer>()
-            .WithMany()
-            .HasForeignKey(c => c.CustomerId)
+            .WithOne() // Mối quan hệ một-một với Customer
+            .HasForeignKey<Cart>(c => c.CustomerId)
             .HasConstraintName("FK_Cart_Customer")
             .OnDelete(DeleteBehavior.Restrict);
-            
 
         // Mối quan hệ khóa ngoại với Store
         builder.HasOne<Store>()
