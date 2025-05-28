@@ -6,6 +6,7 @@ using SmartChain.Application.Roles.Commands.CreateRole;
 using SmartChain.Application.Roles.Commands.DeleteRole;
 using SmartChain.Application.Roles.Commands.UpdateRole;
 using SmartChain.Application.Roles.Queries.GetRole;
+using SmartChain.Application.Roles.Queries.GetRoleById;
 using SmartChain.Contracts.Roles;
 using SmartChain.Domain.Role;
 
@@ -59,9 +60,9 @@ public class RolesController : ApiController
     }
 
     [HttpGet("{roleId:guid}")]
-    public async Task<IActionResult> GetRole(Guid roleId)
+    public async Task<IActionResult> GetRoleById(Guid roleId)
     {
-        var query = new GetRoleQuery(roleId);
+        var query = new GetRoleByIdQuery(roleId);
         var result = await _mediator.Send(query);
 
         return result.Match(
@@ -69,6 +70,16 @@ public class RolesController : ApiController
             Problem);
     }
 
+     [HttpGet("")]
+    public async Task<IActionResult> GetRole()
+    {
+        var query = new GetRoleQuery();
+        var result = await _mediator.Send(query);
+
+        return result.Match(
+            roles => Ok(roles.Select(ToDto).ToList()),
+            Problem);
+    }
 
 
     private RoleResponse ToDto(Role role) =>

@@ -5,7 +5,7 @@ using SmartChain.Domain.Role;
 
 namespace SmartChain.Application.Roles.Queries.GetRole;
 
-public class GetRoleQueryHandler : IRequestHandler<GetRoleQuery, ErrorOr<Role>>
+public class GetRoleQueryHandler : IRequestHandler<GetRoleQuery, ErrorOr<List<Role>>>
 {
     private readonly IRolesRepository _rolesRepository;
 
@@ -14,9 +14,9 @@ public class GetRoleQueryHandler : IRequestHandler<GetRoleQuery, ErrorOr<Role>>
         _rolesRepository = rolesRepository;
     }
 
-    public async Task<ErrorOr<Role>> Handle(GetRoleQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<List<Role>>> Handle(GetRoleQuery request, CancellationToken cancellationToken)
     {
-        var role = await _rolesRepository.GetByIdAsync(request.RoleId, cancellationToken);
+        var role = await _rolesRepository.ListAllAsync(cancellationToken);
         if (role is null)
         {
             return Error.NotFound(description: "Role not found.");
