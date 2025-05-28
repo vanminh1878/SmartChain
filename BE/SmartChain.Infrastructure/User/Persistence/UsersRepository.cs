@@ -23,6 +23,11 @@ public class UsersRepository : IUsersRepository
         await _context.Users.AddAsync(user, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }
+        public async Task<List<User>> ListAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Users
+            .ToListAsync(cancellationToken);
+    }
 
     public async Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken)
     {

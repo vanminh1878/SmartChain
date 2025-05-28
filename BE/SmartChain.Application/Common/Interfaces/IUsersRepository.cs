@@ -13,6 +13,7 @@ public interface IUsersRepository
     Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken);
     Task<User?> GetByAccountIdAsync(Guid accountId, CancellationToken cancellationToken);
     Task<List<User>> ListByRoleIdAsync(Guid roleId, CancellationToken cancellationToken);
+    Task<List<User>> ListAllAsync(CancellationToken cancellationToken);
     Task RemoveAsync(User user, CancellationToken cancellationToken);
     Task RemoveRangeAsync(List<User> users, CancellationToken cancellationToken);
     Task UpdateAsync(User user, CancellationToken cancellationToken);
