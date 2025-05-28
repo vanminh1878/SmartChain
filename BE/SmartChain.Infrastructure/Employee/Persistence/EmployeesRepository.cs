@@ -34,6 +34,11 @@ public class EmployeesRepository : IEmployeesRepository
         return await _context.Employees
             .FirstOrDefaultAsync(e => e.UserId == userId, cancellationToken);
     }
+        public async Task<List<Employee>> ListAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Employees
+            .ToListAsync(cancellationToken);
+    }
 
     public async Task<List<Employee>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken)
     {
