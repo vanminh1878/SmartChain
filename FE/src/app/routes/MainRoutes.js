@@ -14,7 +14,7 @@ import LayoutStaff from "../layouts/staffLayout";
 // Placeholder components (cần tạo sau)
 import StoreManagement from "../pages/Admin/StoreManagement";
 import ReportManagement from "../pages/Admin/CategoryManagement";
-import EmployeeManagement from "../pages/Admin/CategoryManagement";
+import EmployeeManagement from "../pages/Admin/EmployeeManagement";
 import InventoryManagement from "../pages/Admin/CategoryManagement";
 import SupplierManagement from "../pages/Admin/CategoryManagement";
 import CustomerManagement from "../pages/Admin/CategoryManagement";
