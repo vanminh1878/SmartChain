@@ -12,7 +12,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import MedicalExamList from "../pages/Customer/Service/MedicalExamList";
 import LayoutStaff from "../layouts/staffLayout";
 // Placeholder components (cần tạo sau)
-import StoreManagement from "../pages/Admin/CategoryManagement";
+import StoreManagement from "../pages/Admin/StoreManagement";
 import ReportManagement from "../pages/Admin/CategoryManagement";
 import EmployeeManagement from "../pages/Admin/CategoryManagement";
 import InventoryManagement from "../pages/Admin/CategoryManagement";

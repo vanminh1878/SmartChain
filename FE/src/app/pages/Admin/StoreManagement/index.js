@@ -3,31 +3,31 @@ import { fetchGet, fetchPut } from "../../../lib/httpHandler";
 import { IoIosSearch } from "react-icons/io";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./CategoryManagement.css";
-// import AddCategory from "../../../components/Admin/DiseaseGroupManagement/DeleteDiseaseGroup/DeleteDiseaseGroup";
-// import EditCategory from "../../../components/Admin/DiseaseGroupManagement/DeleteDiseaseGroup/DeleteDiseaseGroup";
-// import LockCategory from "../../../components/Admin/DiseaseGroupManagement/DeleteDiseaseGroup/DeleteDiseaseGroup";
+import "./StoreManagement.css";
+// import AddStore from "../../../components/Admin/StoreManagement/AddStore/AddStore";
+// import EditStore from "../../../components/Admin/StoreManagement/EditStore/EditStore";
+// import LockStore from "../../../components/Admin/StoreManagement/LockStore/LockStore";
 
-export default function CategoryManagement() {
-  const [listCategories, setListCategories] = useState([]);
-  const [listCategoriesShow, setListCategoriesShow] = useState([]);
+export default function StoreManagement() {
+  const [listStores, setListStores] = useState([]);
+  const [listStoresShow, setListStoresShow] = useState([]);
   const [dataSearch, setDataSearch] = useState("");
 
-  // Lấy danh sách danh mục từ backend
+  // Lấy danh sách cửa hàng từ backend
   useEffect(() => {
-    const uri = "/api/admin/categories";
+    const uri = "/api/admin/stores";
     fetchGet(
       uri,
       (sus) => {
-        console.log("Dữ liệu danh mục từ BE:", sus);
-        setListCategories(sus.data.items);
-        setListCategoriesShow(sus.data.items); // Khởi tạo danh sách hiển thị
+        console.log("Dữ liệu cửa hàng từ BE:", sus);
+        setListStores(sus.data.items);
+        setListStoresShow(sus.data.items); // Khởi tạo danh sách hiển thị
       },
       (fail) => {
         toast.error(fail.message);
       },
       () => {
-        toast.error("Có lỗi xảy ra khi lấy danh sách danh mục");
+        toast.error("Có lỗi xảy ra khi lấy danh sách cửa hàng");
       }
     );
   }, []);
@@ -39,42 +39,42 @@ export default function CategoryManagement() {
     applySearch(value);
   };
 
-  // Lọc danh sách danh mục theo từ khóa tìm kiếm
+  // Lọc danh sách cửa hàng theo từ khóa tìm kiếm
   const applySearch = (searchValue) => {
-    let filteredList = [...listCategories];
+    let filteredList = [...listStores];
     if (searchValue.trim()) {
       const lowercasedSearch = searchValue.toLowerCase();
       filteredList = filteredList.filter((item) =>
-        item.tenDanhMuc.toLowerCase().includes(lowercasedSearch)
+        item.tenCuaHang.toLowerCase().includes(lowercasedSearch)
       );
     }
-    setListCategoriesShow(filteredList);
+    setListStoresShow(filteredList);
   };
 
-  // Cập nhật danh sách hiển thị khi danh sách danh mục hoặc từ khóa tìm kiếm thay đổi
+  // Cập nhật danh sách hiển thị khi danh sách cửa hàng hoặc từ khóa tìm kiếm thay đổi
   useEffect(() => {
     applySearch(dataSearch);
-  }, [listCategories, dataSearch]);
+  }, [listStores, dataSearch]);
 
-  // Xử lý khóa danh mục
-  const handleLockCategory = (categoryId, isLocked) => {
-    const uri = `/api/admin/categories/${categoryId}/lock`;
+  // Xử lý khóa cửa hàng
+  const handleLockStore = (storeId, isLocked) => {
+    const uri = `/api/admin/stores/${storeId}/lock`;
     fetchPut(
       uri,
       { isLocked: !isLocked }, // Đảo trạng thái khóa
       (sus) => {
-        setListCategories((prev) =>
+        setListStores((prev) =>
           prev.map((item) =>
-            item._id === categoryId ? { ...item, isLocked: !isLocked } : item
+            item._id === storeId ? { ...item, isLocked: !isLocked } : item
           )
         );
-        toast.success(`Danh mục đã được ${isLocked ? "mở khóa" : "khóa"} thành công!`);
+        toast.success(`Cửa hàng đã được ${isLocked ? "mở khóa" : "khóa"} thành công!`);
       },
       (fail) => {
         toast.error(fail.message);
       },
       () => {
-        toast.error("Có lỗi xảy ra khi khóa/mở khóa danh mục");
+        toast.error("Có lỗi xảy ra khi khóa/mở khóa cửa hàng");
       }
     );
   };
@@ -82,9 +82,9 @@ export default function CategoryManagement() {
   return (
     <>
       <ToastContainer />
-      <div className="category-management">
+      <div className="store-management">
         <div className="title py-3 fs-5 mb-2">
-          Số lượng danh mục: {listCategoriesShow.length}
+          Số lượng cửa hàng: {listStoresShow.length}
         </div>
         <div className="row mx-0 my-0">
           <div className="col-12 pb-4 px-0 d-flex justify-content-between align-items-center mb-2">
@@ -94,14 +94,14 @@ export default function CategoryManagement() {
                   onChange={handleSearch}
                   value={dataSearch}
                   className="search rounded-2 px-3"
-                  placeholder="Nhập tên danh mục muốn tìm"
+                  placeholder="Nhập tên cửa hàng muốn tìm"
                 />
                 <IoIosSearch className="icon_search translate-middle-y text-secondary" />
               </div>
             </div>
-            {/* <AddCategory
-              setListCategories={setListCategories}
-              listCategories={listCategories}
+            {/* <AddStore
+              setListStores={setListStores}
+              listStores={listStores}
             /> */}
           </div>
           <div className="contain_Table mx-0 col-12 bg-white rounded-2">
@@ -109,28 +109,28 @@ export default function CategoryManagement() {
               <thead>
                 <tr>
                   <th>STT</th>
-                  <th>Tên danh mục</th>
+                  <th>Tên cửa hàng</th>
                   <th>Trạng thái</th>
                   <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                {listCategoriesShow && listCategoriesShow.length > 0 ? (
-                  listCategoriesShow.map((item, index) => (
+                {listStoresShow && listStoresShow.length > 0 ? (
+                  listStoresShow.map((item, index) => (
                     <tr key={item._id}>
                       <td>{index + 1}</td>
-                      <td>{item.tenDanhMuc}</td>
+                      <td>{item.tenCuaHang}</td>
                       <td>{item.isLocked ? "Khóa" : "Hoạt động"}</td>
                       <td>
                         <div className="list_Action">
-                          {/* <EditCategory
+                          {/* <EditStore
                             item={item}
-                            setListCategories={setListCategories}
-                            listCategories={listCategories}
+                            setListStores={setListStores}
+                            listStores={listStores}
                           />
-                          <LockCategory
+                          <LockStore
                             item={item}
-                            handleLockCategory={handleLockCategory}
+                            handleLockStore={handleLockStore}
                           /> */}
                         </div>
                       </td>
@@ -139,7 +139,7 @@ export default function CategoryManagement() {
                 ) : (
                   <tr>
                     <td colSpan="4" className="text-center">
-                      Không có danh mục nào
+                      Không có cửa hàng nào
                     </td>
                   </tr>
                 )}
