@@ -1,0 +1,35 @@
+.category-management {
+  padding: 20px;
+}
+
+.contain_Search {
+  position: relative;
+}
+
+.search {
+  width: 100%;
+  padding: 8px 30px 8px 10px;
+  border: 1px solid #ccc;
+}
+
+.icon_search {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.contain_Table {
+  padding: 15px;
+}
+
+.list_Action {
+  display: flex;
+  gap: 10px;
+}
+
+.contain_pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}

@@ -15,7 +15,7 @@ import LayoutStaff from "../layouts/staffLayout";
 import StoreManagement from "../pages/Admin/StoreManagement";
 import ReportManagement from "../pages/Admin/CategoryManagement";
 import EmployeeManagement from "../pages/Admin/EmployeeManagement";
-import InventoryManagement from "../pages/Admin/CategoryManagement";
+import InventoryManagement from "../pages/Admin/InventoryManagement";
 import SupplierManagement from "../pages/Admin/CategoryManagement";
 import CustomerManagement from "../pages/Admin/CategoryManagement";
 import CartManagement from "../pages/Admin/CategoryManagement";
