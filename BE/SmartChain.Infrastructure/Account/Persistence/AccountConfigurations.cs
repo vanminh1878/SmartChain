@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SmartChain.Domain.Account;
 using SmartChain.Domain.Account; // Giả sử bạn có namespace này cho entity Account
 
 namespace SmartChain.Infrastructure.Persistence.Configurations;

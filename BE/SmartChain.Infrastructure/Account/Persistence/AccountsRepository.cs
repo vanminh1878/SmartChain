@@ -42,6 +42,11 @@ public class AccountsRepository : IAccountsRepository
             .Where(a => a.Status == status)
             .ToListAsync(cancellationToken);
     }
+    public async Task<List<Account>> ListAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Accounts
+            .ToListAsync(cancellationToken);
+    }
 
     public async Task RemoveAsync(Account account, CancellationToken cancellationToken)
     {
