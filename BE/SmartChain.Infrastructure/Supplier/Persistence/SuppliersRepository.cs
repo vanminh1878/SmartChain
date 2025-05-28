@@ -35,6 +35,11 @@ public class SuppliersRepository : ISuppliersRepository
         return await _context.Suppliers
             .FirstOrDefaultAsync(s => s.Email == email, cancellationToken);
     }
+    public async Task<List<Supplier>> ListAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Suppliers
+            .ToListAsync(cancellationToken);
+    }
 
     public async Task<List<Supplier>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken)
     {
