@@ -17,7 +17,7 @@ import ReportManagement from "../pages/Admin/CategoryManagement";
 import EmployeeManagement from "../pages/Admin/EmployeeManagement";
 import InventoryManagement from "../pages/Admin/InventoryManagement";
 import SupplierManagement from "../pages/Admin/SupplierManagement";
-import CustomerManagement from "../pages/Admin/CategoryManagement";
+import CustomerManagement from "../pages/Admin/CustomerManagement";
 import CartManagement from "../pages/Admin/CategoryManagement";
 import OrderManagement from "../pages/Admin/CategoryManagement";
 import AccountManagement from "../pages/Admin/CategoryManagement";
