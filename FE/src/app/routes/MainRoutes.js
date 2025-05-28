@@ -20,7 +20,7 @@ import SupplierManagement from "../pages/Admin/SupplierManagement";
 import CustomerManagement from "../pages/Admin/CustomerManagement";
 import CartManagement from "../pages/Admin/CartManagement";
 import OrderManagement from "../pages/Admin/OrderManagement";
-import AccountManagement from "../pages/Admin/CategoryManagement";
+import AccountManagement from "../pages/Admin/AccountManagement";
 
 export default function MainRoutes() {
   return (
