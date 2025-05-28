@@ -36,6 +36,11 @@ public class StoresRepository : IStoresRepository
         return await _context.Stores
             .FirstOrDefaultAsync(s => s.Email == email, cancellationToken);
     }
+        public async Task<List<Store>> ListAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Stores
+            .ToListAsync(cancellationToken);
+    }
 
     public async Task<List<Store>> ListByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken)
     {
