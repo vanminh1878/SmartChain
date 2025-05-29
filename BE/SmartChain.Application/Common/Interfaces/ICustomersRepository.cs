@@ -11,6 +11,7 @@ public interface ICustomersRepository
     Task AddAsync(Customer customer, CancellationToken cancellationToken);
     Task<Customer?> GetByIdAsync(Guid customerId, CancellationToken cancellationToken);
     Task<Customer?> GetByEmailAsync(string email, CancellationToken cancellationToken);
+    Task<List<Customer>> ListAllAsync(CancellationToken cancellationToken);
     Task<List<Customer>> ListByStatusAsync(bool status, CancellationToken cancellationToken);
     Task RemoveAsync(Customer customer, CancellationToken cancellationToken);
     Task RemoveRangeAsync(List<Customer> customers, CancellationToken cancellationToken);
