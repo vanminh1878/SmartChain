@@ -40,8 +40,12 @@ public class Schedule : Entity
         _domainEvents.Add(new ScheduleCreatedEvent(id ?? Guid.NewGuid(), employeeId, startTime, endTime));
     }
 
-    public ErrorOr<Success> Update(DateTime startTime, DateTime endTime)
+    public ErrorOr<Success> Update(Guid employeeId,DateTime startTime, DateTime endTime)
     {
+        if (employeeId == Guid.Empty)
+        {
+            return Error.Failure("EmployeeId cannot be empty");
+        }
         if (startTime == DateTime.MinValue)
         {
             return Error.Failure("Start time cannot be empty or invalid.");
@@ -58,8 +62,29 @@ public class Schedule : Entity
         StartTime = startTime;
         EndTime = endTime;
         UpdatedAt = DateTime.UtcNow;
+        EmployeeId = employeeId;
         _domainEvents.Add(new ScheduleUpdatedEvent(Id, EmployeeId, startTime, endTime));
         return Result.Success;
     }
-    private Schedule() {}
+
+    public ErrorOr<Success> Delete(Guid scheduleId)
+    {
+        if (scheduleId == Guid.Empty)
+        {
+            return Error.Failure("ScheduleId cannot be empty");
+        }
+        
+        if (scheduleId != Id)
+        {
+            return Error.Failure("Invalid schedule ID");
+        }
+
+        // Đánh dấu lịch đã bị xóa (soft delete)
+        UpdatedAt = DateTime.UtcNow;
+        _domainEvents.Add(new ScheduleDeletedEvent(Id, EmployeeId));
+        
+        return Result.Success;
+    }
+
+    private Schedule() { }
 }

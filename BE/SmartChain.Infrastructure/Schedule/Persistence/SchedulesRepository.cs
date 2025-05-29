@@ -43,7 +43,11 @@ public class SchedulesRepository : ISchedulesRepository
             .Where(s => s.StartTime >= startDate && s.EndTime <= endDate)
             .ToListAsync(cancellationToken);
     }
-
+    public async Task<List<Schedule>> ListAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Schedules
+            .ToListAsync(cancellationToken);
+    }
     public async Task RemoveAsync(Schedule schedule, CancellationToken cancellationToken)
     {
         _context.Schedules.Remove(schedule);
