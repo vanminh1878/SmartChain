@@ -66,11 +66,11 @@ public class Account : Entity
         return Result.Success;
     }
 
-    public ErrorOr<Success> UpdateStatus(bool newStatus)
+    public ErrorOr<Success> UpdateStatus()
     {
-        Status = newStatus;
+        Status = !Status;
         UpdatedAt = DateTime.UtcNow;
-        _domainEvents.Add(new AccountStatusUpdatedEvent(Id, newStatus));
+        _domainEvents.Add(new AccountStatusUpdatedEvent(Id));
         return Result.Success;
     }
     private Account() {}

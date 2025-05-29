@@ -36,6 +36,7 @@ builder.Services.AddScoped<IProductsRepository, ProductsRepository>();
 builder.Services.AddScoped<ICartsRepository, CartsRepository>();
 builder.Services.AddScoped<ICartDetailsRepository, CartDetailsRepository>();
 builder.Services.AddScoped<IAccountsRepository, AccountsRepository>();
+builder.Services.AddScoped<ICustomersRepository, CustomersRepository>();
 
 // Đăng ký IHttpContextAccessor
 builder.Services.AddHttpContextAccessor();

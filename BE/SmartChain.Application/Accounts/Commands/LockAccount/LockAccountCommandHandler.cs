@@ -22,7 +22,7 @@ public class LockAccountCommandHandler : IRequestHandler<LockAccountCommand, Err
             return Error.NotFound(description: "Account not found.");
         }
 
-        var result = Account.UpdateStatus(request.NewStatus);
+        var result = Account.UpdateStatus();
         if (result.IsError)
         {
             return result.Errors;
