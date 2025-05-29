@@ -4,6 +4,8 @@ using System.Linq;
 using ErrorOr;
 using SmartChain.Domain.Common;
 using SmartChain.Domain.Cart.Events;
+using SmartChain.Domain.Order;
+using SmartChain.Domain.Order.Events;
 
 namespace SmartChain.Domain.Cart;
 
@@ -108,5 +110,40 @@ public class Cart : Entity
         decimal total = _cartDetails.Sum(cd => cd.Quantity * cd.UnitPrice);
         return total;
     }
-    private Cart() {}
+     public ErrorOr<Order.Order> ConvertSelectedToOrder(List<Guid> productIds, bool removeFromCart = true)
+    {
+        if (productIds == null || !productIds.Any())
+        {
+            return Error.Failure("No products selected for order");
+        }
+
+        var selectedDetails = _cartDetails.Where(cd => productIds.Contains(cd.ProductId)).ToList();
+        if (!selectedDetails.Any())
+        {
+            return Error.NotFound("None of the selected products found in cart");
+        }
+
+        var order = new Order.Order(CustomerId, StoreId);
+        foreach (var detail in selectedDetails)
+        {
+            var result = order.AddOrderDetail(detail.ProductId, detail.Quantity, detail.UnitPrice);
+            if (result.IsError)
+            {
+                return ErrorOr<Order.Order>.From(result.Errors); // Trả về lỗi nếu thêm chi tiết đơn hàng thất bại
+            }
+        }
+
+        if (removeFromCart)
+        {
+            foreach (var detail in selectedDetails)
+            {
+                _cartDetails.Remove(detail);
+            }
+            UpdatedAt = DateTime.UtcNow;
+            _domainEvents.Add(new CartUpdatedEvent(Id, Guid.Empty, 0, 0));
+        }
+
+        return order;
+    }
+    private Cart() { }
 }

@@ -43,7 +43,7 @@ public class CartDetail : Entity
             return Error.Failure("Quantity must be greater than zero.");
         }
 
-        Quantity = newQuantity;
+        Quantity += newQuantity;
         UpdatedAt = DateTime.UtcNow;
 
         _domainEvents.Add(new CartDetailUpdatedEvent(Id, ProductId, newQuantity, UnitPrice));
