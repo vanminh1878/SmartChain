@@ -29,7 +29,11 @@ public class ProductsRepository : IProductsRepository
         return await _context.Products
             .FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
     }
-
+    public async Task<List<Product>> ListAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Products
+            .ToListAsync(cancellationToken);
+    } 
     public async Task<List<Product>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken)
     {
         return await _context.Products
