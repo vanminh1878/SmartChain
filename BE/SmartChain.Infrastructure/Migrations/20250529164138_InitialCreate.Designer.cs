@@ -12,7 +12,7 @@ using SmartChain.Infrastructure.Common.Persistence;
 namespace SmartChain.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250529163738_InitialCreate")]
+    [Migration("20250529164138_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -183,7 +183,7 @@ namespace SmartChain.Infrastructure.Migrations
 
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Store_id");
+                        .HasColumnName("Account_id");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -812,12 +812,12 @@ namespace SmartChain.Infrastructure.Migrations
 
             modelBuilder.Entity("SmartChain.Domain.Customer.Customer", b =>
                 {
-                    b.HasOne("SmartChain.Domain.Store.Store", null)
+                    b.HasOne("SmartChain.Domain.Account.Account", null)
                         .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_Customer_Store");
+                        .HasConstraintName("FK_Customer_Account");
                 });
 
             modelBuilder.Entity("SmartChain.Domain.Employee.Employee", b =>

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartChain.Domain.Customer;
-using SmartChain.Domain.Store;
+using SmartChain.Domain.Account;
 
 namespace SmartChain.Infrastructure.Persistence.Configurations;
 
@@ -55,7 +55,7 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
         // Thuộc tính AccountId (Guid)
         builder.Property(c => c.AccountId)
             .IsRequired()
-            .HasColumnName("Store_id")
+            .HasColumnName("Account_id")
             .HasColumnType("uniqueidentifier");
 
         // Thuộc tính CreatedAt
@@ -71,9 +71,9 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
             .HasColumnName("Updated_at");
 
         // Mối quan hệ khóa ngoại với Account
-        builder.HasOne<Store>()
+        builder.HasOne<Account>()
             .WithMany()
             .HasForeignKey(c => c.AccountId)
-            .HasConstraintName("FK_Customer_Store");
+            .HasConstraintName("FK_Customer_Account");
     }
 }
