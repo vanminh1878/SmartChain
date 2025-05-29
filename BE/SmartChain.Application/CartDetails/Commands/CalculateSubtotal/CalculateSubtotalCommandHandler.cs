@@ -1,7 +1,7 @@
 using ErrorOr;
 using MediatR;
 using SmartChain.Application.Common.Interfaces;
-using SmartChain.Application.Products.Commands.CalculateSubtotal;
+using SmartChain.Application.CartDetails.Commands.CalculateSubtotal;
 using SmartChain.Domain.Cart;
 
 namespace SmartChain.Application.Carts.Commands.CalculateSubtotal;
@@ -17,10 +17,10 @@ public class CalculateSubtotalCommandHandler : IRequestHandler<CalculateSubtotal
 
     public async Task<ErrorOr<decimal>> Handle(CalculateSubtotalCommand request, CancellationToken cancellationToken)
     {
-        var cartDetail = await _CartDetailRepository.GetByIdAsync(request.CartId, cancellationToken);
+        var cartDetail = await _CartDetailRepository.GetByIdAsync(request.CartDetailId, cancellationToken);
         if (cartDetail is null)
         {
-            return Error.NotFound(description: "Cart not found.");
+            return Error.NotFound(description: "Cart Detail not found.");
         }
 
         var result = cartDetail.CalculateSubtotal();

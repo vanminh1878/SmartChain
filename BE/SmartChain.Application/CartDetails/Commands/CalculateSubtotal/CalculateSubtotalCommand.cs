@@ -1,6 +1,6 @@
 using ErrorOr;
 using MediatR;
 
-namespace SmartChain.Application.Products.Commands.CalculateSubtotal;
+namespace SmartChain.Application.CartDetails.Commands.CalculateSubtotal;
 
-public record CalculateSubtotalCommand(Guid CartId) : IRequest<ErrorOr<decimal>>;
+public record CalculateSubtotalCommand(Guid CartDetailId) : IRequest<ErrorOr<decimal>>;
