@@ -26,7 +26,7 @@ public class ConvertSelectedToOrderCommandHandler : IRequestHandler<ConvertSelec
         var result = cart.ConvertSelectedToOrder(request.ProductIds, removeFromCart: true);
         if (result.IsError)
         {
-            return result.Errors; // Errors đã được chuyển đổi đúng trong ConvertSelectedToOrder
+            return result.Errors; 
         }
 
         var order = result.Value;

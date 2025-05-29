@@ -129,7 +129,7 @@ public class Cart : Entity
             var result = order.AddOrderDetail(detail.ProductId, detail.Quantity, detail.UnitPrice);
             if (result.IsError)
             {
-                return ErrorOr<Order.Order>.From(result.Errors); // Trả về lỗi nếu thêm chi tiết đơn hàng thất bại
+                return ErrorOr<Order.Order>.From(result.Errors); 
             }
         }
 
