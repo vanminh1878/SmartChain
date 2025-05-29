@@ -1,4 +1,6 @@
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -19,80 +21,113 @@ using SmartChain.Domain.Supplier;
 using SmartChain.Domain.User;
 using SmartChain.Infrastructure.Common.Middleware;
 
-namespace SmartChain.Infrastructure.Common.Persistence;
-
-public class AppDbContext : DbContext
+namespace SmartChain.Infrastructure.Common.Persistence
 {
-    private readonly IHttpContextAccessor? _httpContextAccessor;
-    private readonly IPublisher? _publisher;
-
-    public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor? httpContextAccessor = null, IPublisher? publisher = null) 
-        : base(options)
+    public class AppDbContext : DbContext
     {
-        _httpContextAccessor = httpContextAccessor;
-        _publisher = publisher;
-    }
+        private readonly IHttpContextAccessor? _httpContextAccessor;
+        private readonly IPublisher? _publisher;
 
-    public DbSet<Role> Roles { get; set; } = null!;
-    public DbSet<User> Users { get; set; } = null!;
-    public DbSet<Account> Accounts { get; set; } = null!;
-    public DbSet<Store> Stores { get; set; } = null!;
-    public DbSet<Category> Categories { get; set; } = null!;
-    public DbSet<Employee> Employees { get; set; } = null!;
-    public DbSet<Schedule> Schedules { get; set; } = null!;
-    public DbSet<Supplier> Suppliers { get; set; } = null!;
-    public DbSet<Customer> Customers { get; set; } = null!;
-    public DbSet<Product> Products { get; set; } = null!;
-    public DbSet<StockIntake> StockIntakes { get; set; } = null!;
-    public DbSet<StockIntakeDetail> StockIntakeDetails { get; set; } = null!;
-    public DbSet<Cart> Carts { get; set; } = null!;
-    public DbSet<CartDetail> CartDetails { get; set; } = null!;
-    public DbSet<Order> Orders { get; set; } = null!;
-    public DbSet<OrderDetail> OrderDetails { get; set; } = null!;
-    public DbSet<Report> Reports { get; set; } = null!;
-
-    private async Task PublishDomainEvents(List<IDomainEvent> domainEvents)
-    {
-        if (_publisher == null) return;
-        foreach (var domainEvent in domainEvents)
+        // Constructor dùng cho runtime với DI (Dependency Injection)
+        public AppDbContext(
+            DbContextOptions<AppDbContext> options,
+            IHttpContextAccessor? httpContextAccessor = null,
+            IPublisher? publisher = null)
+            : base(options)
         {
-            await _publisher.Publish(domainEvent);
+            _httpContextAccessor = httpContextAccessor;
+            _publisher = publisher;
         }
-    }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-        base.OnModelCreating(modelBuilder);
-    }
-
-    private bool IsUserWaitingOnline() => _httpContextAccessor?.HttpContext is not null;
-
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        var domainEvents = ChangeTracker.Entries<Entity>()
-            .SelectMany(entry => entry.Entity.PopDomainEvents())
-            .ToList();
-
-        if (IsUserWaitingOnline())
+        // Constructor dùng cho design-time (EF Core migrations)
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+            : base(options)
         {
-            AddDomainEventsToOfflineProcessingQueue(domainEvents);
+        }
+
+        // DbSet cho các entity
+        public DbSet<Role> Roles { get; set; } = null!;
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Account> Accounts { get; set; } = null!;
+        public DbSet<Store> Stores { get; set; } = null!;
+        public DbSet<Category> Categories { get; set; } = null!;
+        public DbSet<Employee> Employees { get; set; } = null!;
+        public DbSet<Schedule> Schedules { get; set; } = null!;
+        public DbSet<Supplier> Suppliers { get; set; } = null!;
+        public DbSet<Customer> Customers { get; set; } = null!;
+        public DbSet<Product> Products { get; set; } = null!;
+        public DbSet<StockIntake> StockIntakes { get; set; } = null!;
+        public DbSet<StockIntakeDetail> StockIntakeDetails { get; set; } = null!;
+        public DbSet<Cart> Carts { get; set; } = null!;
+        public DbSet<CartDetail> CartDetails { get; set; } = null!;
+        public DbSet<Order> Orders { get; set; } = null!;
+        public DbSet<OrderDetail> OrderDetails { get; set; } = null!;
+        public DbSet<Report> Reports { get; set; } = null!;
+
+        // Áp dụng cấu hình entity từ các file configuration trong assembly
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+            base.OnModelCreating(modelBuilder);
+        }
+
+        // Kiểm tra xem có đang xử lý request HTTP không
+        private bool IsUserWaitingOnline() => _httpContextAccessor?.HttpContext is not null;
+
+        // Ghi đè SaveChangesAsync để xử lý domain events
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            // Lấy danh sách domain events từ các entity
+            var domainEvents = ChangeTracker.Entries<Entity>()
+                .SelectMany(entry => entry.Entity.PopDomainEvents())
+                .ToList();
+
+            if (IsUserWaitingOnline())
+            {
+                // Thêm domain events vào queue để xử lý offline nếu đang trong HTTP context
+                AddDomainEventsToOfflineProcessingQueue(domainEvents);
+            }
+            else
+            {
+                // Publish domain events trực tiếp nếu không trong HTTP context
+                await PublishDomainEvents(domainEvents);
+            }
+
+            // Lưu thay đổi vào database
             return await base.SaveChangesAsync(cancellationToken);
         }
 
-        await PublishDomainEvents(domainEvents);
-        return await base.SaveChangesAsync(cancellationToken);
-    }
+        // Publish domain events thông qua MediatR
+        private async Task PublishDomainEvents(List<IDomainEvent> domainEvents)
+        {
+            if (_publisher == null) return;
 
-    private void AddDomainEventsToOfflineProcessingQueue(List<IDomainEvent> domainEvents)
-    {
-        if (_httpContextAccessor?.HttpContext == null) return;
-        Queue<IDomainEvent> domainEventsQueue = _httpContextAccessor.HttpContext.Items.TryGetValue(EventualConsistencyMiddleware.DomainEventsKey, out var value) &&
-            value is Queue<IDomainEvent> existingDomainEvents
-                ? existingDomainEvents
-                : new();
+            foreach (var domainEvent in domainEvents)
+            {
+                await _publisher.Publish(domainEvent, cancellationToken: default);
+            }
+        }
 
-        domainEvents.ForEach(domainEventsQueue.Enqueue);
-        _httpContextAccessor.HttpContext.Items[EventualConsistencyMiddleware.DomainEventsKey] = domainEventsQueue;
+        // Thêm domain events vào queue để xử lý eventual consistency
+        private void AddDomainEventsToOfflineProcessingQueue(List<IDomainEvent> domainEvents)
+        {
+            if (_httpContextAccessor?.HttpContext == null) return;
+
+            // Lấy hoặc tạo queue domain events từ HttpContext
+            if (!_httpContextAccessor.HttpContext.Items.TryGetValue(EventualConsistencyMiddleware.DomainEventsKey, out var value) ||
+                value is not Queue<IDomainEvent> domainEventsQueue)
+            {
+                domainEventsQueue = new Queue<IDomainEvent>();
+            }
+
+            // Thêm các domain events vào queue
+            foreach (var domainEvent in domainEvents)
+            {
+                domainEventsQueue.Enqueue(domainEvent);
+            }
+
+            // Lưu queue vào HttpContext
+            _httpContextAccessor.HttpContext.Items[EventualConsistencyMiddleware.DomainEventsKey] = domainEventsQueue;
+        }
     }
 }

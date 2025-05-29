@@ -12,11 +12,11 @@ public class Customer : Entity
     public string PhoneNumber { get; private set; }
     public string Address { get; private set; }
     public bool? Status { get; private set; } // true: active, false: locked
-    public Guid StoreId { get; private set; }
+    public Guid AccountId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
-    public Customer(string fullname, string email, string phoneNumber, string address, Guid storeId, Guid? id = null) : base(id)
+    public Customer(string fullname, string email, string phoneNumber, string address, Guid accountId, Guid? id = null) : base(id)
     {
         if (string.IsNullOrEmpty(fullname))
         {
@@ -30,7 +30,7 @@ public class Customer : Entity
         {
             throw new ArgumentException("Invalid email format.");
         }
-        if (storeId == Guid.Empty)
+        if (accountId == Guid.Empty)
         {
             throw new ArgumentException("Store ID cannot be empty.");
         }
@@ -40,10 +40,10 @@ public class Customer : Entity
         PhoneNumber = phoneNumber ?? string.Empty;
         Address = address ?? string.Empty;
         Status = true; // Default: active
-        StoreId = storeId;
+        AccountId = accountId;
         CreatedAt = DateTime.UtcNow;
 
-        _domainEvents.Add(new CustomerCreatedEvent(id ?? Guid.NewGuid(), fullname, storeId));
+        _domainEvents.Add(new CustomerCreatedEvent(id ?? Guid.NewGuid(), fullname, accountId));
     }
 
     public ErrorOr<Success> Update(string fullname, string email, string phoneNumber, string address)

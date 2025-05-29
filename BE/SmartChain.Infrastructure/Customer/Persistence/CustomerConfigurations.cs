@@ -52,8 +52,8 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
             .HasColumnType("bit")
             .HasDefaultValue(true); // Mặc định: active
 
-        // Thuộc tính StoreId (Guid)
-        builder.Property(c => c.StoreId)
+        // Thuộc tính AccountId (Guid)
+        builder.Property(c => c.AccountId)
             .IsRequired()
             .HasColumnName("Store_id")
             .HasColumnType("uniqueidentifier");
@@ -70,10 +70,10 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
             .HasColumnType("datetime")
             .HasColumnName("Updated_at");
 
-        // Mối quan hệ khóa ngoại với Store
+        // Mối quan hệ khóa ngoại với Account
         builder.HasOne<Store>()
             .WithMany()
-            .HasForeignKey(c => c.StoreId)
+            .HasForeignKey(c => c.AccountId)
             .HasConstraintName("FK_Customer_Store");
     }
 }

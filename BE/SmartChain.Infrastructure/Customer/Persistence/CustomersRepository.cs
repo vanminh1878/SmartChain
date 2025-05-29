@@ -36,13 +36,6 @@ public class CustomersRepository : ICustomersRepository
             .FirstOrDefaultAsync(c => c.Email == email, cancellationToken);
     }
 
-    public async Task<List<Customer>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken)
-    {
-        return await _context.Customers
-            .Where(c => c.StoreId == storeId)
-            .ToListAsync(cancellationToken);
-    }
-
     public async Task<List<Customer>> ListByStatusAsync(bool status, CancellationToken cancellationToken)
     {
         return await _context.Customers

@@ -12,8 +12,8 @@ using SmartChain.Infrastructure.Common.Persistence;
 namespace SmartChain.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250523132539_AddUniqueConstraintToCartCustomerId")]
-    partial class AddUniqueConstraintToCartCustomerId
+    [Migration("20250529163738_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -181,6 +181,10 @@ namespace SmartChain.Infrastructure.Migrations
                         .HasColumnName("Id")
                         .HasDefaultValueSql("newid()");
 
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Store_id");
+
                     b.Property<string>("Address")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -210,20 +214,16 @@ namespace SmartChain.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<Guid>("StoreId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Store_id");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime")
                         .HasColumnName("Updated_at");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AccountId");
+
                     b.HasIndex("Email")
                         .IsUnique();
-
-                    b.HasIndex("StoreId");
 
                     b.ToTable("Customer", (string)null);
                 });
@@ -814,7 +814,7 @@ namespace SmartChain.Infrastructure.Migrations
                 {
                     b.HasOne("SmartChain.Domain.Store.Store", null)
                         .WithMany()
-                        .HasForeignKey("StoreId")
+                        .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Customer_Store");

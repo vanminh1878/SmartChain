@@ -475,9 +475,10 @@ namespace SmartChain.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cart_Customer_id",
+                name: "IX_Cart_CustomerId_Unique",
                 table: "Cart",
-                column: "Customer_id");
+                column: "Customer_id",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cart_Store_id",
