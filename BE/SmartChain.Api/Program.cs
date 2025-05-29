@@ -41,6 +41,17 @@ builder.Services.AddScoped<ICustomersRepository, CustomersRepository>();
 // Đăng ký IHttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 
+// Thêm CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Thêm controllers
 builder.Services.AddControllers();
 
@@ -53,6 +64,7 @@ builder.Services.AddLogging(logging =>
 var app = builder.Build();
 
 // Cấu hình middleware
+app.UseCors("AllowReactApp"); // Sử dụng chính sách CORS
 //app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();

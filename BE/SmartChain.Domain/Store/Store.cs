@@ -26,7 +26,7 @@ public class Store : Entity
         {
             throw new ArgumentException("Email cannot be empty.");
         }
-        if (!IsValidEmail(email))
+        if (IsNotValidEmail(email))
         {
             throw new ArgumentException("Invalid email format.");
         }
@@ -56,7 +56,7 @@ public class Store : Entity
         {
             return Error.Failure("Email cannot be empty.");
         }
-        if (!IsValidEmail(email))
+        if (IsNotValidEmail(email))
         {
             return Error.Failure("Invalid email format.");
         }
@@ -79,7 +79,7 @@ public class Store : Entity
         return Result.Success;
     }
 
-    private static bool IsValidEmail(string email)
+    private static bool IsNotValidEmail(string email)
     {
         try
         {

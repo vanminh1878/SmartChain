@@ -15,19 +15,28 @@ export default function StoreManagement() {
 
   // Lấy danh sách cửa hàng từ backend
   useEffect(() => {
-    const uri = "/api/admin/stores";
+    const uri = "/Stores"; // Đúng với endpoint GET /Stores
     fetchGet(
       uri,
       (sus) => {
         console.log("Dữ liệu cửa hàng từ BE:", sus);
-        setListStores(sus.data.items);
-        setListStoresShow(sus.data.items); // Khởi tạo danh sách hiển thị
+        //const stores = Array.isArray(sus.data) ? sus.data : []; // Đảm bảo sus.data là mảng
+        const stores = Array.isArray(sus.data) ? sus.data : Array.isArray(sus.data.items) ? sus.data.items : [];
+        setListStores(stores);
+        setListStoresShow(stores);
+        // Kiểm tra cấu trúc dữ liệu trả về
+        
+        console.log("Danh sách cửa hàng:", stores);
       },
       (fail) => {
-        toast.error(fail.message);
+        toast.error(fail.message || "Lỗi khi lấy danh sách cửa hàng");
+        setListStores([]); // Đặt lại mảng rỗng nếu lỗi
+        setListStoresShow([]);
       },
       () => {
         toast.error("Có lỗi xảy ra khi lấy danh sách cửa hàng");
+        setListStores([]);
+        setListStoresShow([]);
       }
     );
   }, []);
@@ -45,7 +54,7 @@ export default function StoreManagement() {
     if (searchValue.trim()) {
       const lowercasedSearch = searchValue.toLowerCase();
       filteredList = filteredList.filter((item) =>
-        item.tenCuaHang.toLowerCase().includes(lowercasedSearch)
+        item.name?.toLowerCase().includes(lowercasedSearch)
       );
     }
     setListStoresShow(filteredList);
@@ -57,21 +66,21 @@ export default function StoreManagement() {
   }, [listStores, dataSearch]);
 
   // Xử lý khóa cửa hàng
-  const handleLockStore = (storeId, isLocked) => {
-    const uri = `/api/admin/stores/${storeId}/lock`;
+  const handleLockStore = (storeId, status) => {
+    const uri = `/Stores/${storeId}`; // Sử dụng PUT /Stores/{StoreId}
     fetchPut(
       uri,
-      { isLocked: !isLocked }, // Đảo trạng thái khóa
+      { status: !status }, // Gửi status thay vì isLocked
       (sus) => {
         setListStores((prev) =>
           prev.map((item) =>
-            item._id === storeId ? { ...item, isLocked: !isLocked } : item
+            item.id === storeId ? { ...item, status: !status } : item // Sử dụng id và status
           )
         );
-        toast.success(`Cửa hàng đã được ${isLocked ? "mở khóa" : "khóa"} thành công!`);
+        toast.success(`Cửa hàng đã được ${status ? "mở khóa" : "khóa"} thành công!`);
       },
       (fail) => {
-        toast.error(fail.message);
+        toast.error(fail.message || "Lỗi khi khóa/mở khóa cửa hàng");
       },
       () => {
         toast.error("Có lỗi xảy ra khi khóa/mở khóa cửa hàng");
@@ -84,7 +93,7 @@ export default function StoreManagement() {
       <ToastContainer />
       <div className="store-management">
         <div className="title py-3 fs-5 mb-2">
-          Số lượng cửa hàng: {listStoresShow.length}
+          Số lượng cửa hàng: {listStoresShow?.length || 0} {/* Thêm kiểm tra undefined */}
         </div>
         <div className="row mx-0 my-0">
           <div className="col-12 pb-4 px-0 d-flex justify-content-between align-items-center mb-2">
@@ -117,10 +126,10 @@ export default function StoreManagement() {
               <tbody>
                 {listStoresShow && listStoresShow.length > 0 ? (
                   listStoresShow.map((item, index) => (
-                    <tr key={item._id}>
+                    <tr key={item.id}> {/* Sử dụng item.id thay vì item._id */}
                       <td>{index + 1}</td>
-                      <td>{item.tenCuaHang}</td>
-                      <td>{item.isLocked ? "Khóa" : "Hoạt động"}</td>
+                      <td>{item.name}</td>
+                      <td>{item.status ? "Hoạt động" : "Khóa"}</td> {/* Sửa logic status */}
                       <td>
                         <div className="list_Action">
                           {/* <EditStore
