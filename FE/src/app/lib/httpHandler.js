@@ -1,4 +1,4 @@
-let BE_ENPOINT = "http://localhost:5000";
+const BE_ENPOINT = "http://localhost:5000";
 
 const HEADERS = {
   "Content-Type": "application/json",
@@ -15,19 +15,26 @@ const getHeaders = () => {
     Authorization: `Bearer ${token}`,
   };
 };
+
 const fetchGet = async (uri, onSuccess, onFail, onException) => {
   try {
     const res = await fetch(BE_ENPOINT + uri, {
       method: "GET",
       headers: getHeaders(),
     });
+
+    // Kiểm tra mã trạng thái 204 (No Content)
+    if (res.status === 204) {
+      return onSuccess({});
+    }
+
     const data = await res.json();
     if (!res.ok) {
-      onFail(data);
-      return;
+      return onFail(data);
     }
     onSuccess(data);
-  } catch {
+  } catch (error) {
+    console.error("Fetch GET error:", error.message);
     onException();
   }
 };
@@ -39,14 +46,19 @@ const fetchPost = async (uri, reqData, onSuccess, onFail, onException) => {
       headers: getHeaders(),
       body: JSON.stringify(reqData),
     });
+
+    // Kiểm tra mã trạng thái 204 (No Content)
+    if (res.status === 204) {
+      return onSuccess({ message: "Thành công" });
+    }
+
     const data = await res.json();
     if (!res.ok) {
-      onFail(data);
-      return;
+      return onFail(data);
     }
     onSuccess(data);
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.error("Fetch POST error:", error.message);
     onException();
   }
 };
@@ -56,19 +68,25 @@ const fetchDelete = async (uri, reqData, onSuccess, onFail, onException) => {
     const res = await fetch(BE_ENPOINT + uri, {
       method: "DELETE",
       headers: getHeaders(),
-      body: reqData ? JSON.stringify(reqData) : null, // Không gửi body nếu reqData là null hoặc rỗng
+      body: reqData ? JSON.stringify(reqData) : null,
     });
+
+    // Kiểm tra mã trạng thái 204 (No Content)
+    if (res.status === 204) {
+      return onSuccess({ message: "Xóa thành công" });
+    }
+
     const data = await res.json();
     if (!res.ok) {
-      onFail(data);
-      return;
+      return onFail(data);
     }
     onSuccess(data);
   } catch (error) {
-    console.error("Fetch DELETE error:", error.message); // Log lỗi chi tiết
+    console.error("Fetch DELETE error:", error.message);
     onException();
   }
 };
+
 const fetchPut = async (uri, reqData, onSuccess, onFail, onException) => {
   try {
     const options = {
@@ -79,13 +97,20 @@ const fetchPut = async (uri, reqData, onSuccess, onFail, onException) => {
       options.body = JSON.stringify(reqData);
     }
     const res = await fetch(BE_ENPOINT + uri, options);
+
+    // Kiểm tra mã trạng thái 204 (No Content)
+    if (res.status === 204) {
+      return onSuccess({ message: "Cập nhật thành công" });
+    }
+    
+
     const data = await res.json();
     if (!res.ok) {
-      onFail(data);
-      return;
+      return onFail(data);
     }
     onSuccess(data);
-  } catch {
+  } catch (error) {
+    console.error("Fetch PUT error:", error.message);
     onException();
   }
 };
@@ -96,14 +121,21 @@ const fetchUpload = async (uri, formData, onSuccess, onFail, onException) => {
       method: "POST",
       body: formData,
     });
+
+    // Kiểm tra mã trạng thái 204 (No Content)
+    if (res.status === 204) {
+      return onSuccess({ message: "Tải lên thành công" });
+    }
+
     const data = await res.json();
     if (!res.ok) {
-      onFail(data);
-      return;
+      return onFail(data);
     }
     onSuccess(data);
-  } catch {
+  } catch (error) {
+    console.error("Fetch UPLOAD error:", error.message);
     onException();
   }
 };
+
 export { fetchGet, fetchPost, fetchDelete, fetchPut, fetchUpload, BE_ENPOINT };

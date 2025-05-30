@@ -6,6 +6,7 @@ using SmartChain.Application.Stores.Commands.CreateStore;
 using SmartChain.Application.Stores.Commands.UpdateStore;
 using SmartChain.Application.Stores.Queries.GetStore;
 using SmartChain.Application.Stores.Queries.GetStoreByStatus;
+using SmartChain.Application.Stores.Queries.GetStoreById;
 using SmartChain.Contracts.Stores;
 using SmartChain.Domain.Store;
 
@@ -57,6 +58,17 @@ public class StoresController : ApiController
 
         return result.Match(
             Stores => Ok(Stores.Select(ToDto).ToList()),
+            Problem);
+    }
+    
+    [HttpGet("{storeId:guid}")]
+    public async Task<IActionResult> GetStoreById(Guid storeId)
+    {
+        var query = new GetStoreByIdQuery(storeId);
+        var result = await _mediator.Send(query);
+
+        return result.Match(
+            role => Ok(ToDto(role)),
             Problem);
     }
 

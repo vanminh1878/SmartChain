@@ -52,19 +52,15 @@ public class Store : Entity
         {
             return Error.Failure("Store name cannot be empty.");
         }
-        if (string.IsNullOrEmpty(email))
-        {
-            return Error.Failure("Email cannot be empty.");
-        }
-        if (IsNotValidEmail(email))
+        if (!string.IsNullOrEmpty(email) && IsNotValidEmail(email))
         {
             return Error.Failure("Invalid email format.");
         }
 
-        Name = name;
-        Address = address ?? string.Empty;
-        PhoneNumber = phoneNumber ?? string.Empty;
-        Email = email;
+        Name = name != null ? name : Name; //
+        Address = address != null ? address : Address;
+        PhoneNumber = phoneNumber != null ? phoneNumber : PhoneNumber;
+        Email = email != null ? email : Email; //
         UpdatedAt = DateTime.UtcNow;
 
         _domainEvents.Add(new StoreUpdatedEvent(Id, name));
