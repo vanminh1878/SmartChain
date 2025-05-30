@@ -26,10 +26,7 @@ public class Store : Entity
         {
             throw new ArgumentException("Email cannot be empty.");
         }
-        if (IsNotValidEmail(email))
-        {
-            throw new ArgumentException("Invalid email format.");
-        }
+
         if (ownerId == Guid.Empty)
         {
             throw new ArgumentException("Owner ID cannot be empty.");
@@ -52,10 +49,7 @@ public class Store : Entity
         {
             return Error.Failure("Store name cannot be empty.");
         }
-        if (!string.IsNullOrEmpty(email) && IsNotValidEmail(email))
-        {
-            return Error.Failure("Invalid email format.");
-        }
+
 
         Name = name != null ? name : Name; //
         Address = address != null ? address : Address;
@@ -75,17 +69,6 @@ public class Store : Entity
         return Result.Success;
     }
 
-    private static bool IsNotValidEmail(string email)
-    {
-        try
-        {
-            var addr = new System.Net.Mail.MailAddress(email);
-            return addr.Address == email;
-        }
-        catch
-        {
-            return false;
-        }
-    }
+  
     private Store() {}
 }

@@ -9,6 +9,7 @@ using SmartChain.Application.Stores.Queries.GetStoreByStatus;
 using SmartChain.Application.Stores.Queries.GetStoreById;
 using SmartChain.Contracts.Stores;
 using SmartChain.Domain.Store;
+using SmartChain.Application.Stores.Commands.LockStore;
 
 namespace SmartChain.Api.Controllers;
 
@@ -41,14 +42,24 @@ public class StoresController : ApiController
     [HttpPut("{StoreId:guid}")]
     public async Task<IActionResult> UpdateStore(Guid StoreId, UpdateStoreRequest request)
     {
-        var command = new UpdateStoreCommand(StoreId, request.name, request.email, request.phoneNumber, request.address);
+        var command = new UpdateStoreCommand(StoreId, request.name, request.address, request.phoneNumber, request.email);
         var result = await _mediator.Send(command);
 
         return result.Match(
             _ => NoContent(),
             Problem);
     }
+    
+    [HttpPut("lock/{StoreId:guid}")]
+    public async Task<IActionResult> LockStore(Guid StoreId, bool newStatus)
+    {
+        var command = new LockStoreCommand(StoreId, newStatus);
+        var result = await _mediator.Send(command);
 
+        return result.Match(
+            _ => NoContent(),
+            Problem);
+    }
 
     [HttpGet("ByStatus")]
     public async Task<IActionResult> GetStoreById(bool status)

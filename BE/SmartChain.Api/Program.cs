@@ -1,4 +1,6 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SmartChain.Application.Categories.Commands.CreateCategory;
@@ -6,6 +8,7 @@ using SmartChain.Application.Common.Interfaces;
 using SmartChain.Infrastructure;
 using SmartChain.Infrastructure.Common.Persistence;
 using SmartChain.Infrastructure.Persistence.Repositories;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +57,7 @@ builder.Services.AddCors(options =>
 
 // Thêm controllers
 builder.Services.AddControllers();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 builder.Services.AddLogging(logging =>
 {
@@ -63,8 +67,32 @@ builder.Services.AddLogging(logging =>
 
 var app = builder.Build();
 
+// Thêm middleware xử lý lỗi
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json; charset=utf-8";
+        context.Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:3000");
+        await context.Response.WriteAsync(JsonSerializer.Serialize(new
+        {
+            message = "Lỗi server nội bộ",
+            status = 500
+        }));
+    });
+});
+
+// Thêm middleware localization
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("vi-VN"),
+    SupportedCultures = new[] { new CultureInfo("vi-VN") },
+    SupportedUICultures = new[] { new CultureInfo("vi-VN") }
+});
+
 // Cấu hình middleware
-app.UseCors("AllowReactApp"); // Sử dụng chính sách CORS
-//app.UseHttpsRedirection();
+app.UseCors("AllowReactApp");
 app.MapControllers();
+
 app.Run();
