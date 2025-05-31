@@ -27,11 +27,6 @@ public class CategoryConfigurations : IEntityTypeConfiguration<Category>
             .HasMaxLength(50)
             .HasColumnType("varchar(50)");
 
-        // Thuộc tính StoreId (Guid)
-        builder.Property(c => c.StoreId)
-            .IsRequired()
-            .HasColumnName("Store_id")
-            .HasColumnType("uniqueidentifier");
 
         // Thuộc tính Status (bool sang tinyint)
         builder.Property(c => c.Status)
@@ -50,10 +45,5 @@ public class CategoryConfigurations : IEntityTypeConfiguration<Category>
             .HasColumnType("datetime")
             .HasColumnName("Updated_at");
 
-        // Mối quan hệ khóa ngoại với Store
-        builder.HasOne<Store>() 
-            .WithMany()
-            .HasForeignKey(c => c.StoreId)
-            .HasConstraintName("FK_Category_Store");
     }
 }

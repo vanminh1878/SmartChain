@@ -18,7 +18,7 @@ public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComman
     {
         try
         {
-            var category = new Category(request.Name, request.StoreId);
+            var category = new Category(request.Name);
             await _categoriesRepository.AddAsync(category, cancellationToken);
             return category;
         }

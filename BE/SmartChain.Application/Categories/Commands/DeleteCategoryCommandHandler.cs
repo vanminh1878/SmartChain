@@ -7,10 +7,12 @@ namespace SmartChain.Application.Categories.Commands.DeleteCategory;
 public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, ErrorOr<Success>>
 {
     private readonly ICategoriesRepository _categoriesRepository;
+    private readonly IProductsRepository _productsRepository;
 
-    public DeleteCategoryCommandHandler(ICategoriesRepository categoriesRepository)
+    public DeleteCategoryCommandHandler(ICategoriesRepository categoriesRepository, IProductsRepository productsRepository)
     {
         _categoriesRepository = categoriesRepository;
+        _productsRepository = productsRepository;
     }
 
     public async Task<ErrorOr<Success>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
@@ -19,6 +21,11 @@ public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryComman
         if (category is null)
         {
             return Error.NotFound(description: "Category not found.");
+        }
+        var products = await _productsRepository.GetCategoryByProductIdAsync(request.CategoryId, cancellationToken);
+        if (products is not null)
+        {
+            return Error.Failure("Cannot delete category with associated products.");
         }
 
         await _categoriesRepository.DeleteAsync(category, cancellationToken);

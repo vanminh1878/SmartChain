@@ -22,7 +22,11 @@ public class CategoriesRepository : ICategoriesRepository
         await _context.Categories.AddAsync(category, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }
-
+    public async Task<List<Category>> ListAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Categories
+            .ToListAsync(cancellationToken);
+    }
     public async Task<Category?> GetByIdAsync(Guid categoryId, CancellationToken cancellationToken)
     {
         return await _context.Categories

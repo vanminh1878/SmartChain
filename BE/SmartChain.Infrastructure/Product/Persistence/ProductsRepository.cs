@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartChain.Application.Common.Interfaces;
+using SmartChain.Domain.Categories;
 using SmartChain.Domain.Product;
 using SmartChain.Infrastructure.Common.Persistence;
 
@@ -29,6 +30,19 @@ public class ProductsRepository : IProductsRepository
         return await _context.Products
             .FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
     }
+    public async Task<Category> GetCategoryByProductIdAsync(Guid productId, CancellationToken cancellationToken)
+    {
+        var category = await (from product in _context.Products
+                            join cat in _context.Categories
+                            on product.CategoryId equals cat.Id
+                            where product.Id == productId
+                            select cat)
+                            .FirstOrDefaultAsync(cancellationToken);
+
+        return category;
+    }
+
+
     public async Task<List<Product>> ListAllAsync(CancellationToken cancellationToken)
     {
         return await _context.Products

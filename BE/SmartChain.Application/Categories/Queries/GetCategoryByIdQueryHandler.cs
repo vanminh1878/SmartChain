@@ -1,11 +1,12 @@
 using ErrorOr;
 using MediatR;
+using SmartChain.Application.Categories.Queries.GetCategoryById;
 using SmartChain.Application.Common.Interfaces;
 using SmartChain.Domain.Categories;
 
 namespace SmartChain.Application.Categories.Queries.GetCategory;
 
-public class GetCategoryQueryHandler : IRequestHandler<GetCategoryQuery, ErrorOr<Category>>
+public class GetCategoryQueryHandler : IRequestHandler<GetCategoryQueryById, ErrorOr<Category>>
 {
     private readonly ICategoriesRepository _categoriesRepository;
 
@@ -14,7 +15,7 @@ public class GetCategoryQueryHandler : IRequestHandler<GetCategoryQuery, ErrorOr
         _categoriesRepository = categoriesRepository;
     }
 
-    public async Task<ErrorOr<Category>> Handle(GetCategoryQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Category>> Handle(GetCategoryQueryById request, CancellationToken cancellationToken)
     {
         var category = await _categoriesRepository.GetByIdAsync(request.CategoryId, cancellationToken);
         if (category is null)

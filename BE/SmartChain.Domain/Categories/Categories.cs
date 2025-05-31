@@ -8,23 +8,17 @@ namespace SmartChain.Domain.Categories
     public class Category : Entity
     {
         public string Name { get; private set; }
-        public Guid StoreId { get; private set; }
         public bool? Status { get; private set; }
         public DateTime CreatedAt { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
 
-        public Category(string name, Guid storeId, Guid? id = null) : base(id)
+        public Category(string name, Guid? id = null) : base(id)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("Category name cannot be null or empty.");
             }
-            if (storeId == Guid.Empty)
-            {
-                throw new ArgumentException("Store ID cannot be empty.");
-            }
             Name = name;
-            StoreId = storeId;
             Status = true;
             CreatedAt = DateTime.UtcNow;
         }

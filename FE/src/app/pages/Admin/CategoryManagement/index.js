@@ -1,67 +1,61 @@
-import React, { useEffect, useState } from "react";
-import { fetchGet, fetchPut } from "../../../lib/httpHandler";
-import { IoIosSearch } from "react-icons/io";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { IoIosSearch, IoIosLock, IoIosUnlock } from "react-icons/io";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { fetchGet, fetchPut } from "../../../lib/httpHandler";
+//import AddCategory from "../../../components/Admin/DiseaseGroupManagement/AddCategory/AddCategory.jsx";
+//import EditCategory from "../../../components/Admin/DiseaseGroupManagement/EditCategory/EditCategory.jsx";
 import "./CategoryManagement.css";
-// import AddCategory from "../../../components/Admin/DiseaseGroupManagement/DeleteDiseaseGroup/DeleteDiseaseGroup";
-// import EditCategory from "../../../components/Admin/DiseaseGroupManagement/DeleteDiseaseGroup/DeleteDiseaseGroup";
-// import LockCategory from "../../../components/Admin/DiseaseGroupManagement/DeleteDiseaseGroup/DeleteDiseaseGroup";
 
 export default function CategoryManagement() {
   const [listCategories, setListCategories] = useState([]);
-  const [listCategoriesShow, setListCategoriesShow] = useState([]);
   const [dataSearch, setDataSearch] = useState("");
 
-  // Lấy danh sách danh mục từ backend
+  // Fetch danh sách danh mục từ backend
   useEffect(() => {
-    const uri = "/api/admin/categories";
     fetchGet(
-      uri,
+      "/categories",
       (sus) => {
-        console.log("Dữ liệu danh mục từ BE:", sus);
-        setListCategories(sus.data.items);
-        setListCategoriesShow(sus.data.items); // Khởi tạo danh sách hiển thị
+        const categories = Array.isArray(sus.data.items) ? sus.data.items : [];
+        if (!categories.length && sus.data.items) {
+          toast.error("Dữ liệu từ server không hợp lệ");
+        }
+        setListCategories(categories);
       },
       (fail) => {
-        toast.error(fail.message);
+        toast.error(fail.message || "Lỗi khi lấy danh sách danh mục");
+        setListCategories([]);
       },
       () => {
         toast.error("Có lỗi xảy ra khi lấy danh sách danh mục");
+        setListCategories([]);
       }
     );
   }, []);
 
-  // Xử lý tìm kiếm
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setDataSearch(value);
-    applySearch(value);
-  };
-
-  // Lọc danh sách danh mục theo từ khóa tìm kiếm
-  const applySearch = (searchValue) => {
-    let filteredList = [...listCategories];
-    if (searchValue.trim()) {
-      const lowercasedSearch = searchValue.toLowerCase();
-      filteredList = filteredList.filter((item) =>
-        item.tenDanhMuc.toLowerCase().includes(lowercasedSearch)
-      );
+  // Optimize search with useMemo
+  const listCategoriesShow = useMemo(() => {
+    if (!Array.isArray(listCategories)) {
+      console.error("listCategories không phải mảng:", listCategories);
+      return [];
     }
-    setListCategoriesShow(filteredList);
-  };
-
-  // Cập nhật danh sách hiển thị khi danh sách danh mục hoặc từ khóa tìm kiếm thay đổi
-  useEffect(() => {
-    applySearch(dataSearch);
+    if (!dataSearch.trim()) return listCategories;
+    const lowercasedSearch = dataSearch.toLowerCase();
+    return listCategories.filter((item) =>
+      item.tenDanhMuc?.toLowerCase()?.includes(lowercasedSearch)
+    );
   }, [listCategories, dataSearch]);
 
-  // Xử lý khóa danh mục
-  const handleLockCategory = (categoryId, isLocked) => {
-    const uri = `/api/admin/categories/${categoryId}/lock`;
+  // Handle search input
+  const handleSearch = useCallback((e) => {
+    setDataSearch(e.target.value);
+  }, []);
+
+  // Handle lock/unlock category
+  const handleLockCategory = useCallback((categoryId, isLocked) => {
     fetchPut(
-      uri,
-      { isLocked: !isLocked }, // Đảo trạng thái khóa
+      `/api/admin/categories/${categoryId}/lock`,
+      { isLocked: !isLocked },
       (sus) => {
         setListCategories((prev) =>
           prev.map((item) =>
@@ -71,20 +65,20 @@ export default function CategoryManagement() {
         toast.success(`Danh mục đã được ${isLocked ? "mở khóa" : "khóa"} thành công!`);
       },
       (fail) => {
-        toast.error(fail.message);
+        toast.error(fail.message || "Lỗi khi khóa/mở khóa danh mục");
       },
       () => {
         toast.error("Có lỗi xảy ra khi khóa/mở khóa danh mục");
       }
     );
-  };
+  }, []);
 
   return (
     <>
       <ToastContainer />
       <div className="category-management">
         <div className="title py-3 fs-5 mb-2">
-          Số lượng danh mục: {listCategoriesShow.length}
+          Số lượng danh mục: {listCategoriesShow.length || 0}
         </div>
         <div className="row mx-0 my-0">
           <div className="col-12 pb-4 px-0 d-flex justify-content-between align-items-center mb-2">
@@ -99,10 +93,7 @@ export default function CategoryManagement() {
                 <IoIosSearch className="icon_search translate-middle-y text-secondary" />
               </div>
             </div>
-            {/* <AddCategory
-              setListCategories={setListCategories}
-              listCategories={listCategories}
-            /> */}
+            {/* <AddCategory setListCategories={setListCategories} /> */}
           </div>
           <div className="contain_Table mx-0 col-12 bg-white rounded-2">
             <table className="table table-hover">
@@ -115,23 +106,29 @@ export default function CategoryManagement() {
                 </tr>
               </thead>
               <tbody>
-                {listCategoriesShow && listCategoriesShow.length > 0 ? (
+                {listCategoriesShow.length > 0 ? (
                   listCategoriesShow.map((item, index) => (
                     <tr key={item._id}>
                       <td>{index + 1}</td>
-                      <td>{item.tenDanhMuc}</td>
+                      <td>{item.tenDanhMuc || "Không có tên"}</td>
                       <td>{item.isLocked ? "Khóa" : "Hoạt động"}</td>
                       <td>
-                        <div className="list_Action">
+                        <div className="list_Action d-flex gap-2">
                           {/* <EditCategory
                             item={item}
                             setListCategories={setListCategories}
-                            listCategories={listCategories}
-                          />
-                          <LockCategory
-                            item={item}
-                            handleLockCategory={handleLockCategory}
                           /> */}
+                          <button
+                            onClick={() => handleLockCategory(item._id, item.isLocked)}
+                            className="btn btn-sm btn-link p-0"
+                            title={item.isLocked ? "Mở khóa" : "Khóa"}
+                          >
+                            {item.isLocked ? (
+                              <IoIosUnlock size={20} className="text-success" />
+                            ) : (
+                              <IoIosLock size={20} className="text-warning" />
+                            )}
+                          </button>
                         </div>
                       </td>
                     </tr>
