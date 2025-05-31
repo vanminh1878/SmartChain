@@ -32,10 +32,10 @@ const fetchGet = async (uri, onSuccess, onFail, onException) => {
     if (!res.ok) {
       return onFail(data);
     }
-    onSuccess(data);
+    return onSuccess(data); // Thêm return
   } catch (error) {
     console.error("Fetch GET error:", error.message);
-    onException();
+    return onException(); // Thêm return
   }
 };
 
@@ -56,10 +56,10 @@ const fetchPost = async (uri, reqData, onSuccess, onFail, onException) => {
     if (!res.ok) {
       return onFail(data);
     }
-    onSuccess(data);
+    return onSuccess(data); // Thêm return
   } catch (error) {
     console.error("Fetch POST error:", error.message);
-    onException();
+    return onException(); // Thêm return
   }
 };
 
@@ -80,10 +80,10 @@ const fetchDelete = async (uri, reqData, onSuccess, onFail, onException) => {
     if (!res.ok) {
       return onFail(data);
     }
-    onSuccess(data);
+    return onSuccess(data); // Thêm return
   } catch (error) {
     console.error("Fetch DELETE error:", error.message);
-    onException();
+    return onException(); // Thêm return
   }
 };
 
@@ -102,16 +102,15 @@ const fetchPut = async (uri, reqData, onSuccess, onFail, onException) => {
     if (res.status === 204) {
       return onSuccess({ message: "Cập nhật thành công" });
     }
-    
 
     const data = await res.json();
     if (!res.ok) {
       return onFail(data);
     }
-    onSuccess(data);
+    return onSuccess(data); // Thêm return
   } catch (error) {
     console.error("Fetch PUT error:", error.message);
-    onException();
+    return onException(); // Thêm return
   }
 };
 
@@ -131,10 +130,10 @@ const fetchUpload = async (uri, formData, onSuccess, onFail, onException) => {
     if (!res.ok) {
       return onFail(data);
     }
-    onSuccess(data);
+    return onSuccess(data); // Thêm return
   } catch (error) {
     console.error("Fetch UPLOAD error:", error.message);
-    onException();
+    return onException(); // Thêm return
   }
 };
 
