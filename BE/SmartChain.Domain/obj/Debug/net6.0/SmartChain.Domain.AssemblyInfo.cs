@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartChain.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+648c8cda22a484814c70aed56067ee4849f4a90a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+65bbd78069eae6b0135ba5ebf1ea36847f328337")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartChain.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartChain.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

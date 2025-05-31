@@ -1,0 +1,255 @@
+/* Biến CSS để dễ dàng tùy chỉnh */
+:root {
+  --primary-color: #1a73e8; /* Màu xanh dương tươi sáng, hiện đại hơn */
+  --secondary-color: #5f6368; /* Màu xám đậm nhẹ nhàng */
+  --accent-color: #34c759; /* Màu xanh lá cho điểm nhấn */
+  --text-color: #202124; /* Màu chữ đậm hơn, dễ đọc */
+  --background-color: #ffffff; /* Màu nền trắng tinh */
+  --light-gray: #f1f3f4; /* Màu xám nhạt nhẹ hơn */
+  --border-color: #dadce0; /* Viền nhẹ nhàng */
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.12); /* Bóng nhẹ, hiện đại */
+  --transition: all 0.3s ease-in-out; /* Hiệu ứng mượt hơn */
+  --border-radius: 12px; /* Bo góc lớn hơn, mềm mại */
+}
+
+/* Overlay của modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6); /* Nền tối nhẹ hơn, không quá gắt */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.modal-overlay.ReactModal__Overlay--after-open {
+  opacity: 1;
+}
+
+.modal-overlay.ReactModal__Overlay--before-close {
+  opacity: 0;
+}
+
+/* Nội dung modal */
+.modal-content {
+  background: #fff;
+  border-radius: 10px !important; /* Bo góc lớn hơn, mềm mại */
+  width: 500px !important; /* Tăng nhẹ chiều rộng cho thoải mái */
+  max-width: 100%;
+  box-shadow: var(--shadow);
+  position: relative;
+  z-index: 1001;
+  transform: scale(0.95); /* Hiệu ứng phóng to nhẹ */
+  transition: var(--transition);
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--background-color) !important;
+  max-height: fit-content;
+  height: 500px;
+  margin-bottom: 15px;
+  object-fit: cover;
+}
+
+.ReactModal__Content--after-open {
+  transform: scale(1);
+
+}
+
+.ReactModal__Content--before-close {
+  transform: scale(0.95);
+}
+
+/* Header của modal */
+.modal-header {
+  background-color: var(--light-gray);
+  border-bottom: 1px solid var(--border-color);
+  padding: 10px 20px; /* Tăng padding cho thoáng */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px; /* Giữ chiều cao cố định */
+}
+
+/* Tiêu đề modal */
+.modal-title {
+  font-size: 1.5rem ; /* Tăng kích thước chữ cho rõ ràng */
+  font-weight: 500;
+  color: var(--text-color);
+  margin-left: 10px;
+}
+
+/* Nút đóng modal */
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--secondary-color);
+  transition: var(--transition);
+  margin-right: 5px !important; /* Giảm khoảng cách bên phải */
+}
+
+.btn-close:hover {
+  color: var(--primary-color);
+  transform: rotate(90deg); /* Hiệu ứng xoay nhẹ khi hover */
+}
+
+/* Body của modal */
+.modal-body {
+  padding: 24px; /* Tăng padding cho thoải mái */
+  display: flex;
+  justify-content: center;
+}
+
+/* Form trong modal */
+.form-group {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Giảm khoảng cách cho cân đối */
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+/* Label của form */
+.form-label.custom-bold {
+  font-weight: 500;
+  color: var(--text-color);
+  width: 120px; /* Giảm nhẹ để cân đối */
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Input của form */
+.form-control {
+  flex: 1;
+  border: 1px solid var(--border-color);
+  border-radius: 8px; /* Bo góc nhẹ hơn */
+  padding: 10px 14px;
+  font-size: 1rem;
+  transition: var(--transition);
+  min-width: 0;
+  margin-top: 10px; /* Giảm khoảng cách trên */
+
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); /* Hiệu ứng viền sáng */
+  outline: none;
+}
+
+.form-control[readonly] {
+  background-color: var(--light-gray);
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+/* Footer của modal */
+.modal-footer {
+  border-top: 1px solid var(--border-color);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background-color: var(--light-gray);
+}
+
+/* Nút Hủy */
+.btn_Cancel {
+  background-color: var(--secondary-color);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: var(--transition);
+  width: 100px; /* Giữ chiều rộng cố định */
+  height: 40px; /* Giữ chiều cao cố định */
+  margin-top: 10px; /* Giảm khoảng cách trên */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Bóng nhẹ cho nút */
+  margin-bottom: 10px !important; /* Giảm khoảng cách dưới */
+}
+
+.btn_Cancel:hover {
+  background-color: #4b4f54; /* Đậm hơn khi hover */
+  transform: translateY(-1px); /* Nâng nhẹ khi hover */
+}
+
+/* Nút Lưu */
+.btn_Accept {
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: var(--transition);
+    width: 100px; /* Giữ chiều rộng cố định */
+  height: 40px; /* Giữ chiều cao cố định */
+  margin-top: 10px; /* Giảm khoảng cách trên */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Bóng nhẹ cho nút */
+  margin-bottom: 10px !important; /* Giảm khoảng cách dưới */
+  margin-right: 20px !important; /* Giảm khoảng cách bên phải */
+}
+
+.btn_Accept:hover {
+  background-color: #1557b0; /* Đậm hơn khi hover */
+  transform: translateY(-1px);
+}
+
+/* Container cho nút chỉnh sửa */
+.contain_Edit {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  gap: 12px;
+  background-color: var(--light-gray);
+  margin-right: 20px; /* Giảm khoảng cách bên phải */
+  height: 50px; /* Giữ chiều cao cố định */
+  border-radius: var(--border-radius);
+
+}
+
+/* Tiêu đề chỉnh sửa */
+.title_edit {
+  font-size: 1.1rem; /* Tăng nhẹ kích thước chữ */
+  font-weight: 500;
+  color: var(--text-color);
+  margin: 0;
+}
+
+/* Icon chỉnh sửa */
+.icon_edit_information {
+  color: var(--primary-color);
+  font-size: 1.75rem; /* Tăng kích thước icon */
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.icon_edit_information:hover {
+  color: #1557b0;
+  transform: scale(1.1); /* Phóng to nhẹ khi hover */
+}
+
+/* Icon chi tiết */
+.icon_information.icon_action {
+  color: var(--primary-color);
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.icon_information.icon_action:hover {
+  color: #1557b0;
+  transform: scale(1.1);
+}

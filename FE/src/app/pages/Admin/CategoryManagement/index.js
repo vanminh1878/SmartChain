@@ -3,8 +3,8 @@ import { IoIosSearch, IoIosLock, IoIosUnlock } from "react-icons/io";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { fetchGet, fetchPut } from "../../../lib/httpHandler";
-//import AddCategory from "../../../components/Admin/DiseaseGroupManagement/AddCategory/AddCategory.jsx";
-//import EditCategory from "../../../components/Admin/DiseaseGroupManagement/EditCategory/EditCategory.jsx";
+import AddCategory from "../../../components//Admin/CategoryManagement/AddCategory/AddCategory.jsx";
+import EditCategory from "../../../components/Admin/CategoryManagement/DetailCategory/DetailCategory.jsx";
 import "./CategoryManagement.css";
 
 export default function CategoryManagement() {
@@ -16,11 +16,18 @@ export default function CategoryManagement() {
     fetchGet(
       "/categories",
       (sus) => {
-        const categories = Array.isArray(sus.data.items) ? sus.data.items : [];
-        if (!categories.length && sus.data.items) {
+        const categories = Array.isArray(sus) ? sus : [];
+        if (!categories.length && sus) {
           toast.error("Dữ liệu từ server không hợp lệ");
         }
-        setListCategories(categories);
+        // Ensure each category has required properties
+        const validatedCategories = categories.map((item, index) => ({
+          ...item,
+          _id: item._id || `fallback-${index}`, // Fallback for missing _id
+          name: item.name || item.tenDanhMuc || "Không có tên", // Normalize name
+          isLocked: item.isLocked || false, // Default isLocked
+        }));
+        setListCategories(validatedCategories);
       },
       (fail) => {
         toast.error(fail.message || "Lỗi khi lấy danh sách danh mục");
@@ -42,7 +49,7 @@ export default function CategoryManagement() {
     if (!dataSearch.trim()) return listCategories;
     const lowercasedSearch = dataSearch.toLowerCase();
     return listCategories.filter((item) =>
-      item.tenDanhMuc?.toLowerCase()?.includes(lowercasedSearch)
+      item.name?.toLowerCase()?.includes(lowercasedSearch)
     );
   }, [listCategories, dataSearch]);
 
@@ -54,7 +61,7 @@ export default function CategoryManagement() {
   // Handle lock/unlock category
   const handleLockCategory = useCallback((categoryId, isLocked) => {
     fetchPut(
-      `/api/admin/categories/${categoryId}/lock`,
+      `/categories/lock/${categoryId}`,
       { isLocked: !isLocked },
       (sus) => {
         setListCategories((prev) =>
@@ -93,7 +100,7 @@ export default function CategoryManagement() {
                 <IoIosSearch className="icon_search translate-middle-y text-secondary" />
               </div>
             </div>
-            {/* <AddCategory setListCategories={setListCategories} /> */}
+            <AddCategory setListCategories={setListCategories} />
           </div>
           <div className="contain_Table mx-0 col-12 bg-white rounded-2">
             <table className="table table-hover">
@@ -110,16 +117,16 @@ export default function CategoryManagement() {
                   listCategoriesShow.map((item, index) => (
                     <tr key={item._id}>
                       <td>{index + 1}</td>
-                      <td>{item.tenDanhMuc || "Không có tên"}</td>
+                      <td>{item.name}</td>
                       <td>{item.isLocked ? "Khóa" : "Hoạt động"}</td>
                       <td>
                         <div className="list_Action d-flex gap-2">
-                          {/* <EditCategory
+                          <EditCategory
                             item={item}
                             setListCategories={setListCategories}
-                          /> */}
+                          />
                           <button
-                            onClick={() => handleLockCategory(item._id, item.isLocked)}
+                            onClick={() => handleLockCategory(item._id, item.isLocked)} // Fixed: Use isLocked instead of status
                             className="btn btn-sm btn-link p-0"
                             title={item.isLocked ? "Mở khóa" : "Khóa"}
                           >

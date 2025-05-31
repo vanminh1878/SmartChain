@@ -7,7 +7,10 @@ dotnet tool install --global dotnet-ef
 
 To undo this action, use 'ef migrations remove'
 
-dotnet ef migrations add AddUniqueConstraintToCartCustomerId --startup-project "../SmartChain.Api"
+*add update
+dotnet ef migrations add DeleteStoreIdInCategories --startup-project "../SmartChain.Api"
 dotnet ef migrations add UpdateAccountIdToCustomer --project "SmartChain.Infrastructure" --startup-project "../SmartChain.Api"
 
-dotnet ef database update --project . --startup-project ../SmartChain.Api
+*update
+dotnet ef database update --project ../SmartChain.Infrastructure --startup-project ../SmartChain.Api
+
