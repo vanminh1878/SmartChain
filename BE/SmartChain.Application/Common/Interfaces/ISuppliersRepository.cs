@@ -12,8 +12,6 @@ public interface ISuppliersRepository
     Task<Supplier?> GetByIdAsync(Guid supplierId, CancellationToken cancellationToken);
     Task<Supplier?> GetByEmailAsync(string email, CancellationToken cancellationToken);
     Task<List<Supplier>> ListAllAsync(CancellationToken cancellationToken);
-
-    Task<List<Supplier>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken);
     Task<List<Supplier>> ListByStatusAsync(bool status, CancellationToken cancellationToken);
     Task RemoveAsync(Supplier supplier, CancellationToken cancellationToken);
     Task RemoveRangeAsync(List<Supplier> suppliers, CancellationToken cancellationToken);

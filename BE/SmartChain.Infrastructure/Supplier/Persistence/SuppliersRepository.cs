@@ -41,13 +41,6 @@ public class SuppliersRepository : ISuppliersRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<Supplier>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken)
-    {
-        return await _context.Suppliers
-            .Where(s => s.StoreId == storeId)
-            .ToListAsync(cancellationToken);
-    }
-
     public async Task<List<Supplier>> ListByStatusAsync(bool status, CancellationToken cancellationToken)
     {
         return await _context.Suppliers

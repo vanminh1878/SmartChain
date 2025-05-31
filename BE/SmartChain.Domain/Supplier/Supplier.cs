@@ -15,11 +15,10 @@ public class Supplier : Entity
     public string Email { get; private set; }
     public string Address { get; private set; }
     public bool? Status { get; private set; }
-    public Guid StoreId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
-    public Supplier(string name, string contact_Name, string phoneNumber, string email, string address, Guid storeId, Guid? id = null) : base(id)
+    public Supplier(string name, string contact_Name, string phoneNumber, string email, string address, Guid? id = null) : base(id)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -41,19 +40,14 @@ public class Supplier : Entity
         {
             throw new ArgumentException("Address cannot be null");
         }
-        if (storeId == Guid.Empty)
-        {
-            throw new ArgumentException("Store ID cannot be empty.");
-        }
         Name = name;
         Contact_name = contact_Name;
         PhoneNumber = phoneNumber;
         Email = email;
         Address = address;
         Status = true;
-        StoreId = storeId;
         CreatedAt = DateTime.UtcNow;
-        _domainEvents.Add(new SupplierCreatedEvent(id ?? Guid.NewGuid(), name, contact_Name, phoneNumber, address, email,storeId));
+        _domainEvents.Add(new SupplierCreatedEvent(id ?? Guid.NewGuid(), name, contact_Name, phoneNumber, address, email));
     }
 
     public ErrorOr<Success> Update(string newName, string newContactName, string newPhoneNumber, string newEmail, string newAddress)

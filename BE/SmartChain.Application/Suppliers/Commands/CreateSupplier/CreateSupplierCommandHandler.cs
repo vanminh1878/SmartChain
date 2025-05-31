@@ -18,7 +18,7 @@ public class CreateSupplierCommandHandler : IRequestHandler<CreateSupplierComman
     {
         try
         {
-            var Supplier = new Supplier(request.name, request.contact_Name, request.phoneNumber, request.email,request.address, request.storeId);
+            var Supplier = new Supplier(request.name, request.contact_Name, request.phoneNumber, request.email,request.address);
             await _SuppliersRepository.AddAsync(Supplier, cancellationToken);
             return Supplier;
         }

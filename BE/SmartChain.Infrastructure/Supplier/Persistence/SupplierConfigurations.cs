@@ -56,11 +56,7 @@ public class SupplierConfigurations : IEntityTypeConfiguration<Supplier>
             .HasColumnType("bit")
             .HasDefaultValue(true); // Mặc định: active
 
-        // Thuộc tính StoreId (Guid)
-        builder.Property(s => s.StoreId)
-            .IsRequired()
-            .HasColumnName("Store_id")
-            .HasColumnType("uniqueidentifier");
+
 
         // Thuộc tính CreatedAt
         builder.Property(s => s.CreatedAt)
@@ -74,11 +70,6 @@ public class SupplierConfigurations : IEntityTypeConfiguration<Supplier>
             .HasColumnType("datetime")
             .HasColumnName("Updated_at");
 
-        // Mối quan hệ khóa ngoại với Store
-        builder.HasOne<Store>()
-            .WithMany()
-            .HasForeignKey(s => s.StoreId)
-            .HasConstraintName("FK_Supplier_Store")
-            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }
