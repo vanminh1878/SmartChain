@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { IoIosSearch, IoIosLock, IoIosUnlock } from "react-icons/io";
+import { IoIosSearch } from "react-icons/io";
+import { FaTrash } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { fetchGet, fetchPut } from "../../../lib/httpHandler";
-import AddCategory from "../../../components//Admin/CategoryManagement/AddCategory/AddCategory.jsx";
+import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
+import { showYesNoMessageBox } from "../../../components/MessageBox/YesNoMessageBox/showYesNoMessgeBox.js";
+import AddCategory from "../../../components/Admin/CategoryManagement/AddCategory/AddCategory.jsx";
 import EditCategory from "../../../components/Admin/CategoryManagement/DetailCategory/DetailCategory.jsx";
 import "./CategoryManagement.css";
 
@@ -11,34 +13,47 @@ export default function CategoryManagement() {
   const [listCategories, setListCategories] = useState([]);
   const [dataSearch, setDataSearch] = useState("");
 
-  // Fetch danh sách danh mục từ backend
-  useEffect(() => {
+  // Hàm fetch danh sách danh mục từ backend
+  const fetchCategories = useCallback(() => {
+    console.log("Bắt đầu fetch danh sách danh mục...");
     fetchGet(
       "/categories",
       (sus) => {
         const categories = Array.isArray(sus) ? sus : [];
+        console.log("Dữ liệu từ server:", categories);
         if (!categories.length && sus) {
           toast.error("Dữ liệu từ server không hợp lệ");
         }
-        // Ensure each category has required properties
-        const validatedCategories = categories.map((item, index) => ({
-          ...item,
-          _id: item._id || `fallback-${index}`, // Fallback for missing _id
-          name: item.name || item.tenDanhMuc || "Không có tên", // Normalize name
-          isLocked: item.isLocked || false, // Default isLocked
-        }));
+        const validatedCategories = categories.map((item, index) => {
+          if (!item.id) {
+            console.warn(`Danh mục tại index ${index} thiếu id:`, item);
+            toast.warn(`Danh mục tại index ${index} thiếu id, sử dụng ID tạm thời`);
+          }
+          return {
+            ...item,
+            id: item.id || `temp-${Date.now()}-${index}`,
+            name: item.name || item.tenDanhMuc || "Không có tên",
+            isLocked: item.isLocked || false,
+          };
+        });
+        console.log("Danh sách danh mục đã xử lý:", validatedCategories);
         setListCategories(validatedCategories);
       },
       (fail) => {
+        console.error("Lỗi khi lấy danh sách danh mục:", fail);
         toast.error(fail.message || "Lỗi khi lấy danh sách danh mục");
         setListCategories([]);
       },
       () => {
-        toast.error("Có lỗi xảy ra khi lấy danh sách danh mục");
-        setListCategories([]);
+        console.log("Yêu cầu fetch danh sách danh mục hoàn tất");
       }
     );
   }, []);
+
+  // Fetch danh sách khi component mount
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   // Optimize search with useMemo
   const listCategoriesShow = useMemo(() => {
@@ -46,36 +61,69 @@ export default function CategoryManagement() {
       console.error("listCategories không phải mảng:", listCategories);
       return [];
     }
+    console.log("Danh sách hiển thị trước khi lọc:", listCategories);
     if (!dataSearch.trim()) return listCategories;
     const lowercasedSearch = dataSearch.toLowerCase();
-    return listCategories.filter((item) =>
+    const filtered = listCategories.filter((item) =>
       item.name?.toLowerCase()?.includes(lowercasedSearch)
     );
+    console.log("Danh sách hiển thị sau khi lọc:", filtered);
+    return filtered;
   }, [listCategories, dataSearch]);
 
   // Handle search input
   const handleSearch = useCallback((e) => {
+    console.log("Tìm kiếm với giá trị:", e.target.value);
     setDataSearch(e.target.value);
   }, []);
 
-  // Handle lock/unlock category
-  const handleLockCategory = useCallback((categoryId, isLocked) => {
-    fetchPut(
-      `/categories/lock/${categoryId}`,
-      { isLocked: !isLocked },
-      (sus) => {
-        setListCategories((prev) =>
-          prev.map((item) =>
-            item._id === categoryId ? { ...item, isLocked: !isLocked } : item
-          )
-        );
-        toast.success(`Danh mục đã được ${isLocked ? "mở khóa" : "khóa"} thành công!`);
+  // Handle delete category
+  const handleDeleteCategory = useCallback(async (categoryId) => {
+    console.log("Bắt đầu xóa danh mục với ID:", categoryId);
+    if (!categoryId) {
+      console.error("ID danh mục không tồn tại");
+      toast.error("ID danh mục không tồn tại. Không thể xóa.");
+      return;
+    }
+    if (categoryId.startsWith("temp-")) {
+      console.error("ID danh mục tạm thời:", categoryId);
+      toast.error("Danh mục này chưa được lưu trên server. Vui lòng làm mới trang.");
+      return;
+    }
+    const confirmDelete = await showYesNoMessageBox("Bạn có muốn xóa danh mục này không?");
+    if (!confirmDelete) {
+      console.log("Hủy xóa danh mục");
+      return;
+    }
+    fetchDelete(
+      `/categories/${categoryId}`,
+      (response) => {
+        console.log("Xóa danh mục thành công, phản hồi từ server:", response);
+        toast.success("Xóa danh mục thành công!");
+        setListCategories((prev) => {
+          console.log("Danh sách trước khi lọc:", prev);
+          const updatedList = prev.filter((item) => item.id !== categoryId);
+          console.log("Danh sách sau khi lọc:", updatedList);
+          return updatedList;
+        });
       },
       (fail) => {
-        toast.error(fail.message || "Lỗi khi khóa/mở khóa danh mục");
+        console.error("Phản hồi lỗi từ server:", fail);
+        if (fail.message === "Xóa thành công") {
+          console.log("Server báo thành công trong errorCallback, cập nhật danh sách cục bộ");
+          toast.success("Xóa danh mục thành công!");
+          setListCategories((prev) => {
+            console.log("Danh sách trước khi lọc:", prev);
+            const updatedList = prev.filter((item) => item.id !== categoryId);
+            console.log("Danh sách sau khi lọc:", updatedList);
+            return updatedList;
+          });
+        } else {
+          toast.error(fail.message || "Lỗi khi xóa danh mục");
+        }
       },
       () => {
-        toast.error("Có lỗi xảy ra khi khóa/mở khóa danh mục");
+        console.log("Yêu cầu xóa danh mục hoàn tất");
       }
     );
   }, []);
@@ -100,7 +148,7 @@ export default function CategoryManagement() {
                 <IoIosSearch className="icon_search translate-middle-y text-secondary" />
               </div>
             </div>
-            <AddCategory setListCategories={setListCategories} />
+            <AddCategory fetchCategories={fetchCategories} />
           </div>
           <div className="contain_Table mx-0 col-12 bg-white rounded-2">
             <table className="table table-hover">
@@ -108,33 +156,27 @@ export default function CategoryManagement() {
                 <tr>
                   <th>STT</th>
                   <th>Tên danh mục</th>
-                  <th>Trạng thái</th>
                   <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {listCategoriesShow.length > 0 ? (
                   listCategoriesShow.map((item, index) => (
-                    <tr key={item._id}>
+                    <tr key={item.id}>
                       <td>{index + 1}</td>
                       <td>{item.name}</td>
-                      <td>{item.isLocked ? "Khóa" : "Hoạt động"}</td>
                       <td>
                         <div className="list_Action d-flex gap-2">
                           <EditCategory
                             item={item}
-                            setListCategories={setListCategories}
+                            fetchCategories={fetchCategories}
                           />
                           <button
-                            onClick={() => handleLockCategory(item._id, item.isLocked)} // Fixed: Use isLocked instead of status
+                            onClick={() => handleDeleteCategory(item.id)}
                             className="btn btn-sm btn-link p-0"
-                            title={item.isLocked ? "Mở khóa" : "Khóa"}
+                            title="Xóa danh mục"
                           >
-                            {item.isLocked ? (
-                              <IoIosUnlock size={20} className="text-success" />
-                            ) : (
-                              <IoIosLock size={20} className="text-warning" />
-                            )}
+                            <FaTrash size={20} className="text-danger" />
                           </button>
                         </div>
                       </td>
@@ -142,7 +184,7 @@ export default function CategoryManagement() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="text-center">
+                    <td colSpan="3" className="text-center">
                       Không có danh mục nào
                     </td>
                   </tr>

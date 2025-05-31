@@ -16,15 +16,15 @@ public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComman
 
     public async Task<ErrorOr<Category>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
+
+            var existingCategory = await _categoriesRepository.GetByNameAsync(request.Name, cancellationToken);
+            if (existingCategory != null)
+            {
+                return Error.Conflict("Category with the same name already exists.");
+            }
             var category = new Category(request.Name);
             await _categoriesRepository.AddAsync(category, cancellationToken);
             return category;
-        }
-        catch (ArgumentException ex)
-        {
-            return Error.Failure(description: ex.Message);
-        }
+
     }
 }

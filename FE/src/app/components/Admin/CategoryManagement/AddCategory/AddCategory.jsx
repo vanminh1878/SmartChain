@@ -9,7 +9,7 @@ import "./AddCategory.css";
 // Bind modal to app element for accessibility
 Modal.setAppElement("#root");
 
-export default React.memo(function AddCategory({ setListCategories }) {
+export default React.memo(function AddCategory({ fetchCategories }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dataForm, setDataForm] = useState({
     name: "",
@@ -38,7 +38,6 @@ export default React.memo(function AddCategory({ setListCategories }) {
   const handleAdd = useCallback(() => {
     const newCategory = {
       name: dataForm.name.trim(),
-      isLocked: false, // Default is not locked
     };
 
     fetchPost(
@@ -46,16 +45,21 @@ export default React.memo(function AddCategory({ setListCategories }) {
       newCategory,
       async (res) => {
         await showSuccessMessageBox(res.message || "Thêm danh mục thành công");
-        setListCategories((prev) => [...prev, { ...newCategory, _id: res.id }]);
+        fetchCategories(); // Làm mới danh sách từ server
         setDataForm({ name: "" });
         setIsModalOpen(false);
       },
       (err) => {
-        showErrorMessageBox(err.message || "Lỗi khi thêm danh mục. Vui lòng thử lại.");
+        //showErrorMessageBox(err.message || "Lỗi khi thêm danh mục. Vui lòng thử lại.");
+        if (err.status === 409) {
+          showErrorMessageBox("Tên danh mục đã tồn tại. Vui lòng chọn tên khác.");
+        } else {
+          showErrorMessageBox(err.title || "Lỗi khi thêm danh mục. Vui lòng thử lại.");
+        }
       },
       () => console.log("Add category request completed")
     );
-  }, [dataForm, setListCategories]);
+  }, [dataForm, fetchCategories]);
 
   // Open modal
   const openModal = useCallback(() => {

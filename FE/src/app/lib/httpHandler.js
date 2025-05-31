@@ -30,7 +30,7 @@ const fetchGet = async (uri, onSuccess, onFail, onException) => {
 
     const data = await res.json();
     if (!res.ok) {
-      return onFail(data);
+      return onFail({ title: data.title, status: res.status });
     }
     return onSuccess(data); // Thêm return
   } catch (error) {
@@ -38,6 +38,7 @@ const fetchGet = async (uri, onSuccess, onFail, onException) => {
     return onException(); // Thêm return
   }
 };
+
 
 const fetchPost = async (uri, reqData, onSuccess, onFail, onException) => {
   try {
@@ -54,15 +55,14 @@ const fetchPost = async (uri, reqData, onSuccess, onFail, onException) => {
 
     const data = await res.json();
     if (!res.ok) {
-      return onFail(data);
+      return onFail({ title: data.title, status: res.status });
     }
-    return onSuccess(data); // Thêm return
+    return onSuccess(data);
   } catch (error) {
     console.error("Fetch POST error:", error.message);
-    return onException(); // Thêm return
+    return onException();
   }
 };
-
 const fetchDelete = async (uri, reqData, onSuccess, onFail, onException) => {
   try {
     const res = await fetch(BE_ENPOINT + uri, {
@@ -78,7 +78,7 @@ const fetchDelete = async (uri, reqData, onSuccess, onFail, onException) => {
 
     const data = await res.json();
     if (!res.ok) {
-      return onFail(data);
+      return onFail({ title: data.title, status: res.status });
     }
     return onSuccess(data); // Thêm return
   } catch (error) {
@@ -105,7 +105,7 @@ const fetchPut = async (uri, reqData, onSuccess, onFail, onException) => {
 
     const data = await res.json();
     if (!res.ok) {
-      return onFail(data);
+      return onFail({ title: data.title, status: res.status });
     }
     return onSuccess(data); // Thêm return
   } catch (error) {
@@ -128,7 +128,7 @@ const fetchUpload = async (uri, formData, onSuccess, onFail, onException) => {
 
     const data = await res.json();
     if (!res.ok) {
-      return onFail(data);
+      return onFail({ title: data.title, status: res.status });
     }
     return onSuccess(data); // Thêm return
   } catch (error) {

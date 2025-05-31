@@ -21,7 +21,11 @@ public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComman
         {
             return Error.NotFound(description: "Category not found.");
         }
-
+        var existingCategory = await _categoriesRepository.GetByNameAsync(request.Name, cancellationToken);
+        if (existingCategory is not null && existingCategory.Id != request.CategoryId)
+        {
+            return Error.Conflict("Category with the same name already exists.");
+        }
         var result = category.Update(request.Name, request.Status);
         if (result.IsError)
         {

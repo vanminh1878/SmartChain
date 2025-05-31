@@ -32,6 +32,11 @@ public class CategoriesRepository : ICategoriesRepository
         return await _context.Categories
             .FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken);
     }
+    public async Task<Category?> GetByNameAsync(string name, CancellationToken cancellationToken)
+    {
+        return await _context.Categories
+            .FirstOrDefaultAsync(c => c.Name == name, cancellationToken);
+    }
 
     public async Task<Category?> GetByProductCategoryId(Guid productCategoryId, CancellationToken cancellationToken)
     {
@@ -49,4 +54,6 @@ public class CategoriesRepository : ICategoriesRepository
         _context.Categories.Remove(category);
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+
 }

@@ -5,12 +5,12 @@ import { TiEdit } from "react-icons/ti";
 import { fetchGet, fetchPut } from "../../../../lib/httpHandler";
 import { showErrorMessageBox } from "../../../MessageBox/ErrorMessageBox/showErrorMessageBox";
 import { showSuccessMessageBox } from "../../../MessageBox/SuccessMessageBox/showSuccessMessageBox";
-import "./DetailCategory.css"; // Giữ nguyên CSS như yêu cầu
+import "./DetailCategory.css";
 
 // Bind modal to app element for accessibility
 Modal.setAppElement("#root");
 
-export default React.memo(function EditCategory({ item, setListCategories }) {
+export default React.memo(function EditCategory({ item, fetchCategories }) {
   const [editStatus, setEditStatus] = useState(false);
   const [categoryInfo, setCategoryInfo] = useState({});
   const [dataForm, setDataForm] = useState({
@@ -20,9 +20,9 @@ export default React.memo(function EditCategory({ item, setListCategories }) {
 
   // Hàm lấy thông tin danh mục
   const fetchCategoryInfo = useCallback(() => {
-    if (item?._id) {
+    if (item?.id && !item.id.startsWith("temp-")) {
       fetchGet(
-        `/categories/${item._id}`,
+        `/categories/${item.id}`,
         (res) => {
           console.log("Category info fetched:", res);
           setCategoryInfo(res);
@@ -36,8 +36,11 @@ export default React.memo(function EditCategory({ item, setListCategories }) {
         },
         () => console.log("Fetch category info completed")
       );
+    } else {
+      console.warn("Invalid category id:", item?.id);
+      showErrorMessageBox("ID danh mục không hợp lệ. Không thể lấy thông tin.");
     }
-  }, [item._id]);
+  }, [item.id]);
 
   // Load dữ liệu khi modal mở
   useEffect(() => {
@@ -65,10 +68,10 @@ export default React.memo(function EditCategory({ item, setListCategories }) {
   const handleCancel = useCallback(() => {
     setEditStatus(false);
     setDataForm({
-      name: categoryInfo.name || "",
+      name: categoryInfo.name || item.name || "",
     });
     setIsModalOpen(false);
-  }, [categoryInfo.name]);
+  }, [categoryInfo.name, item.name]);
 
   // Xử lý submit form
   const handleSubmit = useCallback(
@@ -78,6 +81,10 @@ export default React.memo(function EditCategory({ item, setListCategories }) {
         showErrorMessageBox("Vui lòng điền tên danh mục");
         return;
       }
+      if (dataForm.name.trim().length > 50) {
+        showErrorMessageBox("Tên danh mục không được vượt quá 50 ký tự");
+        return;
+      }
       handleUpdate();
     },
     [dataForm.name]
@@ -85,7 +92,11 @@ export default React.memo(function EditCategory({ item, setListCategories }) {
 
   // Xử lý cập nhật danh mục
   const handleUpdate = useCallback(() => {
-    const uri = `/categories/${item._id}`;
+    if (item.id.startsWith("temp-")) {
+      showErrorMessageBox("ID danh mục không hợp lệ. Không thể cập nhật.");
+      return;
+    }
+    const uri = `/categories/${item.id}`;
     const updatedData = {
       name: dataForm.name.trim(),
     };
@@ -99,21 +110,44 @@ export default React.memo(function EditCategory({ item, setListCategories }) {
         await showSuccessMessageBox(res.message || "Cập nhật danh mục thành công");
         setCategoryInfo({ ...categoryInfo, ...updatedData });
         setDataForm({ ...updatedData });
-        setListCategories((prevList) =>
-          prevList.map((listItem) =>
-            listItem._id === item._id ? { ...listItem, ...updatedData } : listItem
-          )
-        );
+        fetchCategories(); // Làm mới danh sách từ server
         setEditStatus(false);
         setIsModalOpen(false);
       },
       (err) => {
-        console.error("Update error:", err);
-        showErrorMessageBox(err.message || "Lỗi khi cập nhật danh mục. Vui lòng thử lại.");
+        console.error("Update error details:", err);
+        // Thử lại chỉ với name nếu server không hỗ trợ
+        if (err.message === "Phản hồi từ server không phải JSON" || err.status === 500) {
+          console.log("Retrying with only name...");
+          fetchPut(
+            uri,
+            { name: dataForm.name.trim() },
+            async (res) => {
+              console.log("Retry response:", res);
+              await showSuccessMessageBox(res.message || "Cập nhật danh mục thành công");
+              setCategoryInfo({ ...categoryInfo, name: dataForm.name.trim() });
+              setDataForm({ name: dataForm.name.trim() });
+              fetchCategories(); // Làm mới danh sách từ server
+              setEditStatus(false);
+              setIsModalOpen(false);
+            },
+            (retryErr) => {
+              console.error("Retry error:", retryErr);
+              showErrorMessageBox(retryErr.message || "Lỗi khi cập nhật danh mục. Vui lòng thử lại sau.");
+            },
+            () => console.log("Retry request completed")
+          );
+        } else {
+                  if (err.status === 409) {
+          showErrorMessageBox(err.message ||"Tên danh mục đã tồn tại. Vui lòng chọn tên khác.");
+        } else {
+          showErrorMessageBox(err.title || "Lỗi khi cập nhật danh mục. Vui lòng thử lại.");
+        }
+        }
       },
       () => console.log("Update request completed")
     );
-  }, [item._id, dataForm.name, setListCategories, categoryInfo]);
+  }, [item.id, dataForm.name, categoryInfo, fetchCategories]);
 
   // Hàm mở modal
   const openModal = useCallback(() => {
