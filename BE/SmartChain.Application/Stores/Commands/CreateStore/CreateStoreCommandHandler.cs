@@ -16,15 +16,14 @@ public class CreateStoreCommandHandler : IRequestHandler<CreateStoreCommand, Err
 
     public async Task<ErrorOr<Store>> Handle(CreateStoreCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
+            var existingStore = await _StoresRepository.GetByNameAsync(request.name, cancellationToken);
+            if (existingStore is not null)
+            {
+                return Error.Conflict("Store with the same name already exists.");
+            }
             var Store = new Store(request.name, request.address, request.phoneNumber, request.email, request.ownerId);
             await _StoresRepository.AddAsync(Store, cancellationToken);
             return Store;
-        }
-        catch (ArgumentException ex)
-        {
-            return Error.Failure(description: ex.Message);
-        }
+
     }
 }

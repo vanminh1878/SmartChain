@@ -167,7 +167,11 @@ export default React.memo(function DetailStore({ item, setListStores }) {
             () => console.log("Retry request completed")
           );
         } else {
-          showErrorMessageBox(err.message || "Lỗi khi cập nhật cửa hàng. Vui lòng thử lại.");
+           if (err.status === 409) {
+                    showErrorMessageBox(err.message || "Tên cửa hàng đã tồn tại. Vui lòng chọn tên khác.");
+                  } else {
+                    showErrorMessageBox(err.message || "Lỗi khi cập nhật cửa hàng. Vui lòng thử lại.");
+                  }
         }
       },
       () => console.log("Update request completed")

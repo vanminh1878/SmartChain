@@ -36,6 +36,11 @@ public class StoresRepository : IStoresRepository
         return await _context.Stores
             .FirstOrDefaultAsync(s => s.Email == email, cancellationToken);
     }
+    public async Task<Store?> GetByNameAsync(string name, CancellationToken cancellationToken)
+    {
+        return await _context.Stores
+            .FirstOrDefaultAsync(s => s.Name == name, cancellationToken);
+    }
         public async Task<List<Store>> ListAllAsync(CancellationToken cancellationToken)
     {
         return await _context.Stores

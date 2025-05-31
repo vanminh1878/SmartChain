@@ -77,7 +77,12 @@ export default React.memo(function AddStore({ setListStores }) {
         setIsModalOpen(false);
       },
       (err) => {
-        showErrorMessageBox(err.message || "Lỗi khi thêm cửa hàng. Vui lòng thử lại.");
+                if (err.status === 409) {
+          showErrorMessageBox(err.message || "Tên cửa hàng đã tồn tại. Vui lòng chọn tên khác.");
+        } else {
+          showErrorMessageBox(err.message || "Lỗi khi thêm cửa hàng. Vui lòng thử lại.");
+        }
+        
       },
       () => console.log("Add store request completed")
     );

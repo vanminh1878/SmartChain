@@ -21,7 +21,11 @@ public class UpdateStoreCommandHandler : IRequestHandler<UpdateStoreCommand, Err
         {
             return Error.NotFound(description: "Store not found.");
         }
-
+        var existingStore = await _StoresRepository.GetByNameAsync(request.name, cancellationToken);
+        if (existingStore is not null && existingStore.Id != request.StoreId)
+        {
+            return Error.Conflict("Store with the same name already exists.");
+        }
         var result = Store.Update(request.name, request.address, request.phoneNumber, request.email);
         if (result.IsError)
         {

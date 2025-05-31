@@ -10,6 +10,7 @@ public interface IStoresRepository
 {
     Task AddAsync(Store store, CancellationToken cancellationToken);
     Task<Store?> GetByIdAsync(Guid storeId, CancellationToken cancellationToken);
+    Task<Store?> GetByNameAsync(string name, CancellationToken cancellationToken);
     Task<Store?> GetByEmailAsync(string email, CancellationToken cancellationToken);
     Task<List<Store>> ListAllAsync(CancellationToken cancellationToken);
     Task<List<Store>> ListByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken);
