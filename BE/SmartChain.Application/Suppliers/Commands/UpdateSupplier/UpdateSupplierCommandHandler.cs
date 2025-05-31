@@ -21,7 +21,11 @@ public class UpdateSupplierCommandHandler : IRequestHandler<UpdateSupplierComman
         {
             return Error.NotFound(description: "Supplier not found.");
         }
-
+        var existingSupplier = await _SuppliersRepository.GetByNameAsync(request.newName, cancellationToken);
+        if (existingSupplier is not null && existingSupplier.Id != request.SupplierId)
+        {
+            return Error.Conflict("Supplier with the same name already exists.");
+        }
         var result = Supplier.Update(request.newName, request.newContactName, request.newPhoneNumber, request.newEmail, request.newAddress);
         if (result.IsError)
         {

@@ -18,6 +18,11 @@ public class CreateSupplierCommandHandler : IRequestHandler<CreateSupplierComman
     {
         try
         {
+            var existingSupplier = await _SuppliersRepository.GetByNameAsync(request.name, cancellationToken);
+            if (existingSupplier is not null)
+            {
+                return Error.Conflict("Supplier with the same name already exists.");
+            }
             var Supplier = new Supplier(request.name, request.contact_Name, request.phoneNumber, request.email,request.address);
             await _SuppliersRepository.AddAsync(Supplier, cancellationToken);
             return Supplier;

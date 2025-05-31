@@ -1,82 +1,143 @@
-import React, { useEffect, useState } from "react";
-import { fetchGet, fetchPut } from "../../../lib/httpHandler";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { IoIosSearch } from "react-icons/io";
+import { FaTrash } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
+import { showYesNoMessageBox } from "../../../components/MessageBox/YesNoMessageBox/showYesNoMessgeBox.js";
+import AddSupplier from "../../../components/Admin/SupplierManagement/AddSupplier/AddSupplier.jsx";
+import EditSupplier from "../../../components/Admin/SupplierManagement/DetailSupplier/DetailSupplier.jsx";
 import "./SupplierManagement.css";
 
 export default function SupplierManagement() {
   const [listSuppliers, setListSuppliers] = useState([]);
-  const [listSuppliersShow, setListSuppliersShow] = useState([]);
   const [dataSearch, setDataSearch] = useState("");
 
-  useEffect(() => {
-    const uri = "/api/admin/suppliers";
+  // Hàm fetch danh sách nhà cung cấp từ backend
+  const fetchSuppliers = useCallback(() => {
+    console.log("Bắt đầu fetch danh sách nhà cung cấp...");
     fetchGet(
-      uri,
+      "/suppliers",
       (sus) => {
-        console.log("Dữ liệu nhà cung cấp từ BE:", sus);
-        setListSuppliers(sus.data.items);
-        setListSuppliersShow(sus.data.items);
+        const suppliers = Array.isArray(sus) ? sus : [];
+        console.log("Dữ liệu từ server:", suppliers);
+        if (!suppliers.length && sus) {
+          toast.error("Dữ liệu từ server không hợp lệ");
+        }
+        const validatedSuppliers = suppliers.map((item, index) => {
+          if (!item.id) {
+            console.warn(`Nhà cung cấp tại index ${index} thiếu id:`, item);
+            toast.warn(`Nhà cung cấp tại index ${index} thiếu id, sử dụng ID tạm thời`);
+          }
+          return {
+            ...item,
+            id: item.id || `temp-${Date.now()}-${index}`,
+            name: item.name || item.tenNhaCungCap || "Không có tên",
+            contactName: item.contact_Name || item.contact_Name || "Không có",
+            phoneNumber: item.phoneNumber || item.phone_number || "Không có",
+            email: item.email || "Không có",
+            address: item.address || "Không có",
+            isLocked: item.isLocked || false,
+          };
+        });
+        console.log("Danh sách nhà cung cấp đã xử lý:", validatedSuppliers);
+        setListSuppliers(validatedSuppliers);
       },
       (fail) => {
-        toast.error(fail.message);
+        console.error("Lỗi khi lấy danh sách nhà cung cấp:", fail);
+        toast.error(fail.message || "Lỗi khi lấy danh sách nhà cung cấp");
+        setListSuppliers([]);
       },
       () => {
-        toast.error("Có lỗi xảy ra khi lấy danh sách nhà cung cấp");
+        console.log("Yêu cầu fetch danh sách nhà cung cấp hoàn tất");
       }
     );
   }, []);
 
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setDataSearch(value);
-    applySearch(value);
-  };
-
-  const applySearch = (searchValue) => {
-    let filteredList = [...listSuppliers];
-    if (searchValue.trim()) {
-      const lowercasedSearch = searchValue.toLowerCase();
-      filteredList = filteredList.filter((item) =>
-        item.tenNhaCungCap.toLowerCase().includes(lowercasedSearch)
-      );
-    }
-    setListSuppliersShow(filteredList);
-  };
-
+  // Fetch danh sách khi component mount
   useEffect(() => {
-    applySearch(dataSearch);
+    fetchSuppliers();
+  }, [fetchSuppliers]);
+
+  // Optimize search with useMemo
+  const listSuppliersShow = useMemo(() => {
+    if (!Array.isArray(listSuppliers)) {
+      console.error("listSuppliers không phải mảng:", listSuppliers);
+      return [];
+    }
+    console.log("Danh sách hiển thị trước khi lọc:", listSuppliers);
+    if (!dataSearch.trim()) return listSuppliers;
+    const lowercasedSearch = dataSearch.toLowerCase();
+    const filtered = listSuppliers.filter((item) =>
+      item.name?.toLowerCase()?.includes(lowercasedSearch)
+    );
+    console.log("Danh sách hiển thị sau khi lọc:", filtered);
+    return filtered;
   }, [listSuppliers, dataSearch]);
 
-  const handleLockSupplier = (supplierId, isLocked) => {
-    const uri = `/api/admin/suppliers/${supplierId}/lock`;
-    fetchPut(
-      uri,
-      { isLocked: !isLocked },
-      (sus) => {
-        setListSuppliers((prev) =>
-          prev.map((item) =>
-            item._id === supplierId ? { ...item, isLocked: !isLocked } : item
-          )
-        );
-        toast.success(`Nhà cung cấp đã được ${isLocked ? "mở khóa" : "khóa"} thành công!`);
+  // Handle search input
+  const handleSearch = useCallback((e) => {
+    console.log("Tìm kiếm với giá trị:", e.target.value);
+    setDataSearch(e.target.value);
+  }, []);
+
+  // Handle delete supplier
+  const handleDeleteSupplier = useCallback(async (supplierId) => {
+    console.log("Bắt đầu xóa nhà cung cấp với ID:", supplierId);
+    if (!supplierId) {
+      console.error("ID nhà cung cấp không tồn tại");
+      toast.error("ID nhà cung cấp không tồn tại. Không thể xóa.");
+      return;
+    }
+    if (supplierId.startsWith("temp-")) {
+      console.error("ID nhà cung cấp tạm thời:", supplierId);
+      toast.error("Nhà cung cấp này chưa được lưu trên server. Vui lòng làm mới trang.");
+      return;
+    }
+    const confirmDelete = await showYesNoMessageBox("Bạn có muốn xóa nhà cung cấp này không?");
+    if (!confirmDelete) {
+      console.log("Hủy xóa nhà cung cấp");
+      return;
+    }
+    fetchDelete(
+      `/suppliers/${supplierId}`,
+      (response) => {
+        console.log("Xóa nhà cung cấp thành công, phản hồi từ server:", response);
+        toast.success("Xóa nhà cung cấp thành công!");
+        setListSuppliers((prev) => {
+          console.log("Danh sách trước khi lọc:", prev);
+          const updatedList = prev.filter((item) => item.id !== supplierId);
+          console.log("Danh sách sau khi lọc:", updatedList);
+          return updatedList;
+        });
       },
       (fail) => {
-        toast.error(fail.message);
+        console.error("Phản hồi lỗi từ server:", fail);
+        if (fail.message === "Xóa thành công") {
+          console.log("Server báo thành công trong errorCallback, cập nhật danh sách cục bộ");
+          toast.success("Xóa nhà cung cấp thành công!");
+          setListSuppliers((prev) => {
+            console.log("Danh sách trước khi lọc:", prev);
+            const updatedList = prev.filter((item) => item.id !== supplierId);
+            console.log("Danh sách sau khi lọc:", updatedList);
+            return updatedList;
+          });
+        } else {
+          toast.error(fail.message || "Lỗi khi xóa nhà cung cấp");
+        }
       },
       () => {
-        toast.error("Có lỗi xảy ra khi khóa/mở khóa nhà cung cấp");
+        console.log("Yêu cầu xóa nhà cung cấp hoàn tất");
       }
     );
-  };
+  }, []);
 
   return (
     <>
       <ToastContainer />
       <div className="supplier-management">
         <div className="title py-3 fs-5 mb-2">
-          Số lượng nhà cung cấp: {listSuppliersShow.length}
+          Số lượng nhà cung cấp: {listSuppliersShow.length || 0}
         </div>
         <div className="row mx-0 my-0">
           <div className="col-12 pb-4 px-0 d-flex justify-content-between align-items-center mb-2">
@@ -91,6 +152,7 @@ export default function SupplierManagement() {
                 <IoIosSearch className="icon_search translate-middle-y text-secondary" />
               </div>
             </div>
+            <AddSupplier fetchSuppliers={fetchSuppliers} />
           </div>
           <div className="contain_Table mx-0 col-12 bg-white rounded-2">
             <table className="table table-hover">
@@ -98,25 +160,43 @@ export default function SupplierManagement() {
                 <tr>
                   <th>STT</th>
                   <th>Tên nhà cung cấp</th>
-                  <th>Trạng thái</th>
+                  <th>Người liên hệ</th>
+                  <th>Số điện thoại</th>
+                  <th>Email</th>
+                  <th>Địa chỉ</th>
                   <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                {listSuppliersShow && listSuppliersShow.length > 0 ? (
+                {listSuppliersShow.length > 0 ? (
                   listSuppliersShow.map((item, index) => (
-                    <tr key={item._id}>
+                    <tr key={item.id}>
                       <td>{index + 1}</td>
-                      <td>{item.tenNhaCungCap}</td>
-                      <td>{item.isLocked ? "Khóa" : "Hoạt động"}</td>
+                      <td>{item.name}</td>
+                      <td>{item.contactName}</td>
+                      <td>{item.phoneNumber}</td>
+                      <td>{item.email}</td>
+                      <td>{item.address}</td>
                       <td>
-                        <div className="list_Action"></div>
+                        <div className="list_Action d-flex gap-2">
+                          <EditSupplier
+                            item={item}
+                            fetchSuppliers={fetchSuppliers}
+                          />
+                          <button
+                            onClick={() => handleDeleteSupplier(item.id)}
+                            className="btn btn-sm btn-link p-0"
+                            title="Xóa nhà cung cấp"
+                          >
+                            <FaTrash size={20} className="text-danger" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="text-center">
+                    <td colSpan="7" className="text-center">
                       Không có nhà cung cấp nào
                     </td>
                   </tr>

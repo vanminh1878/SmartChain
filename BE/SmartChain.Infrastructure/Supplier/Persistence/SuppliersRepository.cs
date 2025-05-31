@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartChain.Application.Common.Interfaces;
+using SmartChain.Domain.StockIntake;
 using SmartChain.Domain.Supplier;
 using SmartChain.Infrastructure.Common.Persistence;
 
@@ -23,6 +24,8 @@ public class SuppliersRepository : ISuppliersRepository
         await _context.Suppliers.AddAsync(supplier, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }
+   
+
 
     public async Task<Supplier?> GetByIdAsync(Guid supplierId, CancellationToken cancellationToken)
     {
@@ -34,6 +37,11 @@ public class SuppliersRepository : ISuppliersRepository
     {
         return await _context.Suppliers
             .FirstOrDefaultAsync(s => s.Email == email, cancellationToken);
+    }
+        public async Task<Supplier?> GetByNameAsync(string name, CancellationToken cancellationToken)
+    {
+        return await _context.Suppliers
+            .FirstOrDefaultAsync(s => s.Name == name, cancellationToken);
     }
     public async Task<List<Supplier>> ListAllAsync(CancellationToken cancellationToken)
     {
