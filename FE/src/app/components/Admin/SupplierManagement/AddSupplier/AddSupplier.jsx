@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from "react";
 import Modal from "react-modal";
-import { IoIosAddCircleOutline } from "react-icons/io";
+import { IoAddCircleOutline, IoClose } from "react-icons/io5";
 import { fetchPost } from "../../../../lib/httpHandler";
-import { showErrorMessageBox } from "../../../MessageBox/ErrorMessageBox/showErrorMessageBox";
+import { showErrorMessageBox } from "../../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox";
 import { showSuccessMessageBox } from "../../../MessageBox/SuccessMessageBox/showSuccessMessageBox";
 import "./AddSupplier.css";
 
@@ -123,38 +123,40 @@ export default React.memo(function AddSupplier({ fetchSuppliers }) {
     <>
       <button
         type="button"
-        className="btn btn-primary d-flex align-items-center gap-1"
+        className="addButtonAddSupplier"
         onClick={openModal}
       >
-        <IoIosAddCircleOutline size={20} />
+        <IoAddCircleOutline className="addIconAddSupplier" />
         Thêm
       </button>
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         onAfterClose={handleAfterClose}
-        className="modal-content"
-        overlayClassName="modal-overlay"
+        className="modalContentAddSupplier"
+        overlayClassName="modalOverlayAddSupplier"
         contentLabel="Thêm nhà cung cấp mới"
         shouldCloseOnOverlayClick={false}
       >
-        <div className="modal-header">
-          <h5 className="modal-title fs-4">Thêm nhà cung cấp mới</h5>
+        <div className="modalHeaderAddSupplier">
+          <h5 className="modalTitleAddSupplier">Thêm nhà cung cấp mới</h5>
           <button
             type="button"
-            className="btn-close"
+            className="btn-closeAddSupplier"
             onClick={closeModal}
             aria-label="Close"
-          />
+          >
+            <IoClose />
+          </button>
         </div>
-        <div className="modal-body d-flex justify-content-center">
-          <form className="me-5 w-75" onSubmit={handleSubmit}>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="name" className="form-label col-4 custom-bold">
+        <div className="modalBodyAddSupplier">
+          <form className="formColumnsAddSupplier" onSubmit={handleSubmit}>
+            <div className="formGroupAddSupplier">
+              <label htmlFor="name" className="formLabelAddSupplier">
                 Tên nhà cung cấp:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlAddSupplier"
                 name="name"
                 id="name"
                 type="text"
@@ -163,12 +165,12 @@ export default React.memo(function AddSupplier({ fetchSuppliers }) {
                 autoFocus
               />
             </div>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="contactName" className="form-label col-4 custom-bold">
+            <div className="formGroupAddSupplier">
+              <label htmlFor="contactName" className="formLabelAddSupplier">
                 Người liên hệ:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlAddSupplier"
                 name="contactName"
                 id="contactName"
                 type="text"
@@ -176,12 +178,12 @@ export default React.memo(function AddSupplier({ fetchSuppliers }) {
                 onChange={handleChange}
               />
             </div>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="phoneNumber" className="form-label col-4 custom-bold">
+            <div className="formGroupAddSupplier">
+              <label htmlFor="phoneNumber" className="formLabelAddSupplier">
                 Số điện thoại:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlAddSupplier"
                 name="phoneNumber"
                 id="phoneNumber"
                 type="text"
@@ -189,12 +191,12 @@ export default React.memo(function AddSupplier({ fetchSuppliers }) {
                 onChange={handleChange}
               />
             </div>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="email" className="form-label col-4 custom-bold">
+            <div className="formGroupAddSupplier">
+              <label htmlFor="email" className="formLabelAddSupplier">
                 Email:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlAddSupplier"
                 name="email"
                 id="email"
                 type="email"
@@ -202,12 +204,12 @@ export default React.memo(function AddSupplier({ fetchSuppliers }) {
                 onChange={handleChange}
               />
             </div>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="address" className="form-label col-4 custom-bold">
+            <div className="formGroupAddSupplier">
+              <label htmlFor="address" className="formLabelAddSupplier">
                 Địa chỉ:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlAddSupplier"
                 name="address"
                 id="address"
                 type="text"
@@ -215,21 +217,21 @@ export default React.memo(function AddSupplier({ fetchSuppliers }) {
                 onChange={handleChange}
               />
             </div>
-            <div className="modal-footer">
+            <div className="modalFooterAddSupplier">
               <button
                 type="button"
-                className="btn btn-secondary btn_Cancel"
+                className="cancelButtonAddSupplier"
                 onClick={closeModal}
               >
                 Hủy
               </button>
               <button
                 type="submit"
-                className="btn btn-primary btn_Accept"
+                className="submitButtonAddSupplier"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
-                  <span className="spinner-border spinner-border-sm" role="status" />
+                  <span className="spinnerAddSupplier" role="status" />
                 ) : (
                   "Thêm"
                 )}

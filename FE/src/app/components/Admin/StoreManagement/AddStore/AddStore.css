@@ -1,4 +1,4 @@
-/* Tái sử dụng các biến CSS từ DetailStore.css */
+/* AddStore.css */
 :root {
   --primary-color: #1a73e8;
   --secondary-color: #5f6368;
@@ -12,8 +12,7 @@
   --border-radius: 12px;
 }
 
-/* Overlay của modal */
-.modal-overlay {
+.modalOverlayAddStore {
   position: fixed;
   top: 0;
   left: 0;
@@ -28,20 +27,19 @@
   transition: var(--transition);
 }
 
-.modal-overlay.ReactModal__Overlay--after-open {
+.modalOverlayAddStore.ReactModal__Overlay--after-open {
   opacity: 1;
 }
 
-.modal-overlay.ReactModal__Overlay--before-close {
+.modalOverlayAddStore.ReactModal__Overlay--before-close {
   opacity: 0;
 }
 
-/* Nội dung modal */
-.modal-content {
+.modalContentAddStore {
   background: var(--background-color);
   border-radius: var(--border-radius);
   width: 500px;
-  max-width: 100%;
+  max-width: 95%;
   box-shadow: var(--shadow);
   position: relative;
   z-index: 1001;
@@ -61,8 +59,7 @@
   transform: scale(0.95);
 }
 
-/* Header của modal */
-.modal-header {
+.modalHeaderAddStore {
   background-color: var(--light-gray);
   border-bottom: 1px solid var(--border-color);
   padding: 10px 20px;
@@ -72,16 +69,14 @@
   height: 50px;
 }
 
-/* Tiêu đề modal */
-.modal-title {
+.modalTitleAddStore {
   font-size: 1.5rem;
   font-weight: 500;
   color: var(--text-color);
   margin-left: 10px;
 }
 
-/* Nút đóng modal */
-.btn-close {
+.btn-closeAddStore {
   background: none;
   border: none;
   font-size: 1.25rem;
@@ -89,22 +84,30 @@
   color: var(--secondary-color);
   transition: var(--transition);
   margin-right: 5px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1002;
 }
 
-.btn-close:hover {
+.btn-closeAddStore:hover {
   color: var(--primary-color);
   transform: rotate(90deg);
 }
 
-/* Body của modal */
-.modal-body {
+.modalBodyAddStore {
   padding: 24px;
   display: flex;
   justify-content: center;
 }
 
-/* Form trong modal */
-.form-group {
+.formColumnsAddStore {
+  width: 100%;
+}
+
+.formGroupAddStore {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -112,8 +115,7 @@
   width: 100%;
 }
 
-/* Label của form */
-.form-label.custom-bold {
+.formLabelAddStore {
   font-weight: 500;
   color: var(--text-color);
   width: 120px;
@@ -121,8 +123,7 @@
   flex-shrink: 0;
 }
 
-/* Input của form */
-.form-control {
+.formControlAddStore {
   flex: 1;
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -133,14 +134,13 @@
   margin-top: 10px;
 }
 
-.form-control:focus {
+.formControlAddStore:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
   outline: none;
 }
 
-/* Footer của modal */
-.modal-footer {
+.modalFooterAddStore {
   border-top: 1px solid var(--border-color);
   padding: 16px 24px;
   display: flex;
@@ -149,8 +149,7 @@
   background-color: var(--light-gray);
 }
 
-/* Nút Hủy */
-.btn_Cancel {
+.cancelButtonAddStore {
   background-color: var(--secondary-color);
   border: none;
   border-radius: 8px;
@@ -162,18 +161,16 @@
   transition: var(--transition);
   width: 100px;
   height: 40px;
-  margin-top: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 10px;
 }
 
-.btn_Cancel:hover {
+.cancelButtonAddStore:hover {
   background-color: #4b4f54;
   transform: translateY(-1px);
 }
 
-/* Nút Thêm */
-.btn_Accept {
+.submitButtonAddStore {
   background-color: var(--primary-color);
   border: none;
   border-radius: 8px;
@@ -185,13 +182,36 @@
   transition: var(--transition);
   width: 100px;
   height: 40px;
-  margin-top: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 10px;
   margin-right: 20px;
+  margin-bottom: 10px;
 }
 
-.btn_Accept:hover {
+.submitButtonAddStore:hover {
   background-color: #1557b0;
   transform: translateY(-1px);
+}
+
+.addButtonAddStore {
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.addButtonAddStore:hover {
+  background-color: #1557b0;
+  transform: translateY(-1px);
+}
+
+.addIconAddStore {
+  font-size: 1.25rem;
 }

@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from "react";
 import Modal from "react-modal";
-import { IoIosAddCircleOutline } from "react-icons/io";
+import { IoAddCircleOutline, IoClose } from "react-icons/io5";
 import { fetchPost } from "../../../../lib/httpHandler";
-import { showErrorMessageBox } from "../../../MessageBox/ErrorMessageBox/showErrorMessageBox";
+import { showErrorMessageBox } from "../../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox";
 import { showSuccessMessageBox } from "../../../MessageBox/SuccessMessageBox/showSuccessMessageBox";
 import "./AddCategory.css";
 
@@ -50,7 +50,6 @@ export default React.memo(function AddCategory({ fetchCategories }) {
         setIsModalOpen(false);
       },
       (err) => {
-        //showErrorMessageBox(err.message || "Lỗi khi thêm danh mục. Vui lòng thử lại.");
         if (err.status === 409) {
           showErrorMessageBox("Tên danh mục đã tồn tại. Vui lòng chọn tên khác.");
         } else {
@@ -85,10 +84,10 @@ export default React.memo(function AddCategory({ fetchCategories }) {
     <>
       <button
         type="button"
-        className="btn btn-primary d-flex align-items-center gap-1"
+        className="addButtonAddCategory"
         onClick={openModal}
       >
-        <IoIosAddCircleOutline size={20} />
+        <IoAddCircleOutline className="addIconAddCategory" />
         Thêm
       </button>
 
@@ -96,28 +95,30 @@ export default React.memo(function AddCategory({ fetchCategories }) {
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         onAfterClose={handleAfterClose}
-        className="modal-content"
-        overlayClassName="modal-overlay"
+        className="modalContentAddCategory"
+        overlayClassName="modalOverlayAddCategory"
         contentLabel="Thêm danh mục mới"
         shouldCloseOnOverlayClick={false}
       >
-        <div className="modal-header">
-          <h5 className="modal-title fs-4">Thêm danh mục mới</h5>
+        <div className="modalHeaderAddCategory">
+          <h5 className="modalTitleAddCategory">Thêm danh mục mới</h5>
           <button
             type="button"
-            className="btn-close"
+            className="btn-closeAddCategory"
             onClick={closeModal}
             aria-label="Close"
-          />
+          >
+            <IoClose />
+          </button>
         </div>
-        <div className="modal-body d-flex justify-content-center">
-          <form className="me-5 w-75" onSubmit={handleSubmit}>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="name" className="form-label col-4 custom-bold">
+        <div className="modalBodyAddCategory">
+          <form className="formColumnsAddCategory" onSubmit={handleSubmit}>
+            <div className="formGroupAddCategory">
+              <label htmlFor="name" className="formLabelAddCategory">
                 Tên danh mục:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlAddCategory"
                 name="name"
                 id="name"
                 type="text"
@@ -128,13 +129,13 @@ export default React.memo(function AddCategory({ fetchCategories }) {
             </div>
           </form>
         </div>
-        <div className="modal-footer">
-          <button className="btn btn-secondary btn_Cancel" onClick={closeModal}>
+        <div className="modalFooterAddCategory">
+          <button className="cancelButtonAddCategory" onClick={closeModal}>
             Hủy
           </button>
           <button
             type="submit"
-            className="btn btn-primary btn_Accept"
+            className="submitButtonAddCategory"
             onClick={handleSubmit}
           >
             Thêm

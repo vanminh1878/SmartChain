@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from "react";
 import Modal from "react-modal";
-import { IoIosAddCircleOutline } from "react-icons/io";
+import { IoAddCircleOutline, IoClose } from "react-icons/io5";
 import { fetchPost } from "../../../../lib/httpHandler";
-import { showErrorMessageBox } from "../../../MessageBox/ErrorMessageBox/showErrorMessageBox";
+import { showErrorMessageBox } from "../../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox";
 import { showSuccessMessageBox } from "../../../MessageBox/SuccessMessageBox/showSuccessMessageBox";
 import "./AddStore.css";
 
@@ -77,12 +77,11 @@ export default React.memo(function AddStore({ setListStores }) {
         setIsModalOpen(false);
       },
       (err) => {
-                if (err.status === 409) {
+        if (err.status === 409) {
           showErrorMessageBox(err.message || "Tên cửa hàng đã tồn tại. Vui lòng chọn tên khác.");
         } else {
           showErrorMessageBox(err.message || "Lỗi khi thêm cửa hàng. Vui lòng thử lại.");
         }
-        
       },
       () => console.log("Add store request completed")
     );
@@ -112,10 +111,10 @@ export default React.memo(function AddStore({ setListStores }) {
     <>
       <button
         type="button"
-        className="btn btn-primary d-flex align-items-center gap-1"
+        className="addButtonAddStore"
         onClick={openModal}
       >
-        <IoIosAddCircleOutline size={20} />
+        <IoAddCircleOutline className="addIconAddStore" />
         Thêm
       </button>
 
@@ -123,28 +122,30 @@ export default React.memo(function AddStore({ setListStores }) {
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         onAfterClose={handleAfterClose}
-        className="modal-content"
-        overlayClassName="modal-overlay"
+        className="modalContentAddStore"
+        overlayClassName="modalOverlayAddStore"
         contentLabel="Thêm cửa hàng mới"
         shouldCloseOnOverlayClick={false}
       >
-        <div className="modal-header">
-          <h5 className="modal-title fs-4">Thêm cửa hàng mới</h5>
+        <div className="modalHeaderAddStore">
+          <h5 className="modalTitleAddStore">Thêm cửa hàng mới</h5>
           <button
             type="button"
-            className="btn-close"
+            className="btn-closeAddStore"
             onClick={closeModal}
             aria-label="Close"
-          />
+          >
+            <IoClose />
+          </button>
         </div>
-        <div className="modal-body d-flex justify-content-center">
-          <form className="me-5 w-75" onSubmit={handleSubmit}>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="name" className="form-label col-4 custom-bold">
+        <div className="modalBodyAddStore">
+          <form className="formColumnsAddStore" onSubmit={handleSubmit}>
+            <div className="formGroupAddStore">
+              <label htmlFor="name" className="formLabelAddStore">
                 Tên cửa hàng:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlAddStore"
                 name="name"
                 id="name"
                 type="text"
@@ -153,12 +154,12 @@ export default React.memo(function AddStore({ setListStores }) {
                 autoFocus
               />
             </div>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="phoneNumber" className="form-label col-4 custom-bold">
+            <div className="formGroupAddStore">
+              <label htmlFor="phoneNumber" className="formLabelAddStore">
                 Số điện thoại:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlAddStore"
                 name="phoneNumber"
                 id="phoneNumber"
                 type="text"
@@ -166,12 +167,12 @@ export default React.memo(function AddStore({ setListStores }) {
                 onChange={handleChange}
               />
             </div>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="address" className="form-label col-4 custom-bold">
+            <div className="formGroupAddStore">
+              <label htmlFor="address" className="formLabelAddStore">
                 Địa chỉ:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlAddStore"
                 name="address"
                 id="address"
                 type="text"
@@ -179,12 +180,12 @@ export default React.memo(function AddStore({ setListStores }) {
                 onChange={handleChange}
               />
             </div>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="email" className="form-label col-4 custom-bold">
+            <div className="formGroupAddStore">
+              <label htmlFor="email" className="formLabelAddStore">
                 Email:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlAddStore"
                 name="email"
                 id="email"
                 type="email"
@@ -194,13 +195,13 @@ export default React.memo(function AddStore({ setListStores }) {
             </div>
           </form>
         </div>
-        <div className="modal-footer">
-          <button className="btn btn-secondary btn_Cancel" onClick={closeModal}>
+        <div className="modalFooterAddStore">
+          <button className="cancelButtonAddStore" onClick={closeModal}>
             Hủy
           </button>
           <button
             type="submit"
-            className="btn btn-primary btn_Accept"
+            className="submitButtonAddStore"
             onClick={handleSubmit}
           >
             Thêm
