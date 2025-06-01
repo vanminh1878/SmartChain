@@ -1,3 +1,4 @@
+/* DetailEmployee.module.css */
 :root {
   --primary-color: #1a73e8;
   --secondary-color: #5f6368;
@@ -6,12 +7,12 @@
   --background-color: #ffffff;
   --light-gray: #f1f3f4;
   --border-color: #dadce0;
-  --shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
   --transition: all 0.3s ease-in-out;
   --border-radius: 12px;
 }
 
-.modal-overlay {
+.modalOverlayDetailEmployee {
   position: fixed;
   top: 0;
   left: 0;
@@ -26,18 +27,18 @@
   transition: var(--transition);
 }
 
-.modal-overlay.ReactModal__Overlay--after-open {
+.modalOverlayDetailEmployee.ReactModal__Overlay--after-open {
   opacity: 1;
 }
 
-.modal-overlay.ReactModal__Overlay--before-close {
+.modalOverlayDetailEmployee.ReactModal__Overlay--before-close {
   opacity: 0;
 }
 
-.modal-content {
+.modalContentDetailEmployee {
   background: var(--background-color);
   border-radius: var(--border-radius);
-  width: 800px !important;
+  width: 900px;
   max-width: 95%;
   box-shadow: var(--shadow);
   position: relative;
@@ -48,9 +49,25 @@
   overflow: hidden;
   max-height: 90vh;
   overflow-y: auto;
-  height: fit-content;
+  height: 800px !important;
+}
+/* Nút đóng modal */
+.btn-closeDetailEmployee {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--secondary-color);
+  transition: var(--transition);
+  margin-right: 5px !important; /* Giảm khoảng cách bên phải */
+  width: 30px; /* Đặt chiều rộng cố định */
+  height: 30px; /* Đặt chiều cao cố định */
 }
 
+.btn-closeDetailEmployee:hover {
+  color: black;
+  transform: rotate(90deg); /* Hiệu ứng xoay nhẹ khi hover */
+}
 .ReactModal__Content--after-open {
   transform: scale(1);
 }
@@ -59,7 +76,7 @@
   transform: scale(0.95);
 }
 
-.modal-header {
+.modalHeaderDetailEmployee {
   background-color: var(--light-gray);
   border-bottom: 1px solid var(--border-color);
   padding: 10px 20px;
@@ -69,14 +86,14 @@
   height: 50px;
 }
 
-.modal-title {
+.modalTitleDetailEmployee {
   font-size: 1.5rem;
   font-weight: 500;
   color: var(--text-color);
   margin-left: 10px;
 }
 
-.btn-close {
+.closeButtonDetailEmployee {
   background: none;
   border: none;
   font-size: 1.25rem;
@@ -86,24 +103,24 @@
   margin-right: 5px;
 }
 
-.btn-close:hover {
+.closeButtonDetailEmployee:hover {
   color: var(--primary-color);
   transform: rotate(90deg);
 }
 
-.modal-body {
+.modalBodyDetailEmployee {
   padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.avatar-section {
+.avatarSectionDetailEmployee {
   margin-bottom: 20px;
   text-align: center;
 }
 
-.avatar-image {
+.avatarImageDetailEmployee {
   width: 100px;
   height: 100px;
   border-radius: 50%;
@@ -111,26 +128,26 @@
   border: 2px solid var(--border-color);
 }
 
-.form-columns {
+.formColumnsDetailEmployee {
   display: flex;
   gap: 20px;
   width: 100%;
 }
 
-.form-column {
+.formColumnDetailEmployee {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.form-group {
+.formGroupDetailEmployee {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.form-label.custom-bold {
+.formLabelDetailEmployee {
   font-weight: 500;
   color: var(--text-color);
   width: 100px;
@@ -138,7 +155,7 @@
   flex-shrink: 0;
 }
 
-.form-control {
+.formControlDetailEmployee {
   flex: 1;
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -148,19 +165,20 @@
   min-width: 0;
 }
 
-.form-control:focus {
+.formControlDetailEmployee:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
   outline: none;
 }
 
-.form-control[readonly] {
+.formControlDetailEmployee[readonly],
+.formControlDetailEmployee:disabled {
   background-color: var(--light-gray);
   opacity: 0.8;
   cursor: not-allowed;
 }
 
-.modal-footer {
+.modalFooterDetailEmployee {
   border-top: 1px solid var(--border-color);
   padding: 16px 24px;
   display: flex;
@@ -169,7 +187,7 @@
   background-color: var(--light-gray);
 }
 
-.btn_Cancel {
+.cancelButtonDetailEmployee {
   background-color: var(--secondary-color);
   border: none;
   border-radius: 8px;
@@ -184,12 +202,12 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.btn_Cancel:hover {
+.cancelButtonDetailEmployee:hover {
   background-color: #4b4f54;
   transform: translateY(-1px);
 }
 
-.btn_Accept {
+.submitButtonDetailEmployee {
   background-color: var(--primary-color);
   border: none;
   border-radius: 8px;
@@ -205,12 +223,12 @@
   margin-right: 20px;
 }
 
-.btn_Accept:hover {
+.submitButtonDetailEmployee:hover {
   background-color: #1557b0;
   transform: translateY(-1px);
 }
 
-.contain_Edit {
+.editContainerDetailEmployee {
   display: flex;
   align-items: center;
   padding: 16px 24px;
@@ -221,33 +239,45 @@
   border-radius: var(--border-radius);
 }
 
-.title_edit {
+.editTitleDetailEmployee {
   font-size: 1.1rem;
   font-weight: 500;
   color: var(--text-color);
   margin: 0;
 }
 
-.icon_edit_information {
+.editButtonDetailEmployee {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.editIconDetailEmployee {
   color: var(--primary-color);
   font-size: 1.75rem;
-  cursor: pointer;
   transition: var(--transition);
 }
 
-.icon_edit_information:hover {
+.editIconDetailEmployee:hover {
   color: #1557b0;
   transform: scale(1.1);
 }
 
-.icon_information.icon_action {
+.iconButtonDetailEmployee {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.iconInformationDetailEmployee {
   color: var(--primary-color);
   font-size: 1.4rem;
-  cursor: pointer;
   transition: var(--transition);
 }
 
-.icon_information.icon_action:hover {
+.iconInformationDetailEmployee:hover {
   color: #1557b0;
   transform: scale(1.1);
 }

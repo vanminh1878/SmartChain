@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import Modal from "react-modal";
 import { GrCircleInformation } from "react-icons/gr";
 import { TiEdit } from "react-icons/ti";
+import { IoClose } from "react-icons/io5";
 import { fetchGet, fetchPut } from "../../../../lib/httpHandler";
 import { showErrorMessageBox } from "../../../MessageBox/ErrorMessageBox/showErrorMessageBox";
 import { showSuccessMessageBox } from "../../../MessageBox/SuccessMessageBox/showSuccessMessageBox";
@@ -10,7 +11,7 @@ import "./DetailCategory.css";
 // Bind modal to app element for accessibility
 Modal.setAppElement("#root");
 
-export default React.memo(function EditCategory({ item, fetchCategories }) {
+export default React.memo(function DetailCategory({ item, fetchCategories }) {
   const [editStatus, setEditStatus] = useState(false);
   const [categoryInfo, setCategoryInfo] = useState({});
   const [dataForm, setDataForm] = useState({
@@ -110,13 +111,12 @@ export default React.memo(function EditCategory({ item, fetchCategories }) {
         await showSuccessMessageBox(res.message || "Cập nhật danh mục thành công");
         setCategoryInfo({ ...categoryInfo, ...updatedData });
         setDataForm({ ...updatedData });
-        fetchCategories(); // Làm mới danh sách từ server
+        fetchCategories();
         setEditStatus(false);
         setIsModalOpen(false);
       },
       (err) => {
         console.error("Update error details:", err);
-        // Thử lại chỉ với name nếu server không hỗ trợ
         if (err.message === "Phản hồi từ server không phải JSON" || err.status === 500) {
           console.log("Retrying with only name...");
           fetchPut(
@@ -127,7 +127,7 @@ export default React.memo(function EditCategory({ item, fetchCategories }) {
               await showSuccessMessageBox(res.message || "Cập nhật danh mục thành công");
               setCategoryInfo({ ...categoryInfo, name: dataForm.name.trim() });
               setDataForm({ name: dataForm.name.trim() });
-              fetchCategories(); // Làm mới danh sách từ server
+              fetchCategories();
               setEditStatus(false);
               setIsModalOpen(false);
             },
@@ -138,11 +138,11 @@ export default React.memo(function EditCategory({ item, fetchCategories }) {
             () => console.log("Retry request completed")
           );
         } else {
-                  if (err.status === 409) {
-          showErrorMessageBox(err.message ||"Tên danh mục đã tồn tại. Vui lòng chọn tên khác.");
-        } else {
-          showErrorMessageBox(err.title || "Lỗi khi cập nhật danh mục. Vui lòng thử lại.");
-        }
+          if (err.status === 409) {
+            showErrorMessageBox(err.message || "Tên danh mục đã tồn tại. Vui lòng chọn tên khác.");
+          } else {
+            showErrorMessageBox(err.title || "Lỗi khi cập nhật danh mục. Vui lòng thử lại.");
+          }
         }
       },
       () => console.log("Update request completed")
@@ -173,41 +173,43 @@ export default React.memo(function EditCategory({ item, fetchCategories }) {
     <>
       <button
         type="button"
-        className="border-0 bg-transparent p-0"
+        className="iconButtonDetailCategory"
         onClick={openModal}
       >
-        <GrCircleInformation className="icon_information icon_action" />
+        <GrCircleInformation className="iconInformationDetailCategory" />
       </button>
 
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         onAfterClose={handleAfterClose}
-        className="modal-content"
-        overlayClassName="modal-overlay"
+        className="modalContentDetailCategory"
+        overlayClassName="modalOverlayDetailCategory"
         contentLabel="Thông tin danh mục"
         shouldFocusAfterRender={editStatus}
         shouldCloseOnOverlayClick={false}
       >
-        <div className="modal-header">
-          <h5 className="modal-title fs-4">
+        <div className="modalHeaderDetailCategory">
+          <h5 className="modalTitleDetailCategory">
             {editStatus ? "Sửa thông tin danh mục" : "Thông tin danh mục"}
           </h5>
           <button
             type="button"
-            className="btn-close"
+            className="btn-closeDetailCategory"
             onClick={closeModal}
             aria-label="Close"
-          />
+          >
+            <IoClose />
+          </button>
         </div>
-        <div className="modal-body d-flex justify-content-center">
-          <form className="me-5 w-75" onSubmit={handleSubmit}>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="name" className="form-label col-4 custom-bold">
+        <div className="modalBodyDetailCategory">
+          <form className="formColumnsDetailCategory" onSubmit={handleSubmit}>
+            <div className="formGroupDetailCategory">
+              <label htmlFor="name" className="formLabelDetailCategory">
                 Tên danh mục:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlDetailCategory"
                 name="name"
                 id="name"
                 type="text"
@@ -220,23 +222,23 @@ export default React.memo(function EditCategory({ item, fetchCategories }) {
           </form>
         </div>
         {editStatus ? (
-          <div className="modal-footer">
-            <button className="btn btn-secondary btn_Cancel" onClick={handleCancel}>
+          <div className="modalFooterDetailCategory">
+            <button className="cancelButtonDetailCategory" onClick={handleCancel}>
               Hủy
             </button>
             <button
               type="submit"
-              className="btn btn-primary btn_Accept"
+              className="submitButtonDetailCategory"
               onClick={handleSubmit}
             >
               Lưu
             </button>
           </div>
         ) : (
-          <div className="contain_Edit d-flex align-items-center mb-3 ms-3">
-            <h4 className="title_edit fs-6 mb-0 me-2">Chỉnh sửa thông tin</h4>
-            <button className="bg-white border-0 p-0" onClick={handleEditToggle}>
-              <TiEdit className="fs-3 icon_edit_information" />
+          <div className="editContainerDetailCategory">
+            <h4 className="editTitleDetailCategory">Chỉnh sửa thông tin</h4>
+            <button className="editButtonDetailCategory" onClick={handleEditToggle}>
+              <TiEdit className="editIconDetailCategory" />
             </button>
           </div>
         )}

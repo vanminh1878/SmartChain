@@ -1,25 +1,24 @@
-/* Biến CSS để dễ dàng tùy chỉnh */
+/* DetailStore.css */
 :root {
-  --primary-color: #1a73e8; /* Màu xanh dương tươi sáng, hiện đại hơn */
-  --secondary-color: #5f6368; /* Màu xám đậm nhẹ nhàng */
-  --accent-color: #34c759; /* Màu xanh lá cho điểm nhấn */
-  --text-color: #202124; /* Màu chữ đậm hơn, dễ đọc */
-  --background-color: #ffffff; /* Màu nền trắng tinh */
-  --light-gray: #f1f3f4; /* Màu xám nhạt nhẹ hơn */
-  --border-color: #dadce0; /* Viền nhẹ nhàng */
-  --shadow: 0 8px 24px rgba(0, 0, 0, 0.12); /* Bóng nhẹ, hiện đại */
-  --transition: all 0.3s ease-in-out; /* Hiệu ứng mượt hơn */
-  --border-radius: 12px; /* Bo góc lớn hơn, mềm mại */
+  --primary-color: #1a73e8;
+  --secondary-color: #5f6368;
+  --accent-color: #34c759;
+  --text-color: #202124;
+  --background-color: #ffffff;
+  --light-gray: #f1f3f4;
+  --border-color: #dadce0;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --transition: all 0.3s ease-in-out;
+  --border-radius: 12px;
 }
 
-/* Overlay của modal */
-.modal-overlay {
+.modalOverlayDetailStore {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6); /* Nền tối nhẹ hơn, không quá gắt */
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -28,130 +27,127 @@
   transition: var(--transition);
 }
 
-.modal-overlay.ReactModal__Overlay--after-open {
+.modalOverlayDetailStore.ReactModal__Overlay--after-open {
   opacity: 1;
 }
 
-.modal-overlay.ReactModal__Overlay--before-close {
+.modalOverlayDetailStore--before-close {
   opacity: 0;
 }
 
-/* Nội dung modal */
-.modal-content {
-  background: #fff;
-  border-radius: 10px !important; /* Bo góc lớn hơn, mềm mại */
-  width: 500px !important; /* Tăng nhẹ chiều rộng cho thoải mái */
-  max-width: 100%;
+.modalContentDetailStore {
+  background: var(--background-color);
+  border-radius: var(--border-radius);
+  width: 600px;
+  max-width: 95%;
   box-shadow: var(--shadow);
   position: relative;
   z-index: 1001;
-  transform: scale(0.95); /* Hiệu ứng phóng to nhẹ */
+  transform: scale(0.95);
   transition: var(--transition);
   padding: 0;
   overflow: hidden;
-  background-color: var(--background-color) !important;
   max-height: fit-content;
   height: 500px;
   margin-bottom: 15px;
-  object-fit: cover;
 }
 
 .ReactModal__Content--after-open {
   transform: scale(1);
-
 }
 
 .ReactModal__Content--before-close {
   transform: scale(0.95);
 }
 
-/* Header của modal */
-.modal-header {
+.modalHeaderDetailStore {
   background-color: var(--light-gray);
   border-bottom: 1px solid var(--border-color);
-  padding: 10px 20px; /* Tăng padding cho thoáng */
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 50px; /* Giữ chiều cao cố định */
+  height: 80px;
 }
 
-/* Tiêu đề modal */
-.modal-title {
-  font-size: 1.5rem ; /* Tăng kích thước chữ cho rõ ràng */
+.modalTitleDetailStore {
+  font-size: 1.5rem;
   font-weight: 500;
   color: var(--text-color);
   margin-left: 10px;
 }
 
-/* Nút đóng modal */
-.btn-close {
+.btn-closeDetailStore {
   background: none;
   border: none;
   font-size: 1.25rem;
   cursor: pointer;
   color: var(--secondary-color);
   transition: var(--transition);
-  margin-right: 5px !important; /* Giảm khoảng cách bên phải */
+  margin-right: 5px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1002;
 }
 
-.btn-close:hover {
+.btn-closeDetailStore:hover {
   color: var(--primary-color);
-  transform: rotate(90deg); /* Hiệu ứng xoay nhẹ khi hover */
+  transform: rotate(90deg);
 }
 
-/* Body của modal */
-.modal-body {
-  padding: 24px; /* Tăng padding cho thoải mái */
+.modalBodyDetailStore {
+  padding: 24px;
   display: flex;
   justify-content: center;
 }
 
-/* Form trong modal */
-.form-group {
+.formColumnsDetailStore {
+  width: 100%;
+}
+
+.formGroupDetailStore {
   display: flex;
   align-items: center;
-  gap: 16px; /* Giảm khoảng cách cho cân đối */
+  gap: 12px;
   margin-bottom: 16px;
   width: 100%;
 }
 
-/* Label của form */
-.form-label.custom-bold {
+.formLabelDetailStore {
   font-weight: 500;
   color: var(--text-color);
-  width: 120px; /* Giảm nhẹ để cân đối */
+  width: 120px;
   text-align: right;
   flex-shrink: 0;
 }
 
-/* Input của form */
-.form-control {
+.formControlDetailStore {
   flex: 1;
   border: 1px solid var(--border-color);
-  border-radius: 8px; /* Bo góc nhẹ hơn */
+  border-radius: 8px;
   padding: 10px 14px;
   font-size: 1rem;
   transition: var(--transition);
   min-width: 0;
-  margin-top: 10px; /* Giảm khoảng cách trên */
-
+  margin-top: 10px;
 }
 
-.form-control:focus {
+.formControlDetailStore:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); /* Hiệu ứng viền sáng */
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
   outline: none;
 }
 
-.form-control[readonly] {
+.formControlDetailStore[readonly] {
   background-color: var(--light-gray);
   opacity: 0.8;
   cursor: not-allowed;
 }
 
-/* Footer của modal */
-.modal-footer {
+.modalFooterDetailStore {
   border-top: 1px solid var(--border-color);
   padding: 16px 24px;
   display: flex;
@@ -160,8 +156,7 @@
   background-color: var(--light-gray);
 }
 
-/* Nút Hủy */
-.btn_Cancel {
+.cancelButtonDetailStore {
   background-color: var(--secondary-color);
   border: none;
   border-radius: 8px;
@@ -171,85 +166,89 @@
   color: white;
   cursor: pointer;
   transition: var(--transition);
-  width: 100px; /* Giữ chiều rộng cố định */
-  height: 40px; /* Giữ chiều cao cố định */
-  margin-top: 10px; /* Giảm khoảng cách trên */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Bóng nhẹ cho nút */
-  margin-bottom: 10px !important; /* Giảm khoảng cách dưới */
+  width: 100px;
+  height: 40px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
 }
 
-.btn_Cancel:hover {
-  background-color: #4b4f54; /* Đậm hơn khi hover */
-  transform: translateY(-1px); /* Nâng nhẹ khi hover */
+.cancelButtonDetailStore:hover {
+  background-color: #4b4f54;
+  transform: translateY(-1px);
 }
 
-/* Nút Lưu */
-.btn_Accept {
+.submitButtonDetailStore {
   background-color: var(--primary-color);
   border: none;
   border-radius: 8px;
-  padding: 10px 24px;
+  padding: 10px 20px;
   font-size: 1rem;
   font-weight: 500;
   color: white;
   cursor: pointer;
   transition: var(--transition);
-    width: 100px; /* Giữ chiều rộng cố định */
-  height: 40px; /* Giữ chiều cao cố định */
-  margin-top: 10px; /* Giảm khoảng cách trên */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Bóng nhẹ cho nút */
-  margin-bottom: 10px !important; /* Giảm khoảng cách dưới */
-  margin-right: 20px !important; /* Giảm khoảng cách bên phải */
+  width: 100px;
+  height: 40px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-right: 20px;
+  margin-bottom: 10px;
 }
 
-.btn_Accept:hover {
-  background-color: #1557b0; /* Đậm hơn khi hover */
+.submitButtonDetailStore:hover {
+  background-color: #1557b0;
   transform: translateY(-1px);
 }
 
-/* Container cho nút chỉnh sửa */
-.contain_Edit {
+.editContainerDetailStore {
   display: flex;
   align-items: center;
   padding: 16px 24px;
   gap: 12px;
   background-color: var(--light-gray);
-  margin-right: 20px; /* Giảm khoảng cách bên phải */
-  height: 50px; /* Giữ chiều cao cố định */
+  margin-right: 20px;
+  height: 50px;
   border-radius: var(--border-radius);
-
 }
 
-/* Tiêu đề chỉnh sửa */
-.title_edit {
-  font-size: 1.1rem; /* Tăng nhẹ kích thước chữ */
+.editTitleDetailStore {
+  font-size: 1.1rem;
   font-weight: 500;
   color: var(--text-color);
   margin: 0;
 }
 
-/* Icon chỉnh sửa */
-.icon_edit_information {
-  color: var(--primary-color);
-  font-size: 1.75rem; /* Tăng kích thước icon */
+.editButtonDetailStore {
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
+}
+
+.editIconDetailStore {
+  color: var(--primary-color);
+  font-size: 1.75rem;
   transition: var(--transition);
 }
 
-.icon_edit_information:hover {
+.editIconDetailStore:hover {
   color: #1557b0;
-  transform: scale(1.1); /* Phóng to nhẹ khi hover */
+  transform: scale(1.1);
 }
 
-/* Icon chi tiết */
-.icon_information.icon_action {
+.iconButtonDetailStore {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.iconInformationDetailStore {
   color: var(--primary-color);
   font-size: 1.4rem;
-  cursor: pointer;
   transition: var(--transition);
 }
 
-.icon_information.icon_action:hover {
+.iconInformationDetailStore:hover {
   color: #1557b0;
   transform: scale(1.1);
 }

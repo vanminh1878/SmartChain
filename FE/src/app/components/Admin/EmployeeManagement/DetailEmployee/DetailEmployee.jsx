@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import Modal from "react-modal";
 import { GrCircleInformation } from "react-icons/gr";
 import { TiEdit } from "react-icons/ti";
+import { IoClose } from "react-icons/io5";
 import { fetchGet, fetchPut } from "../../../../lib/httpHandler";
 import { showErrorMessageBox } from "../../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox";
 import { showSuccessMessageBox } from "../../../MessageBox/SuccessMessageBox/showSuccessMessageBox";
@@ -130,7 +131,7 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
               () => console.log("Fetch role completed")
             );
           }
-       
+
           const employeeInfo = {
             ...employeeRes,
             fullname: userData.fullname || "",
@@ -143,9 +144,8 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
             status: accountData.status !== undefined ? accountData.status : "",
             storeName: storeData,
             roleName: roleData,
-          
           };
-            console.log("Employee info:", employeeInfo);
+          console.log("Employee info:", employeeInfo);
           setEmployeeInfo(employeeInfo);
           setDataForm({
             fullname: decodeURIComponent(employeeInfo.fullname || ""),
@@ -343,49 +343,50 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
     <>
       <button
         type="button"
-        className="border-0 bg-transparent p-0"
+        className="iconButtonDetailEmployee"
         onClick={openModal}
       >
-        <GrCircleInformation className="icon_information icon_action" />
+        <GrCircleInformation className="iconInformationDetailEmployee" />
       </button>
 
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         onAfterClose={handleAfterClose}
-        className="modal-content"
-        overlayClassName="modal-overlay"
+        className="modalContentDetailEmployee"
+        overlayClassName="modalOverlayDetailEmployee"
         contentLabel="Thông tin nhân viên"
         shouldFocusAfterRender={editStatus}
         shouldCloseOnOverlayClick={false}
       >
-        <div className="modal-header">
-          <h5 className="modal-title fs-4">
+        <div className="modalHeaderDetailEmployee">
+          <h5 className="modalTitleDetailEmployee">
             {editStatus ? "Sửa thông tin nhân viên" : "Thông tin nhân viên"}
           </h5>
           <button
             type="button"
-            className="btn-close"
+            className="btn-closeDetailEmployee"
             onClick={closeModal}
             aria-label="Close"
-          />
+          ><IoClose />  
+            </button>
         </div>
-        <div className="modal-body">
-          <div className="avatar-section">
+        <div className="modalBodyDetailEmployee">
+          <div className="avatarSectionDetailEmployee">
             <img
               src={employeeInfo.avatar || "https://via.placeholder.com/100"}
               alt="Avatar"
-              className="avatar-image"
+              className="avatarImageDetailEmployee"
             />
           </div>
-          <form className="form-columns" onSubmit={handleSubmit}>
-            <div className="form-column">
-              <div className="form-group">
-                <label htmlFor="fullname" className="form-label custom-bold">
+          <form className="formColumnsDetailEmployee" onSubmit={handleSubmit}>
+            <div className="formColumnDetailEmployee">
+              <div className="formGroupDetailEmployee">
+                <label htmlFor="fullname" className="formLabelDetailEmployee">
                   Họ tên:
                 </label>
                 <input
-                  className="form-control"
+                  className="formControlDetailEmployee"
                   name="fullname"
                   id="fullname"
                   type="text"
@@ -394,12 +395,12 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
                   readOnly={!editStatus}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="email" className="form-label custom-bold">
+              <div className="formGroupDetailEmployee">
+                <label htmlFor="email" className="formLabelDetailEmployee">
                   Email:
                 </label>
                 <input
-                  className="form-control"
+                  className="formControlDetailEmployee"
                   name="email"
                   id="email"
                   type="email"
@@ -408,12 +409,12 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
                   readOnly={!editStatus}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="phoneNumber" className="form-label custom-bold">
+              <div className="formGroupDetailEmployee">
+                <label htmlFor="phoneNumber" className="formLabelDetailEmployee">
                   Số điện thoại:
                 </label>
                 <input
-                  className="form-control"
+                  className="formControlDetailEmployee"
                   name="phoneNumber"
                   id="phoneNumber"
                   type="text"
@@ -422,12 +423,12 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
                   readOnly={!editStatus}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="birthday" className="form-label custom-bold">
+              <div className="formGroupDetailEmployee">
+                <label htmlFor="birthday" className="formLabelDetailEmployee">
                   Ngày sinh:
                 </label>
                 <input
-                  className="form-control"
+                  className="formControlDetailEmployee"
                   name="birthday"
                   id="birthday"
                   type="date"
@@ -437,13 +438,13 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
                 />
               </div>
             </div>
-            <div className="form-column">
-              <div className="form-group">
-                <label htmlFor="address" className="form-label custom-bold">
+            <div className="formColumnDetailEmployee">
+              <div className="formGroupDetailEmployee">
+                <label htmlFor="address" className="formLabelDetailEmployee">
                   Địa chỉ:
                 </label>
                 <input
-                  className="form-control"
+                  className="formControlDetailEmployee"
                   name="address"
                   id="address"
                   type="text"
@@ -452,29 +453,29 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
                   readOnly={!editStatus}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="sex" className="form-label custom-bold">
+              <div className="formGroupDetailEmployee">
+                <label htmlFor="sex" className="formLabelDetailEmployee">
                   Giới tính:
                 </label>
                 <select
-                className="form-control"
-                name="sex"
-                id="sex"
-                value={dataForm.sex === true ? "1" : dataForm.sex === false ? "0" : ""}
-                onChange={handleChange}
-                disabled={!editStatus}
-              >
-                <option value="">Chọn giới tính</option>
-                <option value="1">Nam</option>
-                <option value="0">Nữ</option>
-              </select>
+                  className="formControlDetailEmployee"
+                  name="sex"
+                  id="sex"
+                  value={dataForm.sex === true ? "1" : dataForm.sex === false ? "0" : ""}
+                  onChange={handleChange}
+                  disabled={!editStatus}
+                >
+                  <option value="">Chọn giới tính</option>
+                  <option value="1">Nam</option>
+                  <option value="0">Nữ</option>
+                </select>
               </div>
-              <div className="form-group">
-                <label htmlFor="status" className="form-label custom-bold">
+              <div className="formGroupDetailEmployee">
+                <label htmlFor="status" className="formLabelDetailEmployee">
                   Trạng thái:
                 </label>
                 <select
-                  className="form-control"
+                  className="formControlDetailEmployee"
                   name="status"
                   id="status"
                   value={dataForm.status === true ? "1" : dataForm.status === false ? "0" : ""}
@@ -486,12 +487,12 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
                   <option value="0">Locked</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label htmlFor="storeId" className="form-label custom-bold">
+              <div className="formGroupDetailEmployee">
+                <label htmlFor="storeId" className="formLabelDetailEmployee">
                   Cửa hàng:
                 </label>
                 <select
-                  className="form-control"
+                  className="formControlDetailEmployee"
                   name="storeId"
                   id="storeId"
                   value={dataForm.storeId}
@@ -506,12 +507,12 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
                   ))}
                 </select>
               </div>
-              <div className="form-group">
-                <label htmlFor="roleId" className="form-label custom-bold">
+              <div className="formGroupDetailEmployee">
+                <label htmlFor="roleId" className="formLabelDetailEmployee">
                   Vai trò:
                 </label>
                 <select
-                  className="form-control"
+                  className="formControlDetailEmployee"
                   name="roleId"
                   id="roleId"
                   value={dataForm.roleId}
@@ -530,23 +531,23 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
           </form>
         </div>
         {editStatus ? (
-          <div className="modal-footer">
-            <button className="btn btn-secondary btn_Cancel" onClick={handleCancel}>
+          <div className="modalFooterDetailEmployee">
+            <button className="cancelButtonDetailEmployee" onClick={handleCancel}>
               Hủy
             </button>
             <button
               type="submit"
-              className="btn btn-primary btn_Accept"
+              className="submitButtonDetailEmployee"
               onClick={handleSubmit}
             >
               Lưu
             </button>
           </div>
         ) : (
-          <div className="contain_Edit d-flex align-items-center mb-3 ms-3">
-            <h4 className="title_edit fs-6 mb-0 me-2">Chỉnh sửa thông tin</h4>
-            <button className="bg-white border-0 p-0" onClick={handleEditToggle}>
-              <TiEdit className="fs-3 icon_edit_information" />
+          <div className="editContainerDetailEmployee">
+            <h4 className="editTitleDetailEmployee">Chỉnh sửa thông tin</h4>
+            <button className="editButtonDetailEmployee" onClick={handleEditToggle}>
+              <TiEdit className="editIconDetailEmployee" />
             </button>
           </div>
         )}

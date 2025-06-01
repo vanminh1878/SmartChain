@@ -2,8 +2,9 @@ import React, { useEffect, useState, useCallback } from "react";
 import Modal from "react-modal";
 import { GrCircleInformation } from "react-icons/gr";
 import { TiEdit } from "react-icons/ti";
+import { IoClose } from "react-icons/io5";
 import { fetchGet, fetchPut } from "../../../../lib/httpHandler";
-import { showErrorMessageBox } from "../../../MessageBox/ErrorMessageBox/showErrorMessageBox";
+import { showErrorMessageBox } from "../../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox";
 import { showSuccessMessageBox } from "../../../MessageBox/SuccessMessageBox/showSuccessMessageBox";
 import "./DetailStore.css";
 
@@ -141,7 +142,6 @@ export default React.memo(function DetailStore({ item, setListStores }) {
       },
       (err) => {
         console.error("Update error details:", err);
-        // Thử lại chỉ với name nếu server không hỗ trợ các trường khác
         if (err.message === "Phản hồi từ server không phải JSON" || err.status === 500) {
           console.log("Retrying with only name...");
           fetchPut(
@@ -167,11 +167,11 @@ export default React.memo(function DetailStore({ item, setListStores }) {
             () => console.log("Retry request completed")
           );
         } else {
-           if (err.status === 409) {
-                    showErrorMessageBox(err.message || "Tên cửa hàng đã tồn tại. Vui lòng chọn tên khác.");
-                  } else {
-                    showErrorMessageBox(err.message || "Lỗi khi cập nhật cửa hàng. Vui lòng thử lại.");
-                  }
+          if (err.status === 409) {
+            showErrorMessageBox(err.message || "Tên cửa hàng đã tồn tại. Vui lòng chọn tên khác.");
+          } else {
+            showErrorMessageBox(err.message || "Lỗi khi cập nhật cửa hàng. Vui lòng thử lại.");
+          }
         }
       },
       () => console.log("Update request completed")
@@ -202,41 +202,43 @@ export default React.memo(function DetailStore({ item, setListStores }) {
     <>
       <button
         type="button"
-        className="border-0 bg-transparent p-0"
+        className="iconButtonDetailStore"
         onClick={openModal}
       >
-        <GrCircleInformation className="icon_information icon_action" />
+        <GrCircleInformation className="iconInformationDetailStore" />
       </button>
 
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         onAfterClose={handleAfterClose}
-        className="modal-content"
-        overlayClassName="modal-overlay"
+        className="modalContentDetailStore"
+        overlayClassName="modalOverlayDetailStore"
         contentLabel="Thông tin cửa hàng"
         shouldFocusAfterRender={editStatus}
         shouldCloseOnOverlayClick={false}
       >
-        <div className="modal-header">
-          <h5 className="modal-title fs-4">
+        <div className="modalHeaderDetailStore">
+          <h5 className="modalTitleDetailStore">
             {editStatus ? "Sửa thông tin cửa hàng" : "Thông tin cửa hàng"}
           </h5>
           <button
             type="button"
-            className="btn-close"
+            className="btn-closeDetailStore"
             onClick={closeModal}
             aria-label="Close"
-          />
+          >
+            <IoClose />
+          </button>
         </div>
-        <div className="modal-body d-flex justify-content-center">
-          <form className="me-5 w-75" onSubmit={handleSubmit}>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="name" className="form-label col-4 custom-bold">
+        <div className="modalBodyDetailStore">
+          <form className="formColumnsDetailStore" onSubmit={handleSubmit}>
+            <div className="formGroupDetailStore">
+              <label htmlFor="name" className="formLabelDetailStore">
                 Tên cửa hàng:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlDetailStore"
                 name="name"
                 id="name"
                 type="text"
@@ -245,12 +247,12 @@ export default React.memo(function DetailStore({ item, setListStores }) {
                 readOnly={!editStatus}
               />
             </div>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="phoneNumber" className="form-label col-4 custom-bold">
+            <div className="formGroupDetailStore">
+              <label htmlFor="phoneNumber" className="formLabelDetailStore">
                 Số điện thoại:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlDetailStore"
                 name="phoneNumber"
                 id="phoneNumber"
                 type="text"
@@ -259,12 +261,12 @@ export default React.memo(function DetailStore({ item, setListStores }) {
                 readOnly={!editStatus}
               />
             </div>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="address" className="form-label col-4 custom-bold">
+            <div className="formGroupDetailStore">
+              <label htmlFor="address" className="formLabelDetailStore">
                 Địa chỉ:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlDetailStore"
                 name="address"
                 id="address"
                 type="text"
@@ -273,12 +275,12 @@ export default React.memo(function DetailStore({ item, setListStores }) {
                 readOnly={!editStatus}
               />
             </div>
-            <div className="form-group mb-3 d-flex align-items-center">
-              <label htmlFor="email" className="form-label col-4 custom-bold">
+            <div className="formGroupDetailStore">
+              <label htmlFor="email" className="formLabelDetailStore">
                 Email:
               </label>
               <input
-                className="form-control rounded-3"
+                className="formControlDetailStore"
                 name="email"
                 id="email"
                 type="email"
@@ -290,23 +292,23 @@ export default React.memo(function DetailStore({ item, setListStores }) {
           </form>
         </div>
         {editStatus ? (
-          <div className="modal-footer">
-            <button className="btn btn-secondary btn_Cancel" onClick={handleCancel}>
+          <div className="modalFooterDetailStore">
+            <button className="cancelButtonDetailStore" onClick={handleCancel}>
               Hủy
             </button>
             <button
               type="submit"
-              className="btn btn-primary btn_Accept"
+              className="submitButtonDetailStore"
               onClick={handleSubmit}
             >
               Lưu
             </button>
           </div>
         ) : (
-          <div className="contain_Edit d-flex align-items-center mb-3 ms-3">
-            <h4 className="title_edit fs-6 mb-0 me-2">Chỉnh sửa thông tin</h4>
-            <button className="bg-white border-0 p-0" onClick={handleEditToggle}>
-              <TiEdit className="fs-3 icon_edit_information" />
+          <div className="editContainerDetailStore">
+            <h4 className="editTitleDetailStore">Chỉnh sửa thông tin</h4>
+            <button className="editButtonDetailStore" onClick={handleEditToggle}>
+              <TiEdit className="editIconDetailStore" />
             </button>
           </div>
         )}
