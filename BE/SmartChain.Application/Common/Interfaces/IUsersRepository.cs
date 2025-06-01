@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using SmartChain.Domain.User;
-
+using SmartChain.Domain.Account;
 namespace SmartChain.Application.Common.Interfaces;
 
 public interface IUsersRepository
@@ -12,6 +12,7 @@ public interface IUsersRepository
     Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken);
     Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken);
     Task<User?> GetByAccountIdAsync(Guid accountId, CancellationToken cancellationToken);
+    Task<Account?> GetAccountByUserIdAsync(Guid userId, CancellationToken cancellationToken);
     Task<List<User>> ListByRoleIdAsync(Guid roleId, CancellationToken cancellationToken);
     Task<List<User>> ListAllAsync(CancellationToken cancellationToken);
     Task RemoveAsync(User user, CancellationToken cancellationToken);

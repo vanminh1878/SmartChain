@@ -11,6 +11,7 @@ public interface IEmployeesRepository
     Task AddAsync(Employee employee, CancellationToken cancellationToken);
     Task<Employee?> GetByIdAsync(Guid employeeId, CancellationToken cancellationToken);
     Task<Employee?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken);
+    Task<Employee?> GetByUserIdAndStoreIdAsync(Guid userId, Guid storeId, CancellationToken cancellationToken);
     Task<List<Employee>> ListAllAsync(CancellationToken cancellationToken);
     Task<List<Employee>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken);
     Task<List<Employee>> ListByStatusAsync(bool status, CancellationToken cancellationToken);

@@ -30,6 +30,7 @@ public class AccountsRepository : IAccountsRepository
             .FirstOrDefaultAsync(a => a.Id == accountId, cancellationToken);
     }
 
+
     public async Task<Account?> GetByUsernameAsync(string username, CancellationToken cancellationToken)
     {
         return await _context.Accounts

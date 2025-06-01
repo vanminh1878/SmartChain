@@ -32,12 +32,17 @@ public class Employee : Entity
         _domainEvents.Add(new EmployeeCreatedEvent(id ?? Guid.NewGuid(), userId, storeId));
     }
 
-    public ErrorOr<Success> UpdateStatus(bool newStatus)
+    public ErrorOr<Success> Update(Guid storeId)
     {
-        Status = newStatus;
+        if (storeId == Guid.Empty)
+        {
+            return Error.Failure("Store ID cannot be empty.");
+        }
+        StoreId = storeId;
         UpdatedAt = DateTime.UtcNow;
-        _domainEvents.Add(new EmployeeStatusUpdatedEvent(Id, newStatus));
+        _domainEvents.Add(new EmployeeUpdatedEvent(Id,storeId));
         return Result.Success;
     }
-    private Employee() {}
+      
+    private Employee() { }
 }

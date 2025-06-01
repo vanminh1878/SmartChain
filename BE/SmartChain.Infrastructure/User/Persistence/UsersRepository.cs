@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartChain.Application.Common.Interfaces;
+using SmartChain.Domain.Account;
 using SmartChain.Domain.User;
 using SmartChain.Infrastructure.Common.Persistence;
 
@@ -45,6 +46,20 @@ public class UsersRepository : IUsersRepository
     {
         return await _context.Users
             .FirstOrDefaultAsync(u => u.AccountId == accountId, cancellationToken);
+    }
+    public async Task<Account?> GetAccountByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+        if (user == null)
+        {
+            return null;
+        }
+
+        return await _context.Accounts
+            .FirstOrDefaultAsync(a => a.Id == user.AccountId, cancellationToken);
+
     }
 
     public async Task<List<User>> ListByRoleIdAsync(Guid roleId, CancellationToken cancellationToken)

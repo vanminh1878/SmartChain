@@ -6,6 +6,7 @@ using SmartChain.Application.Accounts.Commands.CreateAccount;
 using SmartChain.Application.Accounts.Commands.LockAccount;
 using SmartChain.Application.Accounts.Commands.UpdateAccount;
 using SmartChain.Application.Accounts.Queries.GetAccount;
+using SmartChain.Application.Accounts.Queries.GetAccountById;
 using SmartChain.Application.Accounts.Queries.GetAccountByStatus;
 using SmartChain.Contracts.Accounts;
 using SmartChain.Domain.Account;
@@ -67,6 +68,16 @@ public class AccountsController : ApiController
 
         return result.Match(
             Accounts => Ok(Accounts.Select(ToDto).ToList()),
+            Problem);
+    }
+    [HttpGet("{AccountId:guid}")]
+    public async Task<IActionResult> GetStoreById(Guid AccountId)
+    {
+        var query = new GetAccountByIdQuery(AccountId);
+        var result = await _mediator.Send(query);
+
+        return result.Match(
+            account => Ok(ToDto(account)),
             Problem);
     }
 

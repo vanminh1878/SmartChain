@@ -1,82 +1,209 @@
-import React, { useEffect, useState } from "react";
-import { fetchGet, fetchPut } from "../../../lib/httpHandler";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { IoIosSearch } from "react-icons/io";
+import { FaTrash } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
+import { showYesNoMessageBox } from "../../../components/MessageBox/YesNoMessageBox/showYesNoMessgeBox.js";
+import DetailEmployee from "../../../components/Admin/EmployeeManagement/DetailEmployee/DetailEmployee.jsx";
+// import AddEmployee from "../../../components/Admin/EmployeeManagement/AddEmployee/AddEmployee.jsx";
 import "./EmployeeManagement.css";
 
 export default function EmployeeManagement() {
   const [listEmployees, setListEmployees] = useState([]);
-  const [listEmployeesShow, setListEmployeesShow] = useState([]);
   const [dataSearch, setDataSearch] = useState("");
 
-  useEffect(() => {
-    const uri = "/api/admin/employees";
+  // Hàm fetch danh sách nhân viên từ backend
+  const fetchEmployees = useCallback(() => {
+    console.log("Bắt đầu fetch danh sách nhân viên...");
     fetchGet(
-      uri,
-      (sus) => {
-        console.log("Dữ liệu nhân viên từ BE:", sus);
-        setListEmployees(sus.data.items);
-        setListEmployeesShow(sus.data.items);
+      "/employees",
+      async (res) => {
+        const employees = Array.isArray(res) ? res : [];
+        console.log("Dữ liệu từ /employees:", employees);
+        if (!employees.length && res) {
+          toast.error("Dữ liệu từ server không hợp lệ");
+        }
+
+        // Gọi các API bổ sung cho mỗi nhân viên
+        const validatedEmployees = await Promise.all(
+          employees.map(async (item, index) => {
+            if (!item.id) {
+              console.warn(`Nhân viên tại index ${index} thiếu id:`, item);
+              toast.warn(`Nhân viên tại index ${index} thiếu id, sử dụng ID tạm thời`);
+            }
+
+            // Gọi API User
+            let userData = {};
+            if (item.userId) {
+              try {
+                await fetchGet(
+                  `/Users/${item.userId}`,
+                  (userRes) => {
+                    console.log(`Dữ liệu từ /Users/${item.userId}:`, userRes);
+                    userData = userRes;
+                  },
+                  (fail) => {
+                    console.error(`Lỗi khi lấy dữ liệu user ${item.userId}:`, fail);
+                    toast.error(`Lỗi khi lấy thông tin user ${item.userId}`);
+                  }
+                );
+              } catch (error) {
+                console.error(`Lỗi khi gọi API /Users/${item.userId}:`, error);
+              }
+            }
+
+            // Gọi API Account
+            let accountData = {};
+            if (userData.accountId) {
+              try {
+                await fetchGet(
+                  `/Accounts/${userData.accountId}`,
+                  (accountRes) => {
+                    console.log(`Dữ liệu từ /Accounts/${userData.accountId}:`, accountRes);
+                    accountData = accountRes;
+                  },
+                  (fail) => {
+                    console.error(`Lỗi khi lấy dữ liệu account ${userData.accountId}:`, fail);
+                    toast.error(`Lỗi khi lấy thông tin account ${userData.accountId}`);
+                  }
+                );
+              } catch (error) {
+                console.error(`Lỗi khi gọi API /Accounts/${userData.accountId}:`, error);
+              }
+            }
+
+            // Gọi API Store
+            let storeData = {};
+            if (item.storeId) {
+              try {
+                await fetchGet(
+                  `/Stores/${item.storeId}`,
+                  (storeRes) => {
+                    console.log(`Dữ liệu từ /Stores/${item.storeId}:`, storeRes);
+                    storeData = storeRes;
+                  },
+                  (fail) => {
+                    console.error(`Lỗi khi lấy dữ liệu store ${item.storeId}:`, fail);
+                    toast.error(`Lỗi khi lấy thông tin store ${item.storeId}`);
+                  }
+                );
+              } catch (error) {
+                console.error(`Lỗi khi gọi API /Stores/${item.storeId}:`, error);
+              }
+            }
+
+            return {
+              ...item,
+              id: item.id || `temp-${Date.now()}-${index}`,
+              fullname: userData.fullname || "Không có tên",
+              birthday: userData.birthday ? new Date(userData.birthday).toLocaleDateString("vi-VN") : "Không có",
+              phoneNumber: userData.phoneNumber || "Không có",
+              sex: userData.sex !== undefined ? (userData.sex === 1 ? "Nam" : "Nữ") : "Không có",
+              storeName: storeData.name || "Không có",
+              status: accountData.status !== undefined ? (accountData.status === 1 ? "Active" : "Locked") : "Không có",
+            };
+          })
+        );
+
+        console.log("Danh sách nhân viên đã xử lý:", validatedEmployees);
+        setListEmployees(validatedEmployees);
       },
       (fail) => {
-        toast.error(fail.message);
+        console.error("Lỗi khi lấy danh sách nhân viên:", fail);
+        toast.error(fail.message || "Lỗi khi lấy danh sách nhân viên");
+        setListEmployees([]);
       },
       () => {
-        toast.error("Có lỗi xảy ra khi lấy danh sách nhân viên");
+        console.log("Yêu cầu fetch danh sách nhân viên hoàn tất");
       }
     );
   }, []);
 
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setDataSearch(value);
-    applySearch(value);
-  };
-
-  const applySearch = (searchValue) => {
-    let filteredList = [...listEmployees];
-    if (searchValue.trim()) {
-      const lowercasedSearch = searchValue.toLowerCase();
-      filteredList = filteredList.filter((item) =>
-        item.tenNhanVien.toLowerCase().includes(lowercasedSearch)
-      );
-    }
-    setListEmployeesShow(filteredList);
-  };
-
+  // Fetch danh sách khi component mount
   useEffect(() => {
-    applySearch(dataSearch);
+    fetchEmployees();
+  }, [fetchEmployees]);
+
+  // Optimize search with useMemo
+  const listEmployeesShow = useMemo(() => {
+    if (!Array.isArray(listEmployees)) {
+      console.error("listEmployees không phải mảng:", listEmployees);
+      return [];
+    }
+    console.log("Danh sách hiển thị trước khi lọc:", listEmployees);
+    if (!dataSearch.trim()) return listEmployees;
+    const lowercasedSearch = dataSearch.toLowerCase();
+    const filtered = listEmployees.filter((item) =>
+      item.fullname?.toLowerCase()?.includes(lowercasedSearch)
+    );
+    console.log("Danh sách hiển thị sau khi lọc:", filtered);
+    return filtered;
   }, [listEmployees, dataSearch]);
 
-  const handleLockEmployee = (employeeId, isLocked) => {
-    const uri = `/api/admin/employees/${employeeId}/lock`;
-    fetchPut(
-      uri,
-      { isLocked: !isLocked },
-      (sus) => {
-        setListEmployees((prev) =>
-          prev.map((item) =>
-            item._id === employeeId ? { ...item, isLocked: !isLocked } : item
-          )
-        );
-        toast.success(`Nhân viên đã được ${isLocked ? "mở khóa" : "khóa"} thành công!`);
+  // Handle search input
+  const handleSearch = useCallback((e) => {
+    console.log("Tìm kiếm với giá trị:", e.target.value);
+    setDataSearch(e.target.value);
+  }, []);
+
+  // Handle delete employee
+  const handleDeleteEmployee = useCallback(async (employeeId) => {
+    console.log("Bắt đầu xóa nhân viên với ID:", employeeId);
+    if (!employeeId) {
+      console.error("ID nhân viên không tồn tại");
+      toast.error("ID nhân viên không tồn tại. Không thể xóa.");
+      return;
+    }
+    if (employeeId.startsWith("temp-")) {
+      console.error("ID nhân viên tạm thời:", employeeId);
+      toast.error("Nhân viên này chưa được lưu trên server. Vui lòng làm mới trang.");
+      return;
+    }
+    const confirmDelete = await showYesNoMessageBox("Bạn có muốn xóa nhân viên này không?");
+    if (!confirmDelete) {
+      console.log("Hủy xóa nhân viên");
+      return;
+    }
+    fetchDelete(
+      `/employees/${employeeId}`,
+      (response) => {
+        console.log("Xóa nhân viên thành công, phản hồi từ server:", response);
+        toast.success("Xóa nhân viên thành công!");
+        setListEmployees((prev) => {
+          console.log("Danh sách trước khi lọc:", prev);
+          const updatedList = prev.filter((item) => item.id !== employeeId);
+          console.log("Danh sách sau khi lọc:", updatedList);
+          return updatedList;
+        });
       },
       (fail) => {
-        toast.error(fail.message);
+        console.error("Phản hồi lỗi từ server:", fail);
+        if (fail.message === "Xóa thành công") {
+          console.log("Server báo thành công trong errorCallback, cập nhật danh sách cục bộ");
+          toast.success("Xóa nhân viên thành công!");
+          setListEmployees((prev) => {
+            console.log("Danh sách trước khi lọc:", prev);
+            const updatedList = prev.filter((item) => item.id !== employeeId);
+            console.log("Danh sách sau khi lọc:", updatedList);
+            return updatedList;
+          });
+        } else {
+          toast.error(fail.message || "Lỗi khi xóa nhân viên");
+        }
       },
       () => {
-        toast.error("Có lỗi xảy ra khi khóa/mở khóa nhân viên");
+        console.log("Yêu cầu xóa nhân viên hoàn tất");
       }
     );
-  };
+  }, []);
 
   return (
     <>
       <ToastContainer />
       <div className="employee-management">
         <div className="title py-3 fs-5 mb-2">
-          Số lượng nhân viên: {listEmployeesShow.length}
+          Số lượng nhân viên: {listEmployeesShow.length || 0}
         </div>
         <div className="row mx-0 my-0">
           <div className="col-12 pb-4 px-0 d-flex justify-content-between align-items-center mb-2">
@@ -91,32 +218,50 @@ export default function EmployeeManagement() {
                 <IoIosSearch className="icon_search translate-middle-y text-secondary" />
               </div>
             </div>
+            {/* <AddEmployee fetchEmployees={fetchEmployees} /> */}
           </div>
           <div className="contain_Table mx-0 col-12 bg-white rounded-2">
             <table className="table table-hover">
               <thead>
                 <tr>
                   <th>STT</th>
-                  <th>Tên nhân viên</th>
+                  <th>Họ tên</th>
+                  <th>Ngày sinh</th>
+                  <th>Số điện thoại</th>
+                  <th>Giới tính</th>
+                  <th>Cửa hàng</th>
                   <th>Trạng thái</th>
                   <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                {listEmployeesShow && listEmployeesShow.length > 0 ? (
+                {listEmployeesShow.length > 0 ? (
                   listEmployeesShow.map((item, index) => (
-                    <tr key={item._id}>
+                    <tr key={item.id}>
                       <td>{index + 1}</td>
-                      <td>{item.tenNhanVien}</td>
-                      <td>{item.isLocked ? "Khóa" : "Hoạt động"}</td>
+                      <td>{item.fullname}</td>
+                      <td>{item.birthday}</td>
+                      <td>{item.phoneNumber}</td>
+                      <td>{item.sex}</td>
+                      <td>{item.storeName}</td>
+                      <td>{item.status}</td>
                       <td>
-                        <div className="list_Action"></div>
+                        <div className="list_Action d-flex gap-2">
+                          <DetailEmployee item={item} setListEmployees={setListEmployees} key={item.id} />
+                          <button
+                            onClick={() => handleDeleteEmployee(item.id)}
+                            className="btn btn-sm btn-link p-0"
+                            title="Xóa nhân viên"
+                          >
+                            <FaTrash size={20} className="text-danger" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="text-center">
+                    <td colSpan="8" className="text-center">
                       Không có nhân viên nào
                     </td>
                   </tr>
