@@ -153,8 +153,8 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
             phoneNumber: decodeURIComponent(employeeInfo.phoneNumber || ""),
             birthday: employeeInfo.birthday || "",
             address: decodeURIComponent(employeeInfo.address || ""),
-            sex: employeeInfo.sex,
-            status: employeeInfo.status,
+            sex: employeeInfo.sex !== undefined ? (employeeInfo.sex ? "1" : "0") : "",
+            status: employeeInfo.status !== undefined ? (employeeInfo.status ? "1" : "0") : "",
             storeId: employeeRes.storeId || "",
             roleId: userData.roleId || "",
           });
@@ -201,8 +201,8 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
       phoneNumber: employeeInfo.phoneNumber || "",
       birthday: employeeInfo.birthday || "",
       address: employeeInfo.address || "",
-      sex: employeeInfo.sex,
-      status: employeeInfo.status,
+      sex: employeeInfo.sex !== undefined ? (employeeInfo.sex ? "1" : "0") : "",
+      status: employeeInfo.status !== undefined ? (employeeInfo.status ? "1" : "0") : "",
       storeId: employeeInfo.storeId || "",
       roleId: employeeInfo.roleId || "",
     });
@@ -265,6 +265,7 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
   // Xử lý cập nhật nhân viên
   const handleUpdate = useCallback(() => {
     const uri = `/employees/${item.id}`;
+    console.log(dataForm);
     const updatedData = {
       fullname: dataForm.fullname.trim(),
       email: dataForm.email.trim(),
@@ -461,7 +462,7 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
                   className="formControlDetailEmployee"
                   name="sex"
                   id="sex"
-                  value={dataForm.sex === true ? "1" : dataForm.sex === false ? "0" : ""}
+                  value={dataForm.sex}
                   onChange={handleChange}
                   disabled={!editStatus}
                 >
@@ -478,7 +479,7 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
                   className="formControlDetailEmployee"
                   name="status"
                   id="status"
-                  value={dataForm.status === true ? "1" : dataForm.status === false ? "0" : ""}
+                  value={dataForm.status}
                   onChange={handleChange}
                   disabled={!editStatus}
                 >

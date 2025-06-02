@@ -49,7 +49,6 @@
   overflow: hidden;
   max-height: 90vh;
   overflow-y: auto;
-  height: 800px !important;
 }
 /* Nút đóng modal */
 .btn-closeDetailEmployee {
@@ -70,6 +69,7 @@
 }
 .ReactModal__Content--after-open {
   transform: scale(1);
+  height: fit-content !important; /* Đảm bảo chiều cao tự động */
 }
 
 .ReactModal__Content--before-close {
