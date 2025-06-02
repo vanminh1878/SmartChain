@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { IoIosSearch } from "react-icons/io";
-import { FaTrash } from "react-icons/fa";
+import { IoIosSearch, IoIosLock, IoIosUnlock } from "react-icons/io";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
+import { fetchGet, fetchDelete, fetchPut } from "../../../lib/httpHandler";
 import { showYesNoMessageBox } from "../../../components/MessageBox/YesNoMessageBox/showYesNoMessgeBox.js";
 import DetailEmployee from "../../../components/Admin/EmployeeManagement/DetailEmployee/DetailEmployee.jsx";
-// import AddEmployee from "../../../components/Admin/EmployeeManagement/AddEmployee/AddEmployee.jsx";
+import AddEmployee from "../../../components/Admin/EmployeeManagement/AddEmployee/AddEmployee.jsx";
 import "./EmployeeManagement.css";
 
 export default function EmployeeManagement() {
@@ -147,12 +146,12 @@ export default function EmployeeManagement() {
     setDataSearch(e.target.value);
   }, []);
 
-  // Handle delete employee
-  const handleDeleteEmployee = useCallback(async (employeeId) => {
-    console.log("Bắt đầu xóa nhân viên với ID:", employeeId);
+  // Handle lock/unlock employee
+  const handleLockEmployee = useCallback(async (employeeId, isActive) => {
+    console.log(`Bắt đầu ${isActive ? "khóa" : "mở khóa"} nhân viên với ID:`, employeeId);
     if (!employeeId) {
       console.error("ID nhân viên không tồn tại");
-      toast.error("ID nhân viên không tồn tại. Không thể xóa.");
+      toast.error("ID nhân viên không tồn tại. Không thể thực hiện.");
       return;
     }
     if (employeeId.startsWith("temp-")) {
@@ -160,40 +159,33 @@ export default function EmployeeManagement() {
       toast.error("Nhân viên này chưa được lưu trên server. Vui lòng làm mới trang.");
       return;
     }
-    const confirmDelete = await showYesNoMessageBox("Bạn có muốn xóa nhân viên này không?");
-    if (!confirmDelete) {
-      console.log("Hủy xóa nhân viên");
+    const action = isActive ? "khóa" : "mở khóa";
+    const confirmAction = await showYesNoMessageBox(`Bạn có muốn ${action} nhân viên này không?`);
+    if (!confirmAction) {
+      console.log(`Hủy ${action} nhân viên`);
       return;
     }
-    fetchDelete(
-      `/employees/${employeeId}`,
+    fetchPut(
+      `/employees/lock/${employeeId}`,
+      { status: !isActive },
       (response) => {
-        console.log("Xóa nhân viên thành công, phản hồi từ server:", response);
-        toast.success("Xóa nhân viên thành công!");
+        console.log(`${action} nhân viên thành công, phản hồi từ server:`, response);
+        toast.success(`Nhân viên đã được ${action} thành công!`);
         setListEmployees((prev) => {
-          console.log("Danh sách trước khi lọc:", prev);
-          const updatedList = prev.filter((item) => item.id !== employeeId);
-          console.log("Danh sách sau khi lọc:", updatedList);
+          console.log("Danh sách trước khi cập nhật:", prev);
+          const updatedList = prev.map((item) =>
+            item.id === employeeId ? { ...item, status: isActive ? "Locked" : "Active" } : item
+          );
+          console.log("Danh sách sau khi cập nhật:", updatedList);
           return updatedList;
         });
       },
       (fail) => {
         console.error("Phản hồi lỗi từ server:", fail);
-        if (fail.message === "Xóa thành công") {
-          console.log("Server báo thành công trong errorCallback, cập nhật danh sách cục bộ");
-          toast.success("Xóa nhân viên thành công!");
-          setListEmployees((prev) => {
-            console.log("Danh sách trước khi lọc:", prev);
-            const updatedList = prev.filter((item) => item.id !== employeeId);
-            console.log("Danh sách sau khi lọc:", updatedList);
-            return updatedList;
-          });
-        } else {
-          toast.error(fail.message || "Lỗi khi xóa nhân viên");
-        }
+        toast.error(fail.message || fail.title || `Lỗi khi ${action} nhân viên`);
       },
       () => {
-        console.log("Yêu cầu xóa nhân viên hoàn tất");
+        console.log(`Yêu cầu ${action} nhân viên hoàn tất`);
       }
     );
   }, []);
@@ -218,7 +210,7 @@ export default function EmployeeManagement() {
                 <IoIosSearch className="icon_search translate-middle-y text-secondary" />
               </div>
             </div>
-            {/* <AddEmployee fetchEmployees={fetchEmployees} /> */}
+            <AddEmployee fetchEmployees={fetchEmployees} />
           </div>
           <div className="contain_Table mx-0 col-12 bg-white rounded-2">
             <table className="table table-hover">
@@ -244,16 +236,20 @@ export default function EmployeeManagement() {
                       <td>{item.phoneNumber}</td>
                       <td>{item.sex}</td>
                       <td>{item.storeName}</td>
-                      <td>{item.status}</td>
+                      <td>{item.status === "Active" ? "Hoạt động" : "Khóa"}</td>
                       <td>
                         <div className="list_Action d-flex gap-2">
                           <DetailEmployee item={item} setListEmployees={setListEmployees} key={item.id} />
                           <button
-                            onClick={() => handleDeleteEmployee(item.id)}
+                            onClick={() => handleLockEmployee(item.id, item.status === "Active")}
                             className="btn btn-sm btn-link p-0"
-                            title="Xóa nhân viên"
+                            title={item.status === "Active" ? "Khóa" : "Mở khóa"}
                           >
-                            <FaTrash size={20} className="text-danger" />
+                            {item.status === "Active" ? (
+                              <IoIosLock size={20} className="text-warning" />
+                            ) : (
+                              <IoIosUnlock size={20} className="text-success" />
+                            )}
                           </button>
                         </div>
                       </td>

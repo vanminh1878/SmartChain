@@ -110,7 +110,13 @@ const fetchPut = async (uri, reqData, onSuccess, onFail, onException) => {
     return onSuccess(data); // Thêm return
   } catch (error) {
     console.error("Fetch PUT error:", error.message);
-    return onException(); // Thêm return
+    // Kiểm tra xem onException có phải là hàm trước khi gọi
+    if (typeof onException === "function") {
+      return onException();
+    } else {
+      console.warn("onException is not a function, skipping...");
+      return; // Trả về undefined hoặc xử lý mặc định nếu cần
+    }
   }
 };
 

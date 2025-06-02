@@ -273,9 +273,10 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
       birthday: dataForm.birthday,
       address: dataForm.address.trim(),
       sex: parseInt(dataForm.sex),
-      status: parseInt(dataForm.status),
+      // status: parseInt(dataForm.status),
       storeId: dataForm.storeId,
-      roleId: dataForm.roleId,
+      // roleId: dataForm.roleId,
+      avatar: employeeInfo.avatar || null
     };
     console.log("Sending PUT request to:", uri, "with data:", updatedData);
 

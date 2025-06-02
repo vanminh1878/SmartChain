@@ -34,10 +34,16 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
         if (user == null)
             return Error.NotFound("User not found");
         // Cập nhật thông tin Employee
-        employee.Update(request.StoreId);
+        employee.Update(request.StoreId ?? employee.StoreId);
         await _employeeRepository.UpdateAsync(employee, cancellationToken);
         // Cập nhật thông tin User
-        user.Update(request.fullname, request.email, request.phoneNumber, request.birthday, request.address, request.sex, request.avatar );
+        user.Update(request.fullname ?? user.Fullname,
+                    request.email ?? user.Email,
+                    request.phoneNumber ?? user.PhoneNumber,
+                    request.birthday ?? user.Birthday,
+                    request.address ?? user.Address,
+                    request.sex ?? user.Sex,
+                    request.avatar?? user.Avatar);
         await _userRepository.UpdateAsync(user, cancellationToken);
 
         return employee;
