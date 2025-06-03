@@ -40,6 +40,7 @@ namespace SmartChain.Infrastructure.Migrations
                         .HasColumnType("varchar(255)");
 
                     b.Property<bool?>("Status")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
@@ -111,15 +112,15 @@ namespace SmartChain.Infrastructure.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("Created_at");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(10,2)");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("Product_id");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(10,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime")
@@ -146,12 +147,24 @@ namespace SmartChain.Infrastructure.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("Created_at");
 
+                    b.Property<string>("Image")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
+                    b.Property<decimal?>("Profit_margin")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(5,2)")
+                        .HasDefaultValue(0.30m)
+                        .HasColumnName("Profit_margin");
+
                     b.Property<bool?>("Status")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
@@ -314,15 +327,15 @@ namespace SmartChain.Infrastructure.Migrations
                     b.Property<Guid?>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(10,2)");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("Product_id");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(10,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime")
@@ -357,6 +370,10 @@ namespace SmartChain.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Image")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -383,6 +400,36 @@ namespace SmartChain.Infrastructure.Migrations
                     b.HasIndex("StoreId");
 
                     b.ToTable("Product", (string)null);
+                });
+
+            modelBuilder.Entity("SmartChain.Domain.ProductSupplier.ProductSupplier", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Product_id");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Supplier_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("Unit_price");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ProductId", "SupplierId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("Product_Supplier", (string)null);
                 });
 
             modelBuilder.Entity("SmartChain.Domain.Report.Report", b =>
@@ -477,6 +524,9 @@ namespace SmartChain.Infrastructure.Migrations
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime");
+
+                    b.Property<Guid>("StoreId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime")
@@ -602,6 +652,16 @@ namespace SmartChain.Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)");
 
+                    b.Property<string>("Image")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<decimal?>("Latitude")
+                        .HasColumnType("decimal(9,6)");
+
+                    b.Property<decimal?>("Longitude")
+                        .HasColumnType("decimal(9,6)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -626,9 +686,6 @@ namespace SmartChain.Infrastructure.Migrations
                         .HasColumnName("Updated_at");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
 
                     b.HasIndex("OwnerId");
 
@@ -661,6 +718,12 @@ namespace SmartChain.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)");
+
+                    b.Property<decimal?>("Latitude")
+                        .HasColumnType("decimal(9,6)");
+
+                    b.Property<decimal?>("Longitude")
+                        .HasColumnType("decimal(9,6)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -863,6 +926,23 @@ namespace SmartChain.Infrastructure.Migrations
                         .HasConstraintName("FK_Product_Store");
                 });
 
+            modelBuilder.Entity("SmartChain.Domain.ProductSupplier.ProductSupplier", b =>
+                {
+                    b.HasOne("SmartChain.Domain.Product.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ProductSupplier_Product");
+
+                    b.HasOne("SmartChain.Domain.Supplier.Supplier", null)
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ProductSupplier_Supplier");
+                });
+
             modelBuilder.Entity("SmartChain.Domain.Report.Report", b =>
                 {
                     b.HasOne("SmartChain.Domain.User.User", null)
@@ -941,7 +1021,7 @@ namespace SmartChain.Infrastructure.Migrations
                     b.HasOne("SmartChain.Domain.User.User", null)
                         .WithMany()
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Store_User");
                 });

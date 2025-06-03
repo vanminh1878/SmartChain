@@ -9,72 +9,69 @@ public class StoreConfigurations : IEntityTypeConfiguration<Store>
 {
     public void Configure(EntityTypeBuilder<Store> builder)
     {
-        // Định nghĩa bảng
         builder.ToTable("Store");
 
-        // Khóa chính
         builder.HasKey(s => s.Id);
 
-        // Ánh xạ Id (Guid)
         builder.Property(s => s.Id)
             .HasColumnName("Id")
             .HasColumnType("uniqueidentifier")
-            .HasDefaultValueSql("newid()"); // Sinh Guid tự động
+            .HasDefaultValueSql("newid()");
 
-        // Thuộc tính Name
         builder.Property(s => s.Name)
             .IsRequired()
             .HasMaxLength(100)
             .HasColumnType("varchar(100)");
 
-        // Thuộc tính Address
         builder.Property(s => s.Address)
+            .IsRequired()
             .HasMaxLength(255)
             .HasColumnType("varchar(255)");
 
-        // Thuộc tính PhoneNumber
         builder.Property(s => s.PhoneNumber)
+            .IsRequired()
             .HasMaxLength(20)
             .HasColumnType("varchar(20)");
 
-        // Thuộc tính Email
         builder.Property(s => s.Email)
             .IsRequired()
             .HasMaxLength(150)
             .HasColumnType("varchar(150)");
 
-        // Đảm bảo Email là duy nhất
-        builder.HasIndex(s => s.Email)
-            .IsUnique();
-
-        // Thuộc tính Status
         builder.Property(s => s.Status)
             .HasColumnType("bit")
-            .HasDefaultValue(true); // Mặc định: active
+            .HasDefaultValue(true);
 
-        // Thuộc tính OwnerId (Guid)
+        builder.Property(s => s.Latitude)
+            .IsRequired(false)
+            .HasColumnType("decimal(9,6)");
+
+        builder.Property(s => s.Longitude)
+            .IsRequired(false)
+            .HasColumnType("decimal(9,6)");
+
+        builder.Property(s => s.Image)
+            .IsRequired(false)
+            .HasMaxLength(500)
+            .HasColumnType("varchar(500)");
+
         builder.Property(s => s.OwnerId)
-            .IsRequired()
             .HasColumnName("Owner_id")
             .HasColumnType("uniqueidentifier");
 
-        // Thuộc tính CreatedAt
         builder.Property(s => s.CreatedAt)
             .IsRequired()
             .HasColumnType("datetime")
             .HasColumnName("Created_at");
 
-        // Thuộc tính UpdatedAt
         builder.Property(s => s.UpdatedAt)
-            .IsRequired(false) // Nullable
+            .IsRequired(false)
             .HasColumnType("datetime")
             .HasColumnName("Updated_at");
 
-        // Mối quan hệ khóa ngoại với User (Owner)
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(s => s.OwnerId)
-            .HasConstraintName("FK_Store_User")
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasConstraintName("FK_Store_User");
     }
 }

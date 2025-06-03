@@ -37,7 +37,7 @@ public class Order : Entity
         _domainEvents.Add(new OrderCreatedEvent(id ?? Guid.NewGuid(), customerId, storeId));
     }
 
-    public ErrorOr<Success> AddOrderDetail(Guid productId, int quantity, decimal unitPrice)
+    public ErrorOr<Success> AddOrderDetail(Guid productId, int quantity, decimal price)
     {
         if (Status != "pending")
         {
@@ -51,7 +51,7 @@ public class Order : Entity
         {
             return Error.Failure("Quantity must be greater than zero.");
         }
-        if (unitPrice < 0)
+        if (price < 0)
         {
             return Error.Failure("Unit price cannot be negative.");
         }
@@ -65,13 +65,13 @@ public class Order : Entity
         else
         {
             // Thêm mục mới
-            orderDetail = new OrderDetail(productId, quantity, unitPrice);
+            orderDetail = new OrderDetail(productId, quantity, price);
             _orderDetails.Add(orderDetail);
         }
 
         UpdateTotalAmount();
         UpdatedAt = DateTime.UtcNow;
-        _domainEvents.Add(new OrderUpdatedEvent(Id, productId, quantity, unitPrice));
+        _domainEvents.Add(new OrderUpdatedEvent(Id, productId, quantity, price));
         return Result.Success;
     }
 
@@ -95,7 +95,7 @@ public class Order : Entity
         orderDetail.UpdateQuantity(newQuantity);
         UpdateTotalAmount();
         UpdatedAt = DateTime.UtcNow;
-        _domainEvents.Add(new OrderUpdatedEvent(Id, productId, newQuantity, orderDetail.UnitPrice));
+        _domainEvents.Add(new OrderUpdatedEvent(Id, productId, newQuantity, orderDetail.Price));
         return Result.Success;
     }
 
@@ -149,13 +149,13 @@ public class Order : Entity
             return 0m;
         }
 
-        decimal total = _orderDetails.Sum(od => od.Quantity * od.UnitPrice);
+        decimal total = _orderDetails.Sum(od => od.Quantity * od.Price);
         return total;
     }
 
     private void UpdateTotalAmount()
     {
-        TotalAmount = _orderDetails.Sum(od => od.Quantity * od.UnitPrice);
+        TotalAmount = _orderDetails.Sum(od => od.Quantity * od.Price);
     }
     private Order() {}
 }

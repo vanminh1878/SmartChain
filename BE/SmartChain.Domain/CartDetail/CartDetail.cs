@@ -9,11 +9,11 @@ public class CartDetail : Entity
 {
     public Guid ProductId { get; private set; }
     public int Quantity { get; private set; }
-    public decimal UnitPrice { get; private set; }
+    public decimal Price { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
-    public CartDetail(Guid productId, int quantity, decimal unitPrice, Guid? id = null) : base(id)
+    public CartDetail(Guid productId, int quantity, decimal price, Guid? id = null) : base(id)
     {
         if (productId == Guid.Empty)
         {
@@ -23,17 +23,17 @@ public class CartDetail : Entity
         {
             throw new ArgumentException("Quantity must be greater than zero.");
         }
-        if (unitPrice < 0)
+        if (price < 0)
         {
             throw new ArgumentException("Unit price cannot be negative.");
         }
 
         ProductId = productId;
         Quantity = quantity;
-        UnitPrice = unitPrice;
+        Price = price;
         CreatedAt = DateTime.UtcNow;
 
-        _domainEvents.Add(new CartDetailCreatedEvent(id ?? Guid.NewGuid(), productId, quantity, unitPrice));
+        _domainEvents.Add(new CartDetailCreatedEvent(id ?? Guid.NewGuid(), productId, quantity, Price));
     }
 
     public ErrorOr<Success> UpdateQuantity(int newQuantity)
@@ -46,27 +46,27 @@ public class CartDetail : Entity
         Quantity += newQuantity;
         UpdatedAt = DateTime.UtcNow;
 
-        _domainEvents.Add(new CartDetailUpdatedEvent(Id, ProductId, newQuantity, UnitPrice));
+        _domainEvents.Add(new CartDetailUpdatedEvent(Id, ProductId, newQuantity, Price));
         return Result.Success;
     }
 
-    public ErrorOr<Success> UpdateUnitPrice(decimal newUnitPrice)
+    public ErrorOr<Success> UpdatePrice(decimal newPrice)
     {
-        if (newUnitPrice < 0)
+        if (newPrice < 0)
         {
             return Error.Failure("Unit price cannot be negative.");
         }
 
-        UnitPrice = newUnitPrice;
+        Price = newPrice;
         UpdatedAt = DateTime.UtcNow;
 
-        _domainEvents.Add(new CartDetailUpdatedEvent(Id, ProductId, Quantity, newUnitPrice));
+        _domainEvents.Add(new CartDetailUpdatedEvent(Id, ProductId, Quantity, newPrice));
         return Result.Success;
     }
 
     public decimal CalculateSubtotal()
     {
-        return Quantity * UnitPrice;
+        return Quantity * Price;
     }
     private CartDetail() {}
 }

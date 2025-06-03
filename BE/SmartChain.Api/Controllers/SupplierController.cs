@@ -26,7 +26,8 @@ public class SupplierController : ApiController
     [HttpPost]
     public async Task<IActionResult> CreateSupplier( CreateSupplierRequest request)
     {
-        var command = new CreateSupplierCommand( request.Name, request.Contact_Name, request.PhoneNumber, request.Email, request.Address);
+        var command = new CreateSupplierCommand( request.Name, request.Contact_Name, request.PhoneNumber, request.Email, request.Address,
+            request.Latitude, request.Longitude, request.Image);
         var result = await _mediator.Send(command);
 
         return result.Match(
@@ -40,7 +41,8 @@ public class SupplierController : ApiController
     [HttpPut("{SupplierId:guid}")]
     public async Task<IActionResult> UpdateSupplier( Guid SupplierId, UpdateSupplierRequest request)
     {
-        var command = new UpdateSupplierCommand(SupplierId, request.Name, request.Contact_Name, request.Address , request.Email,request.PhoneNumber);
+        var command = new UpdateSupplierCommand(SupplierId, request.Name, request.Contact_Name, request.PhoneNumber , request.Email,request.Address,
+            request.Latitude, request.Longitude, request.Image);
         var result = await _mediator.Send(command);
 
         return result.Match(

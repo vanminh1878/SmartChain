@@ -18,7 +18,7 @@ public class CreateScheduleCommandHandler : IRequestHandler<CreateScheduleComman
     {
         try
         {
-            var Schedule = new Schedule(request.EmployeeId, request.StartTime, request.EndTime);
+            var Schedule = new Schedule(request.EmployeeId,request.StoreId, request.StartTime, request.EndTime);
             await _SchedulesRepository.AddAsync(Schedule, cancellationToken);
             return Schedule;
         }

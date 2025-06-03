@@ -38,6 +38,7 @@ public class AccountConfigurations : IEntityTypeConfiguration<Account>
 
         // Thuộc tính Status (bool sang tinyint)
         builder.Property(a => a.Status)
+            .IsRequired()
             .HasColumnType("bit")
             .HasDefaultValue(true); // Mặc định: active
 

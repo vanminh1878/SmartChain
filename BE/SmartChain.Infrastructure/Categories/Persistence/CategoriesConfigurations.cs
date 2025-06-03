@@ -7,43 +7,46 @@ namespace SmartChain.Infrastructure.Persistence.Configurations;
 
 public class CategoryConfigurations : IEntityTypeConfiguration<Category>
 {
-    public void Configure(EntityTypeBuilder<Category> builder)
+public void Configure(EntityTypeBuilder<Category> builder)
     {
-        // Định nghĩa bảng
         builder.ToTable("Category");
 
-        // Khóa chính
         builder.HasKey(c => c.Id);
 
-        // Ánh xạ Id (Guid)
         builder.Property(c => c.Id)
             .HasColumnName("Id")
             .HasColumnType("uniqueidentifier")
-            .HasDefaultValueSql("newid()"); // Sinh Guid tự động
+            .HasDefaultValueSql("newid()");
 
-        // Thuộc tính Name
         builder.Property(c => c.Name)
             .IsRequired()
             .HasMaxLength(50)
             .HasColumnType("varchar(50)");
 
-
-        // Thuộc tính Status (bool sang tinyint)
         builder.Property(c => c.Status)
+            .IsRequired()
             .HasColumnType("bit")
-            .HasDefaultValue(true); // Mặc định: active
+            .HasDefaultValue(true);
 
-        // Thuộc tính CreatedAt
+        builder.Property(c => c.Profit_margin)
+            .IsRequired()
+            .HasColumnName("Profit_margin")
+            .HasColumnType("decimal(5,2)")
+            .HasDefaultValue(0.30m);
+
+        builder.Property(c => c.Image)
+            .IsRequired(false)
+            .HasMaxLength(500)
+            .HasColumnType("varchar(500)");
+
         builder.Property(c => c.CreatedAt)
             .IsRequired()
             .HasColumnType("datetime")
             .HasColumnName("Created_at");
 
-        // Thuộc tính UpdatedAt
         builder.Property(c => c.UpdatedAt)
-            .IsRequired(false) // Nullable
+            .IsRequired(false)
             .HasColumnType("datetime")
             .HasColumnName("Updated_at");
-
     }
 }

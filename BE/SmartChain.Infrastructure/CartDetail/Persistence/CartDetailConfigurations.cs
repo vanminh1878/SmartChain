@@ -33,7 +33,7 @@ public class CartDetailConfigurations : IEntityTypeConfiguration<CartDetail>
             .HasColumnType("int");
 
         // Thuộc tính UnitPrice
-        builder.Property(cd => cd.UnitPrice)
+        builder.Property(cd => cd.Price)
             .IsRequired()
             .HasColumnType("decimal(10,2)");
 

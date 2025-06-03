@@ -16,13 +16,30 @@ namespace SmartChain.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
                     Username = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     Password = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: true, defaultValue: true),
+                    Status = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
                     Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Account", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Category",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
+                    Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    Profit_margin = table.Column<decimal>(type: "decimal(5,2)", nullable: false, defaultValue: 0.30m),
+                    Image = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
+                    Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
+                    Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Category", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -37,6 +54,27 @@ namespace SmartChain.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Role", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Supplier",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
+                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    Contact_name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
+                    Email = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
+                    Address = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: true, defaultValue: true),
+                    Latitude = table.Column<decimal>(type: "decimal(9,6)", nullable: true),
+                    Longitude = table.Column<decimal>(type: "decimal(9,6)", nullable: true),
+                    Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
+                    Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Supplier", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -108,6 +146,9 @@ namespace SmartChain.Infrastructure.Migrations
                     PhoneNumber = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
                     Email = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: true, defaultValue: true),
+                    Latitude = table.Column<decimal>(type: "decimal(9,6)", nullable: true),
+                    Longitude = table.Column<decimal>(type: "decimal(9,6)", nullable: true),
+                    Image = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
                     Owner_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
                     Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
@@ -120,7 +161,7 @@ namespace SmartChain.Infrastructure.Migrations
                         column: x => x.Owner_id,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -148,28 +189,6 @@ namespace SmartChain.Infrastructure.Migrations
                         principalTable: "Store",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Category",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    Store_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: true, defaultValue: true),
-                    Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Category", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Category_Store",
-                        column: x => x.Store_id,
-                        principalTable: "Store",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -230,6 +249,38 @@ namespace SmartChain.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Product",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
+                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    StockQuantity = table.Column<int>(type: "int", nullable: false),
+                    Category_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Store_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Image = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
+                    Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
+                    Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Product", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Product_Category",
+                        column: x => x.Category_id,
+                        principalTable: "Category",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Product_Store",
+                        column: x => x.Store_id,
+                        principalTable: "Store",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Report",
                 columns: table => new
                 {
@@ -257,85 +308,6 @@ namespace SmartChain.Infrastructure.Migrations
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Supplier",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    Contact_name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
-                    Email = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
-                    Address = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: true, defaultValue: true),
-                    Store_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Supplier", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Supplier_Store",
-                        column: x => x.Store_id,
-                        principalTable: "Store",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Product",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    StockQuantity = table.Column<int>(type: "int", nullable: false),
-                    Category_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Store_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Product", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Product_Category",
-                        column: x => x.Category_id,
-                        principalTable: "Category",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Product_Store",
-                        column: x => x.Store_id,
-                        principalTable: "Store",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Schedule",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Employee_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "datetime", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Schedule", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Schedule_Employee",
-                        column: x => x.Employee_id,
-                        principalTable: "Employee",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -382,13 +354,36 @@ namespace SmartChain.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Schedule",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
+                    Employee_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "datetime", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "datetime", nullable: false),
+                    Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
+                    Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Schedule", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Schedule_Employee",
+                        column: x => x.Employee_id,
+                        principalTable: "Employee",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Cart_Detail",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
                     Product_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
                     Updated_at = table.Column<DateTime>(type: "datetime", nullable: true),
                     CartId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
@@ -417,7 +412,7 @@ namespace SmartChain.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
                     Product_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
                     Updated_at = table.Column<DateTime>(type: "datetime", nullable: true),
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
@@ -435,6 +430,34 @@ namespace SmartChain.Infrastructure.Migrations
                         name: "FK_OrderDetail_Product",
                         column: x => x.Product_id,
                         principalTable: "Product",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Product_Supplier",
+                columns: table => new
+                {
+                    Product_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Supplier_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Unit_price = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Product_Supplier", x => new { x.Product_id, x.Supplier_id });
+                    table.ForeignKey(
+                        name: "FK_ProductSupplier_Product",
+                        column: x => x.Product_id,
+                        principalTable: "Product",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductSupplier_Supplier",
+                        column: x => x.Supplier_id,
+                        principalTable: "Supplier",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -496,11 +519,6 @@ namespace SmartChain.Infrastructure.Migrations
                 column: "Product_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Category_Store_id",
-                table: "Category",
-                column: "Store_id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Customer_Account_id",
                 table: "Customer",
                 column: "Account_id");
@@ -552,6 +570,11 @@ namespace SmartChain.Infrastructure.Migrations
                 column: "Store_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Product_Supplier_Supplier_id",
+                table: "Product_Supplier",
+                column: "Supplier_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Report_Generated_by",
                 table: "Report",
                 column: "Generated_by");
@@ -597,20 +620,9 @@ namespace SmartChain.Infrastructure.Migrations
                 column: "StockIntakeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Store_Email",
-                table: "Store",
-                column: "Email",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Store_Owner_id",
                 table: "Store",
                 column: "Owner_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Supplier_Store_id",
-                table: "Supplier",
-                column: "Store_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_Account_id",
@@ -636,6 +648,9 @@ namespace SmartChain.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Order_Detail");
+
+            migrationBuilder.DropTable(
+                name: "Product_Supplier");
 
             migrationBuilder.DropTable(
                 name: "Report");
@@ -668,10 +683,10 @@ namespace SmartChain.Infrastructure.Migrations
                 name: "Category");
 
             migrationBuilder.DropTable(
-                name: "Supplier");
+                name: "Store");
 
             migrationBuilder.DropTable(
-                name: "Store");
+                name: "Supplier");
 
             migrationBuilder.DropTable(
                 name: "User");

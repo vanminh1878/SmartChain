@@ -19,6 +19,7 @@ using SmartChain.Domain.StockIntake;
 using SmartChain.Domain.Store;
 using SmartChain.Domain.Supplier;
 using SmartChain.Domain.User;
+using SmartChain.Domain.ProductSupplier;
 using SmartChain.Infrastructure.Common.Middleware;
 
 namespace SmartChain.Infrastructure.Common.Persistence
@@ -63,6 +64,7 @@ namespace SmartChain.Infrastructure.Common.Persistence
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<OrderDetail> OrderDetails { get; set; } = null!;
         public DbSet<Report> Reports { get; set; } = null!;
+        public DbSet<ProductSupplier> ProductSuppliers { get; set; } = null!;
 
         // Áp dụng cấu hình entity từ các file configuration trong assembly
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -33,7 +33,7 @@ public class OrderDetailConfigurations : IEntityTypeConfiguration<OrderDetail>
             .HasColumnType("int");
 
         // Thuộc tính UnitPrice
-        builder.Property(od => od.UnitPrice)
+        builder.Property(od => od.Price)
             .IsRequired()
             .HasColumnType("decimal(10,2)");
 

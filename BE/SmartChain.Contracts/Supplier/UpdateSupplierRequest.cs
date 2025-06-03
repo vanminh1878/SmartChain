@@ -5,4 +5,7 @@ public record UpdateSupplierRequest(
     string Contact_Name,
     string PhoneNumber,
     string Email,
-    string Address);
+    string Address,
+    decimal? Latitude,
+    decimal? Longitude,
+    string? Image);

@@ -13,10 +13,11 @@ public class Product : Entity
     public int StockQuantity { get; private set; }
     public Guid CategoryId { get; private set; }
     public Guid StoreId { get; private set; }
+    public string? Image { get; private set; } // varchar(500)
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
-    public Product(string name, string description, decimal price, int stockQuantity, Guid categoryId, Guid storeId, Guid? id = null) : base(id)
+    public Product(string name, string description, decimal price, int stockQuantity, Guid categoryId, Guid storeId, string? image = null, Guid? id = null) : base(id)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -38,6 +39,10 @@ public class Product : Entity
         {
             throw new ArgumentException("Store ID cannot be empty.");
         }
+        if (image != null && image.Length > 500)
+        {
+            throw new ArgumentException("Image URL cannot exceed 500 characters.");
+        }
 
         Name = name;
         Description = description ?? string.Empty;
@@ -45,12 +50,13 @@ public class Product : Entity
         StockQuantity = stockQuantity;
         CategoryId = categoryId;
         StoreId = storeId;
+        Image = image;
         CreatedAt = DateTime.UtcNow;
 
         _domainEvents.Add(new ProductCreatedEvent(id ?? Guid.NewGuid(), name, categoryId, storeId));
     }
 
-    public ErrorOr<Success> Update(string name, string description, decimal price, int stockQuantity, Guid categoryId)
+    public ErrorOr<Success> Update(string name, string description, decimal price, int stockQuantity, Guid categoryId, string? image = null)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -68,12 +74,17 @@ public class Product : Entity
         {
             return Error.Failure("Category ID cannot be empty.");
         }
+        if (image != null && image.Length > 500)
+        {
+            return Error.Failure("Image URL cannot exceed 500 characters.");
+        }
 
         Name = name;
         Description = description ?? string.Empty;
         Price = price;
         StockQuantity = stockQuantity;
         CategoryId = categoryId;
+        Image = image ?? Image;
         UpdatedAt = DateTime.UtcNow;
 
         _domainEvents.Add(new ProductUpdatedEvent(Id, name, categoryId));
@@ -93,5 +104,5 @@ public class Product : Entity
         return Result.Success;
     }
 
-    private Product() {}
+    private Product() { }
 }

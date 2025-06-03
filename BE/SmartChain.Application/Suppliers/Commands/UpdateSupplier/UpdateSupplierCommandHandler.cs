@@ -26,7 +26,8 @@ public class UpdateSupplierCommandHandler : IRequestHandler<UpdateSupplierComman
         {
             return Error.Conflict("Supplier with the same name already exists.");
         }
-        var result = Supplier.Update(request.newName, request.newContactName, request.newPhoneNumber, request.newEmail, request.newAddress);
+        var result = Supplier.Update(request.newName, request.newContactName, request.newPhoneNumber, request.newEmail, request.newAddress
+            , request.newLatitude, request.newLongitude);
         if (result.IsError)
         {
             return result.Errors;

@@ -41,7 +41,11 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         builder.Property(p => p.StockQuantity)
             .IsRequired()
             .HasColumnType("int");
-
+        //image
+        builder.Property(p => p.Image)
+                .IsRequired(false)
+                .HasMaxLength(500)
+                .HasColumnType("varchar(500)");
         // Thuộc tính CategoryId (Guid)
         builder.Property(p => p.CategoryId)
             .IsRequired()

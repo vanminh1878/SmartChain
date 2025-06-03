@@ -22,7 +22,7 @@ public class UpdateScheduleCommandHandler : IRequestHandler<UpdateScheduleComman
             return Error.NotFound(description: "Schedule not found.");
         }
 
-        var result = Schedule.Update(request.employeeId, request.startTime, request.endTime);
+        var result = Schedule.Update(request.employeeId,request.storeId, request.startTime, request.endTime);
         if (result.IsError)
         {
             return result.Errors;

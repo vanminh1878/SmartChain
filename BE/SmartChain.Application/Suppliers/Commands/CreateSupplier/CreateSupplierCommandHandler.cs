@@ -23,7 +23,8 @@ public class CreateSupplierCommandHandler : IRequestHandler<CreateSupplierComman
             {
                 return Error.Conflict("Supplier with the same name already exists.");
             }
-            var Supplier = new Supplier(request.name, request.contact_Name, request.phoneNumber, request.email,request.address);
+            var Supplier = new Supplier(request.name, request.contact_Name, request.phoneNumber, request.email,request.address,
+                request.latitude, request.longitude);
             await _SuppliersRepository.AddAsync(Supplier, cancellationToken);
             return Supplier;
         }

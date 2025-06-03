@@ -34,7 +34,7 @@ public class Cart : Entity
         _domainEvents.Add(new CartCreatedEvent(id ?? Guid.NewGuid(), customerId, storeId));
     }
 
-    public ErrorOr<Success> AddCartDetail(Guid productId, int quantity, decimal unitPrice)
+    public ErrorOr<Success> AddCartDetail(Guid productId, int quantity, decimal price)
     {
         if (productId == Guid.Empty)
         {
@@ -44,7 +44,7 @@ public class Cart : Entity
         {
             return Error.Failure("Quantity must be greater than zero");
         }
-        if (unitPrice < 0)
+        if (price < 0)
         {
             return Error.Failure("Unit Price cannot be negative");
         }
@@ -58,12 +58,12 @@ public class Cart : Entity
         else
         {
             // Add new CartDetail
-            cartDetail = new CartDetail(productId, quantity, unitPrice);
+            cartDetail = new CartDetail(productId, quantity, price);
             _cartDetails.Add(cartDetail);
         }
 
         UpdatedAt = DateTime.UtcNow;
-        _domainEvents.Add(new CartUpdatedEvent(Id, productId, quantity, unitPrice));
+        _domainEvents.Add(new CartUpdatedEvent(Id, productId, quantity, price));
         return Result.Success;
     }
 
@@ -82,7 +82,7 @@ public class Cart : Entity
 
         cartDetail.UpdateQuantity(newQuantity);
         UpdatedAt = DateTime.UtcNow;
-        _domainEvents.Add(new CartUpdatedEvent(Id, productId, newQuantity, cartDetail.UnitPrice));
+        _domainEvents.Add(new CartUpdatedEvent(Id, productId, newQuantity, cartDetail.Price));
         return Result.Success;
     }
 
@@ -107,7 +107,7 @@ public class Cart : Entity
             return 0m;
         }
 
-        decimal total = _cartDetails.Sum(cd => cd.Quantity * cd.UnitPrice);
+        decimal total = _cartDetails.Sum(cd => cd.Quantity * cd.Price);
         return total;
     }
      public ErrorOr<Order.Order> ConvertSelectedToOrder(List<Guid> productIds, bool removeFromCart = true)
@@ -126,7 +126,7 @@ public class Cart : Entity
         var order = new Order.Order(CustomerId, StoreId);
         foreach (var detail in selectedDetails)
         {
-            var result = order.AddOrderDetail(detail.ProductId, detail.Quantity, detail.UnitPrice);
+            var result = order.AddOrderDetail(detail.ProductId, detail.Quantity, detail.Price);
             if (result.IsError)
             {
                 return ErrorOr<Order.Order>.From(result.Errors); 

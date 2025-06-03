@@ -28,7 +28,7 @@ public class StoresController : ApiController
     public async Task<IActionResult> CreateStore(CreateStoreRequest request)
     {
         var command = new CreateStoreCommand(request.name, request.email, request.phoneNumber,
-                                             request.address, request.ownerId);
+                                             request.address, request.ownerId, request.latitude ?? 0m, request.longitude?? 0m,request.image);
         var result = await _mediator.Send(command);
 
         return result.Match(
@@ -42,7 +42,9 @@ public class StoresController : ApiController
     [HttpPut("{StoreId:guid}")]
     public async Task<IActionResult> UpdateStore(Guid StoreId, UpdateStoreRequest request)
     {
-        var command = new UpdateStoreCommand(StoreId, request.name, request.address, request.phoneNumber, request.email);
+        // Lấy ownerId cũ nếu không truyền ownerId mới
+        Guid ownerId = request.ownerId ?? (await _mediator.Send(new GetStoreByIdQuery(StoreId))).Value.OwnerId;
+        var command = new UpdateStoreCommand(StoreId, request.name, request.address, request.phoneNumber, request.email, ownerId, request.latitude ?? 0m, request.longitude ?? 0m, request.image);
         var result = await _mediator.Send(command);
 
         return result.Match(
