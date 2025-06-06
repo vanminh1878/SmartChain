@@ -1,6 +1,6 @@
 dotnet ef migrations add InitialCreate --startup-project "../SmartChain.Api"
 hoặc
-dotnet ef migrations add InitialCreate --project "SmartChain.Infrastructure" --startup-project "SmartChain.Api"
+(dotnet ef migrations add InitialCreate --project "SmartChain.Infrastructure" --startup-project "SmartChain.Api")
 
 cài đặt:
 dotnet tool install --global dotnet-ef

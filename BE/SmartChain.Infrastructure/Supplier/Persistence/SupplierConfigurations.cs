@@ -21,27 +21,27 @@ public class SupplierConfigurations : IEntityTypeConfiguration<Supplier>
         builder.Property(s => s.Name)
             .IsRequired()
             .HasMaxLength(100)
-            .HasColumnType("varchar(100)");
+            .HasColumnType("nvarchar(100)");
 
         builder.Property(s => s.Contact_name)
             .IsRequired()
             .HasMaxLength(50)
-            .HasColumnType("varchar(50)");
+            .HasColumnType("nvarchar(50)");
 
         builder.Property(s => s.PhoneNumber)
             .IsRequired()
             .HasMaxLength(20)
-            .HasColumnType("varchar(20)");
+            .HasColumnType("nvarchar(20)");
 
         builder.Property(s => s.Email)
             .IsRequired()
             .HasMaxLength(150)
-            .HasColumnType("varchar(150)");
+            .HasColumnType("nvarchar(150)");
 
         builder.Property(s => s.Address)
             .IsRequired()
             .HasMaxLength(255)
-            .HasColumnType("varchar(255)");
+            .HasColumnType("nvarchar(255)");
 
         builder.Property(s => s.Status)
             .HasColumnType("bit")

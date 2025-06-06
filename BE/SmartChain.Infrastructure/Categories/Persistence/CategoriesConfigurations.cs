@@ -21,7 +21,7 @@ public void Configure(EntityTypeBuilder<Category> builder)
         builder.Property(c => c.Name)
             .IsRequired()
             .HasMaxLength(50)
-            .HasColumnType("varchar(50)");
+            .HasColumnType("nvarchar(50)");
 
         builder.Property(c => c.Status)
             .IsRequired()
@@ -37,7 +37,7 @@ public void Configure(EntityTypeBuilder<Category> builder)
         builder.Property(c => c.Image)
             .IsRequired(false)
             .HasMaxLength(500)
-            .HasColumnType("varchar(500)");
+            .HasColumnType("nvarchar(500)");
 
         builder.Property(c => c.CreatedAt)
             .IsRequired()

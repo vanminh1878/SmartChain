@@ -21,22 +21,22 @@ public class StoreConfigurations : IEntityTypeConfiguration<Store>
         builder.Property(s => s.Name)
             .IsRequired()
             .HasMaxLength(100)
-            .HasColumnType("varchar(100)");
+            .HasColumnType("nvarchar(100)");
 
         builder.Property(s => s.Address)
             .IsRequired()
             .HasMaxLength(255)
-            .HasColumnType("varchar(255)");
+            .HasColumnType("nvarchar(255)");
 
         builder.Property(s => s.PhoneNumber)
             .IsRequired()
             .HasMaxLength(20)
-            .HasColumnType("varchar(20)");
+            .HasColumnType("nvarchar(20)");
 
         builder.Property(s => s.Email)
             .IsRequired()
             .HasMaxLength(150)
-            .HasColumnType("varchar(150)");
+            .HasColumnType("nvarchar(150)");
 
         builder.Property(s => s.Status)
             .HasColumnType("bit")
@@ -53,7 +53,7 @@ public class StoreConfigurations : IEntityTypeConfiguration<Store>
         builder.Property(s => s.Image)
             .IsRequired(false)
             .HasMaxLength(500)
-            .HasColumnType("varchar(500)");
+            .HasColumnType("nvarchar(500)");
 
         builder.Property(s => s.OwnerId)
             .HasColumnName("Owner_id")

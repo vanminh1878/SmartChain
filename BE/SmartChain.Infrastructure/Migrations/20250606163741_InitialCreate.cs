@@ -14,8 +14,8 @@ namespace SmartChain.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Username = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    Password = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
                     Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
@@ -30,10 +30,10 @@ namespace SmartChain.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     Profit_margin = table.Column<decimal>(type: "decimal(5,2)", nullable: false, defaultValue: 0.30m),
-                    Image = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
+                    Image = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
                     Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
@@ -47,7 +47,7 @@ namespace SmartChain.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Name = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
                     Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
@@ -61,11 +61,11 @@ namespace SmartChain.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    Contact_name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
-                    Email = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
-                    Address = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Contact_name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: true, defaultValue: true),
                     Latitude = table.Column<decimal>(type: "decimal(9,6)", nullable: true),
                     Longitude = table.Column<decimal>(type: "decimal(9,6)", nullable: true),
@@ -82,10 +82,10 @@ namespace SmartChain.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Fullname = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    Email = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
-                    Address = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    Fullname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: true, defaultValue: true),
                     Account_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
@@ -107,13 +107,13 @@ namespace SmartChain.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Fullname = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    Email = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
+                    Fullname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Birthday = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Address = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Sex = table.Column<bool>(type: "bit", nullable: false),
-                    Avatar = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false),
+                    Avatar = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Account_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Role_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
@@ -141,14 +141,14 @@ namespace SmartChain.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    Address = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
-                    Email = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: true, defaultValue: true),
                     Latitude = table.Column<decimal>(type: "decimal(9,6)", nullable: true),
                     Longitude = table.Column<decimal>(type: "decimal(9,6)", nullable: true),
-                    Image = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
+                    Image = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Owner_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
                     Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
@@ -227,7 +227,7 @@ namespace SmartChain.Infrastructure.Migrations
                     Customer_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Store_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    Status = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
                     Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
@@ -253,13 +253,13 @@ namespace SmartChain.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
-                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     StockQuantity = table.Column<int>(type: "int", nullable: false),
                     Category_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Store_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Image = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
+                    Image = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false),
                     Updated_at = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
@@ -286,11 +286,11 @@ namespace SmartChain.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
                     Store_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ReportType = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    ReportType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime", nullable: false),
                     Generated_by = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FilePath = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false),
+                    FilePath = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Created_at = table.Column<DateTime>(type: "datetime", nullable: false)
                 },
                 constraints: table =>

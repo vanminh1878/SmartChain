@@ -26,7 +26,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Name)
             .IsRequired()
             .HasMaxLength(100)
-            .HasColumnType("varchar(100)");
+            .HasColumnType("nvarchar(100)");
 
         // Thuộc tính Description
         builder.Property(p => p.Description)
@@ -45,7 +45,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Image)
                 .IsRequired(false)
                 .HasMaxLength(500)
-                .HasColumnType("varchar(500)");
+                .HasColumnType("nvarchar(500)");
         // Thuộc tính CategoryId (Guid)
         builder.Property(p => p.CategoryId)
             .IsRequired()

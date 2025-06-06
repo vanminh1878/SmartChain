@@ -1,7 +1,7 @@
 const BE_ENPOINT = "http://localhost:5000";
 
 const HEADERS = {
-  "Content-Type": "application/json",
+  "Content-Type": "application/json; charset=utf-8",
   accept: "application/json",
 };
 
@@ -23,7 +23,6 @@ const fetchGet = async (uri, onSuccess, onFail, onException) => {
       headers: getHeaders(),
     });
 
-    // Kiểm tra mã trạng thái 204 (No Content)
     if (res.status === 204) {
       return onSuccess({});
     }
@@ -32,13 +31,17 @@ const fetchGet = async (uri, onSuccess, onFail, onException) => {
     if (!res.ok) {
       return onFail({ title: data.title, status: res.status });
     }
-    return onSuccess(data); // Thêm return
+    return onSuccess(data);
   } catch (error) {
     console.error("Fetch GET error:", error.message);
-    return onException(); // Thêm return
+    if (typeof onException === "function") {
+      return onException();
+    } else {
+      console.warn("onException is not a function, skipping...");
+      return;
+    }
   }
 };
-
 
 const fetchPost = async (uri, reqData, onSuccess, onFail, onException) => {
   try {
@@ -48,7 +51,6 @@ const fetchPost = async (uri, reqData, onSuccess, onFail, onException) => {
       body: JSON.stringify(reqData),
     });
 
-    // Kiểm tra mã trạng thái 204 (No Content)
     if (res.status === 204) {
       return onSuccess({ message: "Thành công" });
     }
@@ -60,9 +62,15 @@ const fetchPost = async (uri, reqData, onSuccess, onFail, onException) => {
     return onSuccess(data);
   } catch (error) {
     console.error("Fetch POST error:", error.message);
-    return onException();
+    if (typeof onException === "function") {
+      return onException();
+    } else {
+      console.warn("onException is not a function, skipping...");
+      return;
+    }
   }
 };
+
 const fetchDelete = async (uri, reqData, onSuccess, onFail, onException) => {
   try {
     const res = await fetch(BE_ENPOINT + uri, {
@@ -71,7 +79,6 @@ const fetchDelete = async (uri, reqData, onSuccess, onFail, onException) => {
       body: reqData ? JSON.stringify(reqData) : null,
     });
 
-    // Kiểm tra mã trạng thái 204 (No Content)
     if (res.status === 204) {
       return onSuccess({ message: "Xóa thành công" });
     }
@@ -80,10 +87,15 @@ const fetchDelete = async (uri, reqData, onSuccess, onFail, onException) => {
     if (!res.ok) {
       return onFail({ title: data.title, status: res.status });
     }
-    return onSuccess(data); // Thêm return
+    return onSuccess(data);
   } catch (error) {
     console.error("Fetch DELETE error:", error.message);
-    return onException(); // Thêm return
+    if (typeof onException === "function") {
+      return onException();
+    } else {
+      console.warn("onException is not a function, skipping...");
+      return;
+    }
   }
 };
 
@@ -98,7 +110,6 @@ const fetchPut = async (uri, reqData, onSuccess, onFail, onException) => {
     }
     const res = await fetch(BE_ENPOINT + uri, options);
 
-    // Kiểm tra mã trạng thái 204 (No Content)
     if (res.status === 204) {
       return onSuccess({ message: "Cập nhật thành công" });
     }
@@ -107,15 +118,14 @@ const fetchPut = async (uri, reqData, onSuccess, onFail, onException) => {
     if (!res.ok) {
       return onFail({ title: data.title, status: res.status });
     }
-    return onSuccess(data); // Thêm return
+    return onSuccess(data);
   } catch (error) {
     console.error("Fetch PUT error:", error.message);
-    // Kiểm tra xem onException có phải là hàm trước khi gọi
     if (typeof onException === "function") {
       return onException();
     } else {
       console.warn("onException is not a function, skipping...");
-      return; // Trả về undefined hoặc xử lý mặc định nếu cần
+      return;
     }
   }
 };
@@ -127,7 +137,6 @@ const fetchUpload = async (uri, formData, onSuccess, onFail, onException) => {
       body: formData,
     });
 
-    // Kiểm tra mã trạng thái 204 (No Content)
     if (res.status === 204) {
       return onSuccess({ message: "Tải lên thành công" });
     }
@@ -136,10 +145,15 @@ const fetchUpload = async (uri, formData, onSuccess, onFail, onException) => {
     if (!res.ok) {
       return onFail({ title: data.title, status: res.status });
     }
-    return onSuccess(data); // Thêm return
+    return onSuccess(data);
   } catch (error) {
     console.error("Fetch UPLOAD error:", error.message);
-    return onException(); // Thêm return
+    if (typeof onException === "function") {
+      return onException();
+    } else {
+      console.warn("onException is not a function, skipping...");
+      return;
+    }
   }
 };
 

@@ -32,7 +32,7 @@ public class ReportConfigurations : IEntityTypeConfiguration<Report>
         builder.Property(r => r.ReportType)
             .IsRequired()
             .HasMaxLength(50)
-            .HasColumnType("varchar(50)");
+            .HasColumnType("nvarchar(50)");
 
         // Thuộc tính StartDate
         builder.Property(r => r.StartDate)
@@ -54,7 +54,7 @@ public class ReportConfigurations : IEntityTypeConfiguration<Report>
         builder.Property(r => r.FilePath)
             .IsRequired()
             .HasMaxLength(500)
-            .HasColumnType("varchar(500)");
+            .HasColumnType("nvarchar(500)");
 
         // Thuộc tính CreatedAt
         builder.Property(r => r.CreatedAt)

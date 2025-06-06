@@ -24,7 +24,7 @@ public class AccountConfigurations : IEntityTypeConfiguration<Account>
         builder.Property(a => a.Username)
             .IsRequired()
             .HasMaxLength(50)
-            .HasColumnType("varchar(50)");
+            .HasColumnType("nvarchar(50)");
 
         // Đảm bảo Username là duy nhất
         builder.HasIndex(a => a.Username)
@@ -34,7 +34,7 @@ public class AccountConfigurations : IEntityTypeConfiguration<Account>
         builder.Property(a => a.Password)
             .IsRequired()
             .HasMaxLength(255)
-            .HasColumnType("varchar(255)");
+            .HasColumnType("nvarchar(255)");
 
         // Thuộc tính Status (bool sang tinyint)
         builder.Property(a => a.Status)

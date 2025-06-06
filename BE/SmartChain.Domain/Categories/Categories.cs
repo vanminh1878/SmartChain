@@ -10,7 +10,7 @@ namespace SmartChain.Domain.Categories
         public string Name { get; private set; }
         public bool? Status { get; private set; }
         public decimal? Profit_margin { get; private set; } // decimal(5,2), default: 0.30
-        public string? Image { get; private set; } // varchar(500)
+        public string? Image { get; private set; } // nvarchar(500)
         public DateTime CreatedAt { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
 

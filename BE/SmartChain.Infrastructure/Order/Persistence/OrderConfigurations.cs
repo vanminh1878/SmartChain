@@ -43,7 +43,7 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
         builder.Property(o => o.Status)
             .IsRequired()
             .HasMaxLength(20)
-            .HasColumnType("varchar(20)");
+            .HasColumnType("nvarchar(20)");
 
         // Thuộc tính CreatedAt
         builder.Property(o => o.CreatedAt)

@@ -24,7 +24,7 @@ public class RoleConfigurations : IEntityTypeConfiguration<Role>
         builder.Property(r => r.Name)
             .IsRequired()
             .HasMaxLength(20)
-            .HasColumnType("varchar(20)");
+            .HasColumnType("nvarchar(20)");
 
         // Thuộc tính CreatedAt
         builder.Property(r => r.CreatedAt)

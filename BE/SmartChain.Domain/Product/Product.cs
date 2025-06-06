@@ -13,7 +13,7 @@ public class Product : Entity
     public int StockQuantity { get; private set; }
     public Guid CategoryId { get; private set; }
     public Guid StoreId { get; private set; }
-    public string? Image { get; private set; } // varchar(500)
+    public string? Image { get; private set; } // nvarchar(500)
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 

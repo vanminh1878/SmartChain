@@ -25,13 +25,13 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
         builder.Property(c => c.Fullname)
             .IsRequired()
             .HasMaxLength(50)
-            .HasColumnType("varchar(50)");
+            .HasColumnType("nvarchar(50)");
 
         // Thuộc tính Email
         builder.Property(c => c.Email)
             .IsRequired()
             .HasMaxLength(150)
-            .HasColumnType("varchar(150)");
+            .HasColumnType("nvarchar(150)");
 
         // Đảm bảo Email là duy nhất
         builder.HasIndex(c => c.Email)
@@ -40,12 +40,12 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
         // Thuộc tính PhoneNumber
         builder.Property(c => c.PhoneNumber)
             .HasMaxLength(20)
-            .HasColumnType("varchar(20)");
+            .HasColumnType("nvarchar(20)");
 
         // Thuộc tính Address
         builder.Property(c => c.Address)
             .HasMaxLength(255)
-            .HasColumnType("varchar(255)");
+            .HasColumnType("nvarchar(255)");
 
         // Thuộc tính Status (bool sang tinyint)
         builder.Property(c => c.Status)

@@ -14,7 +14,7 @@ public class Store : Entity
     public bool? Status { get; private set; } // true: active, false: locked
     public decimal? Latitude { get; private set; } // decimal(9,6)
     public decimal? Longitude { get; private set; } // decimal(9,6)
-    public string? Image { get; private set; } // varchar(500)
+    public string? Image { get; private set; } // nvarchar(500)
     public Guid OwnerId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }

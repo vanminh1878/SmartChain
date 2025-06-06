@@ -26,13 +26,13 @@ public class UserConfigurations : IEntityTypeConfiguration<User>
         builder.Property(u => u.Fullname)
             .IsRequired()
             .HasMaxLength(50)
-            .HasColumnType("varchar(50)");
+            .HasColumnType("nvarchar(50)");
 
         // Thuộc tính Email
         builder.Property(u => u.Email)
             .IsRequired()
             .HasMaxLength(150)
-            .HasColumnType("varchar(150)");
+            .HasColumnType("nvarchar(150)");
 
         // Đảm bảo Email là duy nhất
         builder.HasIndex(u => u.Email)
@@ -41,7 +41,7 @@ public class UserConfigurations : IEntityTypeConfiguration<User>
         // Thuộc tính PhoneNumber
         builder.Property(u => u.PhoneNumber)
             .HasMaxLength(20)
-            .HasColumnType("varchar(20)");
+            .HasColumnType("nvarchar(20)");
 
         // Thuộc tính Birthday
         builder.Property(u => u.Birthday)
@@ -51,7 +51,7 @@ public class UserConfigurations : IEntityTypeConfiguration<User>
         // Thuộc tính Address
         builder.Property(u => u.Address)
             .HasMaxLength(255)
-            .HasColumnType("varchar(255)");
+            .HasColumnType("nvarchar(255)");
 
         // Thuộc tính Sex
         builder.Property(u => u.Sex)
@@ -61,7 +61,7 @@ public class UserConfigurations : IEntityTypeConfiguration<User>
         // Thuộc tính Avatar
         builder.Property(u => u.Avatar)
             .HasMaxLength(500)
-            .HasColumnType("varchar(500)");
+            .HasColumnType("nvarchar(500)");
 
         // Thuộc tính AccountId (Guid)
         builder.Property(u => u.AccountId)
