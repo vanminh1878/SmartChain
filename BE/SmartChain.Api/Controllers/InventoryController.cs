@@ -2,6 +2,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SmartChain.Application.Products.Queries.GetProductForInventory;
+using SmartChain.Application.StockIntakes.Queries.GetStockIntakesForInventory;
+using SmartChain.Application.StockIntakes.Queries.GetStockIntakesForInventoryHandler;
 
 namespace SmartChain.Api.Controllers;
 
@@ -26,15 +28,25 @@ public class InventoryController : ApiController
             products => Ok(products),
             Problem);
     }
+    [HttpGet("StockIntakes/{storeId:guid}")]
+    public async Task<IActionResult> GetAllStockIntakes(Guid storeId)
+    {
+        var query = new GetStockIntakesForInventoryQuery(storeId);
+        var result = await _mediator.Send(query);
 
-    // [HttpGet("Product/{productId:guid}")]
-    // public async Task<IActionResult> GetProductById(Guid productId)
+        return result.Match(
+            products => Ok(products),
+            Problem);
+    }
+
+    //  [HttpGet("PurchaseOrders")]
+    // public async Task<IActionResult> GetAllPurchaseOrders()
     // {
-    //     var query = new GetProductByIdQuery(productId);
+    //     var query = new GetPurchaseOrdersForInventory();
     //     var result = await _mediator.Send(query);
 
     //     return result.Match(
-    //         product => Ok(ToDto(product)),
+    //         products => Ok(products),
     //         Problem);
     // }
 }
