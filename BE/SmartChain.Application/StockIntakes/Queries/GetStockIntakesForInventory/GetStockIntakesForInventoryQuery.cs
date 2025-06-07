@@ -6,5 +6,5 @@ using SmartChain.Domain.Role;
 
 namespace SmartChain.Application.StockIntakes.Queries.GetStockIntakesForInventory
 {
-    public record GetStockIntakesForInventoryQuery(Guid storeId) : IRequest<ErrorOr<List<StockIntakesForInventoryDto>>>;
+    public record GetStockIntakesForInventoryQuery() : IRequest<ErrorOr<List<StockIntakesForInventoryDto>>>;
 }

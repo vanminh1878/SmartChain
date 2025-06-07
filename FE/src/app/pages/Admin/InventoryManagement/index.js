@@ -140,10 +140,8 @@ export default function InventoryManagement() {
   }, []);
 
   const fetchStockIntakes = useCallback(() => {
-    console.log("Fetching stock intakes for store:", selectedStore);
-    if (!selectedStore) return;
     fetchGet(
-      `/Inventory/StockIntakes/${selectedStore}`,
+      `/Inventory/StockIntakes`,
       (res) => {
         console.log("Dữ liệu từ API /StockIntake:", res);
         const intakeList = Array.isArray(res) ? res : [];
@@ -158,11 +156,10 @@ export default function InventoryManagement() {
         toast.error("Có lỗi xảy ra khi lấy danh sách phiếu nhập kho");
       }
     );
-  }, [selectedStore]);
+  }, []);
 
     const fetchPurchaseOrders = useCallback(() => {
-    console.log("Fetching PurchaseOrders for store:", selectedStore);
-    if (!selectedStore) return;
+    console.log("Fetching PurchaseOrders for store:");
     fetchGet(
       `/Inventory/PurchaseOrders`,
       (res) => {
@@ -180,52 +177,6 @@ export default function InventoryManagement() {
       }
     );
   }, []);
-
-  // const fetchPurchaseOrders = useCallback(() => {
-  //   if (!selectedStore) return;
-  //   fetchGet(
-  //     `/Stock_Intake?store_id=${selectedStore}&status=1`,
-  //     async (res) => {
-  //       console.log("Dữ liệu từ API /Stock_Intake (Purchase Orders):", res);
-  //       const orderList = Array.isArray(res) ? res : [];
-  //       const validatedOrders = await Promise.all(
-  //         orderList.map(async (order) => {
-  //           let totalValue = 0;
-  //           await fetchGet(
-  //             `/Stock_Intake_Detail?stock_intake_id=${order.id}`,
-  //             (details) => {
-  //               console.log(`Dữ liệu chi tiết phiếu nhập ${order.id}:`, details);
-  //               totalValue = details.reduce(
-  //                 (sum, detail) => sum + (Number(detail.quantity) || 0) * (Number(detail.unit_price) || 0),
-  //                 0
-  //               );
-  //             },
-  //             (fail) => {
-  //               console.error(`Lỗi khi lấy chi tiết phiếu nhập ${order.id}:`, fail);
-  //             },
-  //             () => {}
-  //           );
-  //           return {
-  //             ...order,
-  //             total_value: totalValue,
-  //             supplier: suppliers.find((s) => s.id === order.supplier_id)?.name || "Không xác định",
-  //             store: stores.find((s) => s.id === order.store_id)?.name || "Không xác định",
-  //           };
-  //         })
-  //       );
-  //       console.log("Dữ liệu phiếu đặt hàng sau ánh xạ:", validatedOrders);
-  //       setStockIntakes(validatedOrders);
-  //     },
-  //     (fail) => {
-  //       console.error("Lỗi khi lấy danh sách phiếu đặt hàng:", fail);
-  //       toast.error("Lỗi khi lấy danh sách phiếu đặt hàng");
-  //     },
-  //     () => {
-  //       console.error("Có lỗi xảy ra khi lấy danh sách phiếu đặt hàng");
-  //       toast.error("Có lỗi xảy ra khi lấy danh sách phiếu đặt hàng");
-  //     }
-  //   );
-  // }, [selectedStore, suppliers, stores]);
 
   const handleCreateIntake = useCallback(() => {
     if (
@@ -295,19 +246,16 @@ export default function InventoryManagement() {
     });
   }, [stockIntakes, intakeSearchText, suppliers]);
 
-  const filteredPurchaseOrders = useMemo(() => {
-    if (!Array.isArray(stockIntakes)) return [];
-    if (!orderSearchText.trim()) return stockIntakes.filter((i) => i.status === 1);
-    const lowercasedSearch = orderSearchText.toLowerCase();
-    return stockIntakes.filter((intake) => {
-      const supplier = suppliers.find((s) => s.id === intake.supplier_id);
-      return (
-        intake.status === 1 &&
-        (supplier?.name?.toLowerCase().includes(lowercasedSearch) ||
-          intake.intake_date?.includes(lowercasedSearch))
-      );
-    });
-  }, [stockIntakes, orderSearchText, suppliers]);
+const filteredPurchaseOrders = useMemo(() => {
+  if (!Array.isArray(purchaseOrders)) return [];
+  if (!orderSearchText.trim()) return purchaseOrders;
+  const lowercasedSearch = orderSearchText.toLowerCase();
+  return purchaseOrders.filter((order) => {
+    return (
+      order.supplier?.toLowerCase().includes(lowercasedSearch)
+    );
+  });
+}, [purchaseOrders, orderSearchText]);
 
   useEffect(() => {
     fetchStores();
@@ -375,38 +323,6 @@ export default function InventoryManagement() {
     },
   ];
   
-  // const intakeColumns = [
-  //   { field: "id", headerName: "ID", width: 100 },
-  //   {
-  //     field: "supplier",
-  //     headerName: "Nhà cung cấp",
-  //     width: 200,
-  //     valueGetter: (params) => {
-  //       const supplier = suppliers.find((s) => s.id === params.row?.supplier_id);
-  //       return supplier?.name || "Không xác định";
-  //     },
-  //   },
-  //   { field: "intake_date", headerName: "Ngày nhập", width: 150 },
-  //   {
-  //     field: "created_by",
-  //     headerName: "Người tạo",
-  //     width: 150,
-  //     valueGetter: (params) => `User ${params.row?.created_by || "Không xác định"}`,
-  //   },
-  //   {
-  //     field: "status",
-  //     headerName: "Trạng thái",
-  //     width: 120,
-  //     valueGetter: (params) => (params.row?.status === 0 ? "Chờ duyệt" : "Đã duyệt"),
-  //   },
-  //   {
-  //     field: "approved_by",
-  //     headerName: "Người phê duyệt",
-  //     width: 150,
-  //     valueGetter: (params) =>
-  //       params.row?.approved_by ? `User ${params.row.approved_by}` : "Chưa phê duyệt",
-  //   },
-  // ];
   const intakeColumns = [
       { field: "stockIntakeId", headerName: "ID", width: 100 },
       { field: "supplier", headerName: "Nhà cung cấp", width: 200 },
@@ -415,36 +331,22 @@ export default function InventoryManagement() {
       { field: "status", headerName: "Trạng thái", width: 120 },
       { field: "approved_By_Name", headerName: "Người phê duyệt", width: 150 },
     ];
-  // const orderColumns = [
-  //   { field: "id", headerName: "ID", width: 100 },
-  //   {
-  //     field: "supplier",
-  //     headerName: "Nhà cung cấp",
-  //     width: 200,
-  //     valueGetter: (params) => params.row?.supplier || "Không xác định",
-  //   },
-  //   {
-  //     field: "store",
-  //     headerName: "Cửa hàng",
-  //     width: 150,
-  //     valueGetter: (params) => params.row?.store || "Không xác định",
-  //   },
-  //   { field: "intake_date", headerName: "Ngày đặt hàng", width: 150 },
-  //   {
-  //     field: "total_value",
-  //     headerName: "Tổng giá trị",
-  //     width: 120,
-  //     valueGetter: (params) => `${(params.row?.total_value ?? 0).toFixed(2)} VNĐ`,
-  //   },
-  // ];
+ 
   const orderColumns = [
-      { field: "stockIntakeId", headerName: "ID", width: 100 },
-      { field: "supplier", headerName: "Nhà cung cấp", width: 200 },
-      { field: "intakeDate", headerName: "Ngày nhập", width: 150 },
-      { field: "created_By_Name", headerName: "Người tạo", width: 150 },
-      { field: "status", headerName: "Trạng thái", width: 120 },
-      { field: "approved_By_Name", headerName: "Người phê duyệt", width: 150 },
-    ];
+    { field: "supplier", headerName: "Nhà cung cấp", width: 200 },
+    { field: "intakeDate", headerName: "Ngày nhập", width: 150 },
+    // { field: "storeName", headerName: "Cửa hàng", width: 150 },
+   {
+        field: "totalAmount",
+        headerName: "Tổng tiền",
+        width: 120,
+        valueGetter: (params) => {
+        //console.log("Params for totalAmount:", params);
+        const value = typeof params === "number" ? params : params.row?.totalAmount || 0;
+        return `${value.toLocaleString("vi-VN")} VNĐ`;
+        },
+    },
+  ];
   return (
     <Box sx={{ p: 3 }}>
       <ToastContainer />
@@ -554,6 +456,7 @@ export default function InventoryManagement() {
       <DataGrid
         sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0 }}
         rows={filteredPurchaseOrders}
+        getRowId={(row) => row.supplierId}
         columns={orderColumns}
         initialState={{
           pagination: { paginationModel: { page: 0, pageSize: 5 } },
