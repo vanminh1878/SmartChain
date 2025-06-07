@@ -67,21 +67,21 @@ builder.Services.AddLogging(logging =>
 
 var app = builder.Build();
 
-// Thêm middleware xử lý lỗi
-app.UseExceptionHandler(errorApp =>
-{
-    errorApp.Run(async context =>
-    {
-        context.Response.StatusCode = 500;
-        context.Response.ContentType = "application/json; charset=utf-8";
-        context.Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:3000");
-        await context.Response.WriteAsync(JsonSerializer.Serialize(new
-        {
-            message = "Lỗi server nội bộ",
-            status = 500
-        }));
-    });
-});
+// // Thêm middleware xử lý lỗi
+// app.UseExceptionHandler(errorApp =>
+// {
+//     errorApp.Run(async context =>
+//     {
+//         context.Response.StatusCode = 500;
+//         context.Response.ContentType = "application/json; charset=utf-8";
+//         context.Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:3000");
+//         await context.Response.WriteAsync(JsonSerializer.Serialize(new
+//         {
+//             message = "Lỗi server nội bộ",
+//             status = 500
+//         }));
+//     });
+// });
 
 // Thêm middleware localization
 app.UseRequestLocalization(new RequestLocalizationOptions

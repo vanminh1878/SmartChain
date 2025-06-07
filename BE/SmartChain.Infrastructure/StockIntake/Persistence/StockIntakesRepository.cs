@@ -76,4 +76,11 @@ public class StockIntakesRepository : IStockIntakesRepository
         _context.StockIntakes.Update(stockIntake);
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<List<StockIntake>> ListAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.StockIntakes
+            .Include(si => si.StockIntakeDetails)
+            .ToListAsync(cancellationToken);
+    }
 }

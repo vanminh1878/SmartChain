@@ -84,7 +84,7 @@ public class StockIntake : Entity
         else
         {
             // Thêm mục mới
-            stockIntakeDetail = new StockIntakeDetail(productId, quantity, unitPrice);
+            stockIntakeDetail = new StockIntakeDetail(Id,productId, quantity, unitPrice);
             _stockIntakeDetails.Add(stockIntakeDetail);
         }
 

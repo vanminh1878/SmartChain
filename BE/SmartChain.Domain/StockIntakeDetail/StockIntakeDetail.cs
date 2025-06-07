@@ -7,14 +7,19 @@ namespace SmartChain.Domain.StockIntake;
 
 public class StockIntakeDetail : Entity
 {
+    public Guid StockIntakeId { get; private set; } // Thêm thuộc tính này
     public Guid ProductId { get; private set; }
     public int Quantity { get; private set; }
     public decimal UnitPrice { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
-    public StockIntakeDetail(Guid productId, int quantity, decimal unitPrice, Guid? id = null) : base(id)
+    public StockIntakeDetail(Guid stockIntakeId, Guid productId, int quantity, decimal unitPrice, Guid? id = null) : base(id)
     {
+        if (stockIntakeId == Guid.Empty)
+        {
+            throw new ArgumentException("Stock Intake ID cannot be empty.");
+        }
         if (productId == Guid.Empty)
         {
             throw new ArgumentException("Product ID cannot be empty.");
@@ -28,6 +33,7 @@ public class StockIntakeDetail : Entity
             throw new ArgumentException("Unit price cannot be negative.");
         }
 
+        StockIntakeId = stockIntakeId;
         ProductId = productId;
         Quantity = quantity;
         UnitPrice = unitPrice;
@@ -66,5 +72,6 @@ public class StockIntakeDetail : Entity
     {
         return Quantity * UnitPrice;
     }
+
     private StockIntakeDetail() {}
 }

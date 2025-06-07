@@ -21,6 +21,12 @@ public class StockIntakeDetailConfigurations : IEntityTypeConfiguration<StockInt
             .HasColumnType("uniqueidentifier")
             .HasDefaultValueSql("newid()"); // Sinh Guid tự động
 
+        // Thuộc tính StockIntakeId (Guid)
+        builder.Property(sid => sid.StockIntakeId)
+            .IsRequired()
+            .HasColumnName("StockIntakeId")
+            .HasColumnType("uniqueidentifier");
+
         // Thuộc tính ProductId (Guid)
         builder.Property(sid => sid.ProductId)
             .IsRequired()
@@ -54,12 +60,12 @@ public class StockIntakeDetailConfigurations : IEntityTypeConfiguration<StockInt
             .WithMany()
             .HasForeignKey(sid => sid.ProductId)
             .HasConstraintName("FK_StockIntakeDetail_Product")
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict); // Không xóa Product nếu StockIntakeDetail tham chiếu
 
         // Mối quan hệ khóa ngoại với StockIntake
         builder.HasOne<StockIntake>()
             .WithMany(si => si.StockIntakeDetails)
-            .HasForeignKey("StockIntakeId") // Giả sử StockIntakeDetail có thuộc tính StockIntakeId
+            .HasForeignKey(sid => sid.StockIntakeId)
             .HasConstraintName("FK_StockIntakeDetail_StockIntake")
             .OnDelete(DeleteBehavior.Cascade); // Xóa StockIntake thì xóa luôn StockIntakeDetail
     }

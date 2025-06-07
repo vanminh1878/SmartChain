@@ -61,4 +61,9 @@ public class StockIntakeDetailsRepository : IStockIntakeDetailsRepository
         _context.StockIntakeDetails.Update(stockIntakeDetail);
         await _context.SaveChangesAsync(cancellationToken);
     }
+    public async Task<List<StockIntakeDetail>> ListAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.StockIntakeDetails
+            .ToListAsync(cancellationToken);
+    }
 }

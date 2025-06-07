@@ -1,35 +1,203 @@
-.stock-intake-management {
+.inventory-container {
   padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
 }
 
-.contain_Search {
-  position: relative;
+h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+  color: #333;
 }
 
-.search {
+.store-selector {
+  margin-bottom: 24px;
+}
+
+.store-selector label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.store-selector select,
+.form-group select,
+.form-group input {
   width: 100%;
-  padding: 8px 30px 8px 10px;
+  padding: 8px;
   border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #fff;
 }
 
-.icon_search {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.contain_Table {
-  padding: 15px;
-}
-
-.list_Action {
+.search-bar {
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
-.contain_pagination {
+.search-input {
+  width: 40%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.create-button,
+.add-detail-button,
+.cancel-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #1976d2;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.create-button:hover,
+.add-detail-button:hover {
+  background-color: #1565c0;
+}
+
+.cancel-button {
+  background-color: #6c757d;
+}
+
+.cancel-button:hover {
+  background-color: #5a6268;
+}
+
+.plus-icon {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.table-container {
+  margin-bottom: 32px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+}
+
+.table-header {
+  background-color: #f5f5f5;
+  padding: 12px;
+  text-align: left;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+}
+
+.table-cell {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.product-cell {
+  display: flex;
+  align-items: center;
+}
+
+.product-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #1976d2;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  font-size: 16px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.pagination select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: #fff;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 800px;
+  padding: 24px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 20px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.detail-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.detail-row .form-group {
+  flex: 1;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
 }

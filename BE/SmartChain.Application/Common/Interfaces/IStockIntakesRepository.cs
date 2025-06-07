@@ -11,6 +11,7 @@ public interface IStockIntakesRepository
     Task AddAsync(StockIntake stockIntake, CancellationToken cancellationToken);
     Task<StockIntake?> GetByIdAsync(Guid stockIntakeId, CancellationToken cancellationToken);
     Task<List<StockIntake>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken);
+    Task<List<StockIntake>> ListAllAsync(CancellationToken cancellationToken);
     Task<List<StockIntake>> ListBySupplierIdAsync(Guid supplierId, CancellationToken cancellationToken);
     Task<List<StockIntake>> ListByCreatedByAsync(Guid createdBy, CancellationToken cancellationToken);
     Task<List<StockIntake>> ListByStatusAsync(int status, CancellationToken cancellationToken);

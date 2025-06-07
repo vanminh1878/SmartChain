@@ -11,6 +11,7 @@ public interface IStockIntakeDetailsRepository
     Task AddAsync(StockIntakeDetail stockIntakeDetail, CancellationToken cancellationToken);
     Task<StockIntakeDetail?> GetByIdAsync(Guid stockIntakeDetailId, CancellationToken cancellationToken);
     Task<List<StockIntakeDetail>> ListByStockIntakeIdAsync(Guid stockIntakeId, CancellationToken cancellationToken);
+    Task<List<StockIntakeDetail>> ListAllAsync( CancellationToken cancellationToken);
     Task<List<StockIntakeDetail>> ListByProductIdAsync(Guid productId, CancellationToken cancellationToken);
     Task RemoveAsync(StockIntakeDetail stockIntakeDetail, CancellationToken cancellationToken);
     Task RemoveRangeAsync(List<StockIntakeDetail> stockIntakeDetails, CancellationToken cancellationToken);

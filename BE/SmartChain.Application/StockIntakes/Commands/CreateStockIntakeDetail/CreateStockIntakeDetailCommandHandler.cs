@@ -18,7 +18,7 @@ public class CreateStockIntakeDetailCommandHandler : IRequestHandler<CreateStock
     {
         try
         {
-            var StockIntakeDetail = new StockIntakeDetail(request.productId, request.quantity, request.unitPrice);
+            var StockIntakeDetail = new StockIntakeDetail(request.stockIntakeId,request.productId, request.quantity, request.unitPrice);
             await _StockIntakeDetailsRepository.AddAsync(StockIntakeDetail, cancellationToken);
             return StockIntakeDetail;
         }

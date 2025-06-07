@@ -51,19 +51,23 @@ export default function InventoryManagement() {
   const [productSearchText, setProductSearchText] = useState("");
   const [intakeSearchText, setIntakeSearchText] = useState("");
   const [orderSearchText, setOrderSearchText] = useState("");
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
   const fetchStores = useCallback(() => {
     fetchGet(
       "/Stores",
       (res) => {
+        console.log("Dữ liệu từ API /Stores:", res);
         const storeList = Array.isArray(res) ? res : [];
         setStores(storeList);
         if (storeList.length > 0) setSelectedStore(storeList[0].id);
       },
       (fail) => {
+        console.error("Lỗi khi lấy danh sách cửa hàng:", fail);
         toast.error("Lỗi khi lấy danh sách cửa hàng");
       },
       () => {
+        console.error("Có lỗi xảy ra khi lấy danh sách cửa hàng");
         toast.error("Có lỗi xảy ra khi lấy danh sách cửa hàng");
       }
     );
@@ -71,75 +75,64 @@ export default function InventoryManagement() {
 
   const fetchProducts = useCallback(() => {
     if (!selectedStore) return;
+    setIsLoadingProducts(true);
     fetchGet(
-      `/Products?store_id=${selectedStore}`,
-      async (res) => {
+      "/Inventory/Products",
+      (res) => {
+        console.log("Dữ liệu từ API /Inventory/Products:", res);
         const productList = Array.isArray(res) ? res : [];
         if (!productList.length) {
           toast.error("Không có dữ liệu sản phẩm");
+          setProducts([]);
+          setIsLoadingProducts(false);
+          return;
         }
 
-        const validatedProducts = await Promise.all(
-          productList.map(async (item, index) => {
-            let categoryData = {};
-            let supplierData = {};
-            if (item.category_id) {
-              try {
-                await fetchGet(`/Categories/${item.category_id}`, (categoryRes) => {
-                  categoryData = categoryRes;
-                }, () => {}, () => {});
-              } catch (error) {
-                console.error(`Lỗi khi gọi API danh mục: ${error}`);
-              }
-            }
-            if (item.id) {
-              try {
-                await fetchGet(
-                  `/Product_Supplier?product_id=${item.id}`,
-                  (supplierRes) => {
-                    const supplier = suppliers.find((s) => s.id === supplierRes.supplier_id);
-                    supplierData = supplier || {};
-                  },
-                  () => {},
-                  () => {}
-                );
-              } catch (error) {
-                console.error(`Lỗi khi gọi API nhà cung cấp: ${error}`);
-              }
-            }
-            return {
-              ...item,
-              id: item.id || `temp-${Date.now()}-${index}`,
-              category: categoryData.name || "Không xác định",
-              supplier: supplierData.name || "Không xác định",
-              store: stores.find((s) => s.id === item.store_id)?.name || "Không xác định",
-              unit_price: item.unit_price || 0,
-            };
-          })
-        );
+        const validatedProducts = productList
+          .filter((item) => item && typeof item === "object" && item.productId && item.storeId === selectedStore)
+          .map((item) => ({
+            id: item.productId, // Sử dụng productId làm id
+            name: item.tenSanPham || "Không xác định",
+            category: item.danhMuc || "Không xác định",
+            supplier: item.nhaCungCap || "Không xác định",
+            store: item.cuaHang || "Không xác định",
+            unit_price: Number(item.giaNhap) || 0,
+            price: Number(item.giaBan) || 0,
+            stock_quantity: Number(item.tonKho) || 0,
+          }));
+
+        console.log("Dữ liệu sản phẩm sau ánh xạ:", validatedProducts);
         setProducts(validatedProducts);
+        setIsLoadingProducts(false);
       },
       (fail) => {
+        console.error("Lỗi khi lấy danh sách sản phẩm:", fail);
         toast.error("Lỗi khi lấy danh sách sản phẩm");
         setProducts([]);
+        setIsLoadingProducts(false);
       },
       () => {
+        console.error("Có lỗi xảy ra khi lấy danh sách sản phẩm");
         toast.error("Có lỗi xảy ra khi lấy danh sách sản phẩm");
+        setIsLoadingProducts(false);
       }
     );
-  }, [selectedStore, stores, suppliers]);
+  }, [selectedStore]);
 
   const fetchSuppliers = useCallback(() => {
     fetchGet(
       "/Suppliers",
       (res) => {
+        console.log("Dữ liệu từ API /Suppliers:", res);
         const supplierList = Array.isArray(res) ? res : [];
         setSuppliers(supplierList);
       },
       (fail) => {
+        console.error("Lỗi khi lấy danh sách nhà cung cấp:", fail);
         toast.error("Lỗi khi lấy danh sách nhà cung cấp");
       },
       () => {
+        console.error("Có lỗi xảy ra khi lấy danh sách nhà cung cấp");
         toast.error("Có lỗi xảy ra khi lấy danh sách nhà cung cấp");
       }
     );
@@ -150,13 +143,16 @@ export default function InventoryManagement() {
     fetchGet(
       `/Stock_Intake?store_id=${selectedStore}`,
       (res) => {
+        console.log("Dữ liệu từ API /Stock_Intake:", res);
         const intakeList = Array.isArray(res) ? res : [];
         setStockIntakes(intakeList);
       },
       (fail) => {
+        console.error("Lỗi khi lấy danh sách phiếu nhập kho:", fail);
         toast.error("Lỗi khi lấy danh sách phiếu nhập kho");
       },
       () => {
+        console.error("Có lỗi xảy ra khi lấy danh sách phiếu nhập kho");
         toast.error("Có lỗi xảy ra khi lấy danh sách phiếu nhập kho");
       }
     );
@@ -167,6 +163,7 @@ export default function InventoryManagement() {
     fetchGet(
       `/Stock_Intake?store_id=${selectedStore}&status=1`,
       async (res) => {
+        console.log("Dữ liệu từ API /Stock_Intake (Purchase Orders):", res);
         const orderList = Array.isArray(res) ? res : [];
         const validatedOrders = await Promise.all(
           orderList.map(async (order) => {
@@ -174,12 +171,15 @@ export default function InventoryManagement() {
             await fetchGet(
               `/Stock_Intake_Detail?stock_intake_id=${order.id}`,
               (details) => {
+                console.log(`Dữ liệu chi tiết phiếu nhập ${order.id}:`, details);
                 totalValue = details.reduce(
-                  (sum, detail) => sum + detail.quantity * detail.unit_price,
+                  (sum, detail) => sum + (Number(detail.quantity) || 0) * (Number(detail.unit_price) || 0),
                   0
                 );
               },
-              () => {},
+              (fail) => {
+                console.error(`Lỗi khi lấy chi tiết phiếu nhập ${order.id}:`, fail);
+              },
               () => {}
             );
             return {
@@ -190,19 +190,26 @@ export default function InventoryManagement() {
             };
           })
         );
+        console.log("Dữ liệu phiếu đặt hàng sau ánh xạ:", validatedOrders);
         setStockIntakes(validatedOrders);
       },
       (fail) => {
+        console.error("Lỗi khi lấy danh sách phiếu đặt hàng:", fail);
         toast.error("Lỗi khi lấy danh sách phiếu đặt hàng");
       },
       () => {
+        console.error("Có lỗi xảy ra khi lấy danh sách phiếu đặt hàng");
         toast.error("Có lỗi xảy ra khi lấy danh sách phiếu đặt hàng");
       }
     );
   }, [selectedStore, suppliers, stores]);
 
   const handleCreateIntake = useCallback(() => {
-    if (!newIntake.supplier_id || !newIntake.store_id || !newIntake.details.every(d => d.product_id && d.quantity > 0 && d.unit_price > 0)) {
+    if (
+      !newIntake.supplier_id ||
+      !newIntake.store_id ||
+      !newIntake.details.every((d) => d.product_id && d.quantity > 0 && d.unit_price > 0)
+    ) {
       toast.error("Vui lòng điền đầy đủ thông tin phiếu nhập kho");
       return;
     }
@@ -210,15 +217,18 @@ export default function InventoryManagement() {
       "/Stock_Intake",
       newIntake,
       (res) => {
+        console.log("Kết quả tạo phiếu nhập kho:", res);
         toast.success("Tạo phiếu nhập kho thành công");
         setOpenDialog(false);
         fetchStockIntakes();
         fetchProducts();
       },
       (fail) => {
+        console.error("Lỗi khi tạo phiếu nhập kho:", fail);
         toast.error("Lỗi khi tạo phiếu nhập kho");
       },
       () => {
+        console.error("Có lỗi xảy ra khi tạo phiếu nhập kho");
         toast.error("Có lỗi xảy ra khi tạo phiếu nhập kho");
       }
     );
@@ -241,10 +251,11 @@ export default function InventoryManagement() {
 
   const filteredProducts = useMemo(() => {
     if (!Array.isArray(products)) return [];
-    if (!productSearchText.trim()) return products;
+    const validProducts = products.filter((item) => item && item.id && typeof item === "object");
+    if (!productSearchText.trim()) return validProducts;
     const lowercasedSearch = productSearchText.toLowerCase();
-    return products.filter((item) =>
-      item.name?.toLowerCase().includes(lowercasedSearch)
+    return validProducts.filter(
+      (item) => item.name?.toLowerCase().includes(lowercasedSearch)
     );
   }, [products, productSearchText]);
 
@@ -256,7 +267,7 @@ export default function InventoryManagement() {
       const supplier = suppliers.find((s) => s.id === intake.supplier_id);
       return (
         supplier?.name?.toLowerCase().includes(lowercasedSearch) ||
-        intake.intake_date.includes(lowercasedSearch)
+        intake.intake_date?.includes(lowercasedSearch)
       );
     });
   }, [stockIntakes, intakeSearchText, suppliers]);
@@ -270,7 +281,7 @@ export default function InventoryManagement() {
       return (
         intake.status === 1 &&
         (supplier?.name?.toLowerCase().includes(lowercasedSearch) ||
-          intake.intake_date.includes(lowercasedSearch))
+          intake.intake_date?.includes(lowercasedSearch))
       );
     });
   }, [stockIntakes, orderSearchText, suppliers]);
@@ -289,12 +300,22 @@ export default function InventoryManagement() {
   }, [selectedStore, fetchProducts, fetchStockIntakes, fetchPurchaseOrders]);
 
   const productColumns = [
-    { field: "index", headerName: "STT", width: 70, valueGetter: (params) => params.rowIndex + 1 },
+    // {
+    //   field: "index",
+    //   headerName: "STT",
+    //   width: 70,
+    //   valueGetter: (params) => {
+    //     console.log("Params for index:", params);
+    //     if (!params || !params.row || !params.row.id) return "-";
+    //     const index = params.api.getRowIndexRelativeToVisibleRows(params.row.id);
+    //     return index >= 0 ? index + 1 : "-";
+    //   },
+    // },
     {
       field: "product",
       headerName: "Tên SP",
       width: 250,
-      renderCell: (cellData) => <Product productName={cellData.row.name} />,
+      renderCell: (cellData) => <Product productName={cellData.row?.name || "Không xác định"} />,
     },
     { field: "category", headerName: "Danh mục", width: 150 },
     { field: "supplier", headerName: "Nhà cung cấp", width: 200 },
@@ -303,22 +324,34 @@ export default function InventoryManagement() {
       field: "unit_price",
       headerName: "Giá nhập",
       width: 120,
-      valueGetter: (params) => `${(params.row.unit_price || 0).toFixed(2)} VNĐ`,
+      valueGetter: (params) => {
+      console.log("Params for unit_price:", params);
+      const value = typeof params === "number" ? params : params.row?.unit_price || 0;
+      return `${value.toLocaleString("vi-VN")} VNĐ`;
+    },
     },
     {
       field: "price",
       headerName: "Giá bán",
       width: 120,
-      valueGetter: (params) => `${(params.row.price || 0).toFixed(2)} VNĐ`,
+      valueGetter: (params) => {
+        console.log("Params for price:", params);
+        const value = typeof params === "number" ? params : params.row?.price || 0;
+        return `${value.toLocaleString("vi-VN")} VNĐ`;
+      }
     },
     {
       field: "stock_quantity",
       headerName: "Tồn kho",
       width: 120,
-      valueGetter: (params) => `${params.row.stock_quantity} cái`,
+      valueGetter: (params) => {
+      console.log("Params for stock_quantity:", params);
+      const value = typeof params === "number" ? params : params.row?.stock_quantity || 0;
+      return `${value} cái`;
+    },
     },
   ];
-
+  
   const intakeColumns = [
     { field: "id", headerName: "ID", width: 100 },
     {
@@ -326,8 +359,8 @@ export default function InventoryManagement() {
       headerName: "Nhà cung cấp",
       width: 200,
       valueGetter: (params) => {
-        const supplier = suppliers.find((s) => s.id === params.row.supplier_id);
-        return supplier ? supplier.name : "Không xác định";
+        const supplier = suppliers.find((s) => s.id === params.row?.supplier_id);
+        return supplier?.name || "Không xác định";
       },
     },
     { field: "intake_date", headerName: "Ngày nhập", width: 150 },
@@ -335,19 +368,20 @@ export default function InventoryManagement() {
       field: "created_by",
       headerName: "Người tạo",
       width: 150,
-      valueGetter: (params) => `User ${params.row.created_by}`,
+      valueGetter: (params) => `User ${params.row?.created_by || "Không xác định"}`,
     },
     {
       field: "status",
       headerName: "Trạng thái",
       width: 120,
-      valueGetter: (params) => (params.row.status === 0 ? "Chờ duyệt" : "Đã duyệt"),
+      valueGetter: (params) => (params.row?.status === 0 ? "Chờ duyệt" : "Đã duyệt"),
     },
     {
       field: "approved_by",
       headerName: "Người phê duyệt",
       width: 150,
-      valueGetter: (params) => (params.row.approved_by ? `User ${params.row.approved_by}` : "Chưa phê duyệt"),
+      valueGetter: (params) =>
+        params.row?.approved_by ? `User ${params.row.approved_by}` : "Chưa phê duyệt",
     },
   ];
 
@@ -357,21 +391,20 @@ export default function InventoryManagement() {
       field: "supplier",
       headerName: "Nhà cung cấp",
       width: 200,
-      valueGetter: (params) => params.row.supplier,
+      valueGetter: (params) => params.row?.supplier || "Không xác định",
     },
     {
       field: "store",
       headerName: "Cửa hàng",
       width: 150,
-      valueGetter: (params) => params.row.store,
+      valueGetter: (params) => params.row?.store || "Không xác định",
     },
-    { field: "id", headerName: "ID Phiếu nhập", width: 100 },
     { field: "intake_date", headerName: "Ngày đặt hàng", width: 150 },
     {
       field: "total_value",
       headerName: "Tổng giá trị",
       width: 120,
-      valueGetter: (params) => `${(params.row.total_value || 0).toFixed(2)} VNĐ`,
+      valueGetter: (params) => `${(params.row?.total_value ?? 0).toFixed(2)} VNĐ`,
     },
   ];
 
@@ -418,16 +451,20 @@ export default function InventoryManagement() {
           Tạo phiếu nhập kho
         </Button>
       </Box>
-      <DataGrid
-        sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0, mb: 4 }}
-        rows={filteredProducts}
-        columns={productColumns}
-        initialState={{
-          pagination: { paginationModel: { page: 0, pageSize: 10 } },
-        }}
-        pageSizeOptions={[5, 10, 20]}
-        checkboxSelection
-      />
+      {isLoadingProducts ? (
+        <Typography>Đang tải dữ liệu sản phẩm...</Typography>
+      ) : (
+        <DataGrid
+          sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0, mb: 4 }}
+          rows={filteredProducts}
+          columns={productColumns}
+          initialState={{
+            pagination: { paginationModel: { page: 0, pageSize: 10 } },
+          }}
+          pageSizeOptions={[5, 10, 20]}
+          checkboxSelection
+        />
+      )}
 
       <Typography variant="h5" sx={{ mb: 2 }}>
         Danh sách phiếu nhập kho
@@ -540,7 +577,7 @@ export default function InventoryManagement() {
                     sx={{ backgroundColor: "white" }}
                   >
                     {(Array.isArray(products) ? products : [])
-                      .filter((p) => p.store_id === newIntake.store_id)
+                      .filter((p) => p.store === newIntake.store_id)
                       .map((product) => (
                         <MenuItem key={product.id} value={product.id}>
                           {product.name}
@@ -554,7 +591,7 @@ export default function InventoryManagement() {
                   label="Số lượng"
                   type="number"
                   value={detail.quantity}
-                  onChange={(e) => handleDetailChange(index, "quantity", e.target.value)}
+                  onChange={(e) => handleDetailChange(index, "quantity", parseInt(e.target.value) || 0)}
                   fullWidth
                   sx={{ backgroundColor: "white" }}
                 />
@@ -564,7 +601,7 @@ export default function InventoryManagement() {
                   label="Giá nhập (VNĐ)"
                   type="number"
                   value={detail.unit_price}
-                  onChange={(e) => handleDetailChange(index, "unit_price", e.target.value)}
+                  onChange={(e) => handleDetailChange(index, "unit_price", parseFloat(e.target.value) || 0)}
                   fullWidth
                   sx={{ backgroundColor: "white" }}
                 />
