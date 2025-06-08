@@ -16,20 +16,21 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Error
 
     public async Task<ErrorOr<Success>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        var User = await _UsersRepository.GetByIdAsync(request.UserId, cancellationToken);
-        if (User is null)
+
+        var user = await _UsersRepository.GetByAccountIdAsync(request.AccountId, cancellationToken);
+        if (user is null)
         {
             return Error.NotFound(description: "User not found.");
         }
 
-        var result = User.Update(request.fullname, request.email, request.phoneNumber,  request.birthday,
+        var result = user.Update(request.fullname, request.email, request.phoneNumber,  request.birthday,
                             request.address, request.sex, request.avatar);
         if (result.IsError)
         {
             return result.Errors;
         }
 
-        await _UsersRepository.UpdateAsync(User, cancellationToken);
+        await _UsersRepository.UpdateAsync(user, cancellationToken);
         return Result.Success;
     }
 }

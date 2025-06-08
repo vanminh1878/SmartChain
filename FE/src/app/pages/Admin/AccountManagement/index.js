@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { fetchGet, fetchPut, fetchPost } from "../../../lib/httpHandler";
+import { fetchGet, fetchPut, fetchPost, fetchUpload, BE_ENPOINT } from "../../../lib/httpHandler";
 import "./AccountManagement.css";
 
 export default function AccountManagement() {
@@ -19,31 +19,34 @@ export default function AccountManagement() {
   });
   const [newPassword, setNewPassword] = useState("");
   const [avatarFile, setAvatarFile] = useState(null);
+  const [initialAvatar, setInitialAvatar] = useState("");
 
   useEffect(() => {
     fetchGet(
-    "/users/profile",
-    (sus) => {
-      console.log("Dữ liệu người dùng:", sus);
-      setUserInfo({
-        username: sus.username,
-        fullname: sus.fullname,
-        email: sus.email,
-        phoneNumber: sus.phoneNumber,
-        birthday: sus.birthday ? new Date(sus.birthday).toISOString().split("T")[0] : "",
-        address: sus.address || "",
-        sex: sus.sex,
-        avatar: sus.avatar || "",
-        roleName: sus.roleName,
-      });
-    },
-    (fail) => {
-      toast.error(fail.message || "Không thể tải thông tin cá nhân");
-    },
-    () => {
-      toast.error("Có lỗi xảy ra khi tải thông tin");
-    }
-  );
+      "/users/profile",
+      (sus) => {
+        console.log("Dữ liệu người dùng:", sus);
+        setInitialAvatar(sus.avatar || "");
+        setUserInfo({
+          username: sus.username,
+          fullname: sus.fullname,
+          email: sus.email,
+          phoneNumber: sus.phoneNumber,
+          birthday: sus.birthday ? new Date(sus.birthday).toISOString().split("T")[0] : "",
+          address: sus.address || "",
+          sex: sus.sex,
+          avatar: sus.avatar || "",
+          roleName: sus.roleName,
+          status: sus.status,
+        });
+      },
+      (fail) => {
+        toast.error(fail.message || "Không thể tải thông tin cá nhân");
+      },
+      () => {
+        toast.error("Có lỗi xảy ra khi tải thông tin");
+      }
+    );
   }, []);
 
   const handleInputChange = (e) => {
@@ -57,36 +60,58 @@ export default function AccountManagement() {
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setAvatarFile(file);
-      setUserInfo((prev) => ({ ...prev, avatar: URL.createObjectURL(file) }));
+    if (!file) {
+      toast.error("Vui lòng chọn một file ảnh!");
+      return;
     }
+
+    setAvatarFile(file);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetchUpload(
+      "/api/asset/upload-image",
+      formData,
+      (data) => {
+        const avatarUrl = data.fileName; // Lưu tên file
+        setUserInfo((prev) => ({ ...prev, avatar: avatarUrl }));
+        toast.success("Ảnh đã được upload thành công!");
+      },
+      (fail) => {
+        toast.error(fail.message || "Upload ảnh thất bại!");
+      },
+      () => {
+        toast.error("Không thể kết nối đến server");
+      }
+    );
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("fullname", userInfo.fullname);
-    formData.append("email", userInfo.email);
-    formData.append("phoneNumber", userInfo.phoneNumber);
-    formData.append("birthday", userInfo.birthday);
-    formData.append("address", userInfo.address);
-    formData.append("sex", userInfo.sex.toString());
-    if (avatarFile) {
-      formData.append("avatar", avatarFile);
-    }
+    const data = {
+      fullname: userInfo.fullname,
+      email: userInfo.email,
+      phoneNumber: userInfo.phoneNumber,
+      birthday: userInfo.birthday,
+      address: userInfo.address || "",
+      sex: userInfo.sex,
+      avatar: userInfo.avatar || "", // Gửi avatar hiện tại hoặc chuỗi rỗng
+    };
+    console.log("Dữ liệu gửi đi:", data);
 
     fetchPut(
-      "/users/profile",
-      formData,
+      "/Users/Profile",
+      data,
       (sus) => {
         toast.success("Cập nhật thông tin thành công!");
+        setInitialAvatar(userInfo.avatar); // Cập nhật avatar ban đầu
       },
       (fail) => {
-        toast.error(fail.message || "Cập nhật thông tin thất bại!");
+        console.error("Chi tiết lỗi từ backend:", fail);
+        toast.error(fail.title || "Cập nhật thông tin thất bại!");
       },
       () => {
-        toast.error("Có lỗi xảy ra khi cập nhật thông tin!");
+        toast.error("Không thể kết nối đến server!");
       }
     );
   };
@@ -105,7 +130,7 @@ export default function AccountManagement() {
         setNewPassword("");
       },
       (fail) => {
-        toast.error(fail.message || "Cập nhật mật khẩu thất bại!");
+        toast.error(fail.title || "Cập nhật mật khẩu thất bại!");
       },
       () => {
         toast.error("Có lỗi xảy ra khi cập nhật mật khẩu!");
@@ -121,7 +146,7 @@ export default function AccountManagement() {
         <div className="profile-container">
           <div className="avatar-section">
             <img
-              src={userInfo.avatar || "https://via.placeholder.com/150"}
+              src={userInfo.avatar ? `${BE_ENPOINT}/api/asset/view-image/${userInfo.avatar}` : "https://via.placeholder.com/150"}
               alt="Avatar"
               className="avatar-image"
             />
@@ -187,7 +212,6 @@ export default function AccountManagement() {
                 className="form-input"
               />
             </div>
-
             <div className="form-group">
               <label>Giới tính:</label>
               <select
@@ -209,16 +233,6 @@ export default function AccountManagement() {
                 className="form-input"
               />
             </div>
-
-            {/* <div className="form-group">
-              <label>Trạng thái:</label>
-              <input
-                type="text"
-                value={userInfo.status ? "Hoạt động" : "Khóa"}
-                disabled
-                className="form-input"
-              />
-            </div> */}
             <button type="submit" className="submit-button">
               Lưu thay đổi
             </button>

@@ -1,0 +1,25 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\03dbpbnd.xxp.jpg",
+      "PackagePath": "staticwebassets\\uploads\\03dbpbnd.xxp.jpg"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.SmartChain.Api.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.build.SmartChain.Api.props",
+      "PackagePath": "build\\SmartChain.Api.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildMultiTargeting.SmartChain.Api.props",
+      "PackagePath": "buildMultiTargeting\\SmartChain.Api.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildTransitive.SmartChain.Api.props",
+      "PackagePath": "buildTransitive\\SmartChain.Api.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

@@ -1,11 +1,39 @@
 {
   "Version": 1,
-  "Hash": "ppb6uQoEtvge5z0ni6wR0Ra/Jonnlf1CYGqv+L0RNCY=",
+  "Hash": "R1NtokWwJSGCpBkkBwKqLY6VTO6o5FELmXmHyaGAUgA=",
   "Source": "SmartChain.Api",
   "BasePath": "_content/SmartChain.Api",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": []
+  "DiscoveryPatterns": [
+    {
+      "Name": "SmartChain.Api\\wwwroot",
+      "Source": "SmartChain.Api",
+      "ContentRoot": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\",
+      "BasePath": "_content/SmartChain.Api",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\03dbpbnd.xxp.jpg",
+      "SourceId": "SmartChain.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\",
+      "BasePath": "_content/SmartChain.Api",
+      "RelativePath": "uploads/03dbpbnd.xxp.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\03dbpbnd.xxp.jpg"
+    }
+  ]
 }

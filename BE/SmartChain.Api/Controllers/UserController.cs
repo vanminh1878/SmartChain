@@ -76,11 +76,11 @@ public class UsersController : ApiController
     [HttpGet("Profile")]
     public async Task<IActionResult> GetProfile()
     {
-        var claims = User.Claims.Select(c => $"{c.Type}: {c.Value}").ToList();
-        Console.WriteLine("Claims: " + string.Join(", ", claims));
+        // var claims = User.Claims.Select(c => $"{c.Type}: {c.Value}").ToList();
+        // Console.WriteLine("Claims: " + string.Join(", ", claims));
 
         var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        Console.WriteLine($"AccountId: {accountId}");
+        //Console.WriteLine($"AccountId: {accountId}");
         if (accountId == null)
         {
             return Unauthorized();
@@ -93,8 +93,23 @@ public class UsersController : ApiController
             user => Ok(user),
             Problem);
     }
+    [HttpPut("Profile")]
+    public async Task<IActionResult> UpdateProfile(UpdateUserRequest request)
+    {
+        var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (accountId == null)
+        {
+            return Unauthorized();
+        }
 
+        var command = new UpdateUserCommand(Guid.Parse(accountId),request.fullname, request.email, request.phoneNumber,
+                                            request.birthday, request.address, request.sex, request.avatar);
+        var result = await _mediator.Send(command);
 
+         return result.Match(
+            _ => NoContent(),
+            Problem);
+    }
     private UserResponse ToDto(User User) =>
         new(User.Id,
             User.Fullname,
