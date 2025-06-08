@@ -1,72 +1,114 @@
 import React, { useEffect, useState } from "react";
-import { fetchGet, fetchPut } from "../../../lib/httpHandler";
-import { IoIosSearch } from "react-icons/io";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { fetchGet, fetchPut, fetchPost } from "../../../lib/httpHandler";
 import "./AccountManagement.css";
 
 export default function AccountManagement() {
-  const [listAccounts, setListAccounts] = useState([]);
-  const [listAccountsShow, setListAccountsShow] = useState([]);
-  const [dataSearch, setDataSearch] = useState("");
+  const [userInfo, setUserInfo] = useState({
+    username: "",
+    fullname: "",
+    email: "",
+    phoneNumber: "",
+    birthday: "",
+    address: "",
+    sex: false,
+    avatar: "",
+    roleName: "",
+    status: true,
+  });
+  const [newPassword, setNewPassword] = useState("");
+  const [avatarFile, setAvatarFile] = useState(null);
 
   useEffect(() => {
-    const uri = "/api/admin/accounts";
     fetchGet(
-      uri,
-      (sus) => {
-        console.log("Dữ liệu tài khoản từ BE:", sus);
-        setListAccounts(sus.data.items);
-        setListAccountsShow(sus.data.items);
-      },
-      (fail) => {
-        toast.error(fail.message);
-      },
-      () => {
-        toast.error("Có lỗi xảy ra khi lấy danh sách tài khoản");
-      }
-    );
+    "/users/profile",
+    (sus) => {
+      console.log("Dữ liệu người dùng:", sus);
+      setUserInfo({
+        username: sus.username,
+        fullname: sus.fullname,
+        email: sus.email,
+        phoneNumber: sus.phoneNumber,
+        birthday: sus.birthday ? new Date(sus.birthday).toISOString().split("T")[0] : "",
+        address: sus.address || "",
+        sex: sus.sex,
+        avatar: sus.avatar || "",
+        roleName: sus.roleName,
+      });
+    },
+    (fail) => {
+      toast.error(fail.message || "Không thể tải thông tin cá nhân");
+    },
+    () => {
+      toast.error("Có lỗi xảy ra khi tải thông tin");
+    }
+  );
   }, []);
 
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setDataSearch(value);
-    applySearch(value);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUserInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  const applySearch = (searchValue) => {
-    let filteredList = [...listAccounts];
-    if (searchValue.trim()) {
-      const lowercasedSearch = searchValue.toLowerCase();
-      filteredList = filteredList.filter((item) =>
-        item.username.toLowerCase().includes(lowercasedSearch)
-      );
+  const handleSexChange = (e) => {
+    setUserInfo((prev) => ({ ...prev, sex: e.target.value === "true" }));
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      setUserInfo((prev) => ({ ...prev, avatar: URL.createObjectURL(file) }));
     }
-    setListAccountsShow(filteredList);
   };
 
-  useEffect(() => {
-    applySearch(dataSearch);
-  }, [listAccounts, dataSearch]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("fullname", userInfo.fullname);
+    formData.append("email", userInfo.email);
+    formData.append("phoneNumber", userInfo.phoneNumber);
+    formData.append("birthday", userInfo.birthday);
+    formData.append("address", userInfo.address);
+    formData.append("sex", userInfo.sex.toString());
+    if (avatarFile) {
+      formData.append("avatar", avatarFile);
+    }
 
-  const handleLockAccount = (accountId, isLocked) => {
-    const uri = `/api/admin/accounts/${accountId}/lock`;
     fetchPut(
-      uri,
-      { isLocked: !isLocked },
+      "/users/profile",
+      formData,
       (sus) => {
-        setListAccounts((prev) =>
-          prev.map((item) =>
-            item._id === accountId ? { ...item, isLocked: !isLocked } : item
-          )
-        );
-        toast.success(`Tài khoản đã được ${isLocked ? "mở khóa" : "khóa"} thành công!`);
+        toast.success("Cập nhật thông tin thành công!");
       },
       (fail) => {
-        toast.error(fail.message);
+        toast.error(fail.message || "Cập nhật thông tin thất bại!");
       },
       () => {
-        toast.error("Có lỗi xảy ra khi khóa/mở khóa tài khoản");
+        toast.error("Có lỗi xảy ra khi cập nhật thông tin!");
+      }
+    );
+  };
+
+  const handleUpdatePassword = () => {
+    if (!newPassword) {
+      toast.error("Vui lòng nhập mật khẩu mới!");
+      return;
+    }
+
+    fetchPost(
+      "/auth/update-password",
+      { username: userInfo.username, newPassword },
+      (sus) => {
+        toast.success("Cập nhật mật khẩu thành công!");
+        setNewPassword("");
+      },
+      (fail) => {
+        toast.error(fail.message || "Cập nhật mật khẩu thất bại!");
+      },
+      () => {
+        toast.error("Có lỗi xảy ra khi cập nhật mật khẩu!");
       }
     );
   };
@@ -74,84 +116,136 @@ export default function AccountManagement() {
   return (
     <>
       <ToastContainer />
-      <div className="account-management">
-        <div className="title py-3 fs-5 mb-2">
-          Số lượng tài khoản: {listAccountsShow.length}
-        </div>
-        <div className="row mx-0 my-0">
-          <div className="col-12 pb-4 px-0 d-flex justify-content-between align-items-center mb-2">
-            <div className="d-flex align-items-center col-10">
-              <div className="contain_Search position-relative col-4 me-3">
-                <input
-                  onChange={handleSearch}
-                  value={dataSearch}
-                  className="search rounded-2 px-3"
-                  placeholder="Nhập tên tài khoản muốn tìm"
-                />
-                <IoIosSearch className="icon_search translate-middle-y text-secondary" />
-              </div>
-            </div>
+      <div className="personal-information">
+        <h2 className="title">Thông Tin Cá Nhân</h2>
+        <div className="profile-container">
+          <div className="avatar-section">
+            <img
+              src={userInfo.avatar || "https://via.placeholder.com/150"}
+              alt="Avatar"
+              className="avatar-image"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="avatar-upload"
+              id="avatar-upload"
+            />
+            <label htmlFor="avatar-upload" className="upload-button">
+              Tải ảnh lên
+            </label>
           </div>
-          <div className="contain_Table mx-0 col-12 bg-white rounded-2">
-            <table className="table table-hover">
-              <thead>
-                <tr>
-                  <th>STT</th>
-                  <th>Tên tài khoản</th>
-                  <th>Trạng thái</th>
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listAccountsShow && listAccountsShow.length > 0 ? (
-                  listAccountsShow.map((item, index) => (
-                    <tr key={item._id}>
-                      <td>{index + 1}</td>
-                      <td>{item.username}</td>
-                      <td>{item.isLocked ? "Khóa" : "Hoạt động"}</td>
-                      <td>
-                        <div className="list_Action"></div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="4" className="text-center">
-                      Không có tài khoản nào
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            <nav className="contain_pagination">
-              <ul className="pagination">
-                <li className="page-item">
-                  <a className="page-link page-link-two" href="#">
-                    «
-                  </a>
-                </li>
-                <li className="page-item active">
-                  <a className="page-link" href="#">
-                    1
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    2
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    3
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link page-link-two" href="#">
-                    »
-                  </a>
-                </li>
-              </ul>
-            </nav>
+          <form onSubmit={handleSubmit} className="profile-form">
+            <div className="form-group">
+              <label>Họ và tên:</label>
+              <input
+                type="text"
+                name="fullname"
+                value={userInfo.fullname}
+                onChange={handleInputChange}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Email:</label>
+              <input
+                type="email"
+                name="email"
+                value={userInfo.email}
+                onChange={handleInputChange}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Số điện thoại:</label>
+              <input
+                type="text"
+                name="phoneNumber"
+                value={userInfo.phoneNumber}
+                onChange={handleInputChange}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Địa chỉ:</label>
+              <input
+                type="text"
+                name="address"
+                value={userInfo.address}
+                onChange={handleInputChange}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Ngày sinh:</label>
+              <input
+                type="date"
+                name="birthday"
+                value={userInfo.birthday}
+                onChange={handleInputChange}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Giới tính:</label>
+              <select
+                name="sex"
+                value={userInfo.sex}
+                onChange={handleSexChange}
+                className="form-input"
+              >
+                <option value={true}>Nam</option>
+                <option value={false}>Nữ</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Vai trò:</label>
+              <input
+                type="text"
+                value={userInfo.roleName}
+                disabled
+                className="form-input"
+              />
+            </div>
+
+            {/* <div className="form-group">
+              <label>Trạng thái:</label>
+              <input
+                type="text"
+                value={userInfo.status ? "Hoạt động" : "Khóa"}
+                disabled
+                className="form-input"
+              />
+            </div> */}
+            <button type="submit" className="submit-button">
+              Lưu thay đổi
+            </button>
+          </form>
+          <div className="password-section">
+            <h3>Đổi mật khẩu</h3>
+            <div className="form-group">
+              <label>Tên tài khoản:</label>
+              <input
+                type="text"
+                value={userInfo.username}
+                disabled
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Mật khẩu mới:</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="form-input"
+              />
+            </div>
+            <button onClick={handleUpdatePassword} className="submit-button">
+              Cập nhật mật khẩu
+            </button>
           </div>
         </div>
       </div>

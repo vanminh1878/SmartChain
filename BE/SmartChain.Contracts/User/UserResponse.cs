@@ -1,4 +1,4 @@
-namespace SmartChain.Contracts.Users;
+namespace SmartChain.Contracts.User;
 
 public record UserResponse(
     Guid Id,

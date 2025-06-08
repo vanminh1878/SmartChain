@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartChain.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f1f3168d309e54d9dd6b212ad048d82510690b94")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1f714ea8b152ed78e1fc04aca97d4e542d7b7d08")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartChain.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartChain.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

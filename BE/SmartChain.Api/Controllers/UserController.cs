@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -5,8 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using SmartChain.Application.Users.Commands.CreateUser;
 using SmartChain.Application.Users.Commands.UpdateUser;
 using SmartChain.Application.Users.Queries.GetUser;
+using SmartChain.Application.Users.Queries.GetUserByAccountId;
 using SmartChain.Application.Users.Queries.GetUserById;
-using SmartChain.Contracts.Users;
+using SmartChain.Contracts.User;
 using SmartChain.Domain.User;
 
 namespace SmartChain.Api.Controllers;
@@ -69,6 +71,26 @@ public class UsersController : ApiController
 
         return result.Match(
             Users => Ok(Users.Select(ToDto).ToList()),
+            Problem);
+    }
+    [HttpGet("Profile")]
+    public async Task<IActionResult> GetProfile()
+    {
+        var claims = User.Claims.Select(c => $"{c.Type}: {c.Value}").ToList();
+        Console.WriteLine("Claims: " + string.Join(", ", claims));
+
+        var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        Console.WriteLine($"AccountId: {accountId}");
+        if (accountId == null)
+        {
+            return Unauthorized();
+        }
+
+        var query = new GetUserByAccountIdQuery(Guid.Parse(accountId));
+        var result = await _mediator.Send(query);
+
+        return result.Match(
+            user => Ok(user),
             Problem);
     }
 

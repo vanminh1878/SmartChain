@@ -68,6 +68,11 @@ builder.Services.AddCors(options =>
 // Thêm controllers
 builder.Services.AddControllers();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.AddLogging(logging =>
+{
+    logging.AddConsole();
+    logging.SetMinimumLevel(LogLevel.Debug);
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -83,13 +88,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine("Authentication failed: " + context.Exception.Message);
+                return Task.CompletedTask;
+            }
+        };
     });
 
-builder.Services.AddLogging(logging =>
-{
-    logging.AddConsole();
-    logging.SetMinimumLevel(LogLevel.Debug);
-});
+
 
 var app = builder.Build();
 
@@ -119,6 +128,7 @@ app.UseRequestLocalization(new RequestLocalizationOptions
 
 // Cấu hình middleware
 app.UseCors("AllowReactApp");
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
-
 app.Run();

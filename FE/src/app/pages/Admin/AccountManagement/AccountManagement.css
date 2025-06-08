@@ -1,35 +1,116 @@
-.category-management {
+.personal-information {
   padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.contain_Search {
-  position: relative;
+.title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
 }
 
-.search {
-  width: 100%;
-  padding: 8px 30px 8px 10px;
-  border: 1px solid #ccc;
-}
-
-.icon_search {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.contain_Table {
-  padding: 15px;
-}
-
-.list_Action {
+.profile-container {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.contain_pagination {
+.avatar-section {
+  text-align: center;
+}
+
+.avatar-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.avatar-upload {
+  display: none;
+}
+
+.upload-button {
+  background: #ff4d4f;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.upload-button:hover {
+  background: #e63946;
+}
+
+.profile-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
   display: flex;
-  justify-content: center;
-  margin-top: 20px;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.form-input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  outline: none;
+  width: 250px;
+}
+
+.form-input:focus {
+  border-color: #ff4d4f;
+  box-shadow: 0 0 5px rgba(255, 77, 79, 0.3);
+}
+
+.form-input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.submit-button {
+  background: #ff4d4f;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  grid-column: span 2;
+  text-align: center;
+}
+
+.submit-button:hover {
+  background: #e63946;
+}
+
+.password-section {
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+}
+
+.password-section h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 15px;
 }
