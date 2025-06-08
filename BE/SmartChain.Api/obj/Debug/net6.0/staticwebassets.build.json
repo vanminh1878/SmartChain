@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "R1NtokWwJSGCpBkkBwKqLY6VTO6o5FELmXmHyaGAUgA=",
+  "Hash": "E0v/dEbDI8LSXZmM6RNeZo3sTyidXhCtzekEHoNCMGQ=",
   "Source": "SmartChain.Api",
   "BasePath": "_content/SmartChain.Api",
   "Mode": "Default",
@@ -34,6 +34,44 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\03dbpbnd.xxp.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\lml1nrnd.qjx.jpg",
+      "SourceId": "SmartChain.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\",
+      "BasePath": "_content/SmartChain.Api",
+      "RelativePath": "uploads/lml1nrnd.qjx.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\lml1nrnd.qjx.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\zymze133.oh3.jpg",
+      "SourceId": "SmartChain.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\",
+      "BasePath": "_content/SmartChain.Api",
+      "RelativePath": "uploads/zymze133.oh3.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\zymze133.oh3.jpg"
     }
   ]
 }

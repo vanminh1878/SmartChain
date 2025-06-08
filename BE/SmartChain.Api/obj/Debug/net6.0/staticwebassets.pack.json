@@ -5,6 +5,14 @@
       "PackagePath": "staticwebassets\\uploads\\03dbpbnd.xxp.jpg"
     },
     {
+      "Id": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\lml1nrnd.qjx.jpg",
+      "PackagePath": "staticwebassets\\uploads\\lml1nrnd.qjx.jpg"
+    },
+    {
+      "Id": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\zymze133.oh3.jpg",
+      "PackagePath": "staticwebassets\\uploads\\zymze133.oh3.jpg"
+    },
+    {
       "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.SmartChain.Api.Microsoft.AspNetCore.StaticWebAssets.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
     },
