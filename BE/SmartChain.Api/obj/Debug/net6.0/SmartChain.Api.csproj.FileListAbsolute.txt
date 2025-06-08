@@ -99,3 +99,6 @@ C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Api\obj\Debug\net6
 C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Api\obj\Debug\net6.0\SmartChain.Api.pdb
 C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Api\obj\Debug\net6.0\SmartChain.Api.genruntimeconfig.cache
 C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Api\obj\Debug\net6.0\ref\SmartChain.Api.dll
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Api\bin\Debug\net6.0\BCrypt.Net-Next.dll
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Api\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\ADMIN\Máy tính\SmartChain\SmartChain\BE\SmartChain.Api\bin\Debug\net6.0\Microsoft.IdentityModel.Abstractions.dll

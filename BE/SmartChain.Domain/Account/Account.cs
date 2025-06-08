@@ -29,7 +29,7 @@ public class Account : Entity
         }
 
         Username = username;
-        Password = password;
+        Password =  BCrypt.Net.BCrypt.HashPassword(password);
         Status = true; // Default: active
         CreatedAt = DateTime.UtcNow;
 
@@ -60,7 +60,7 @@ public class Account : Entity
             return Error.Failure("Password cannot be empty.");
         }
 
-        Password = newPassword;
+        Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
         UpdatedAt = DateTime.UtcNow;
         _domainEvents.Add(new AccountUpdatedEvent(Id, Username));
         return Result.Success;
@@ -73,5 +73,9 @@ public class Account : Entity
         _domainEvents.Add(new AccountStatusUpdatedEvent(Id));
         return Result.Success;
     }
-    private Account() {}
+    public bool VerifyPassword(string password)
+    {
+        return BCrypt.Net.BCrypt.Verify(password, Password);
+    }
+    private Account() { }
 }

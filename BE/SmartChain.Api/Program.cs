@@ -9,6 +9,13 @@ using SmartChain.Infrastructure;
 using SmartChain.Infrastructure.Common.Persistence;
 using SmartChain.Infrastructure.Persistence.Repositories;
 using System.Text.Json;
+using SmartChain.Application.Services;
+using SmartChain.Infrastructure.Common.Services;
+using Microsoft.AspNetCore.Identity;
+using SmartChain.Domain.Common;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +47,9 @@ builder.Services.AddScoped<ICartsRepository, CartsRepository>();
 builder.Services.AddScoped<ICartDetailsRepository, CartDetailsRepository>();
 builder.Services.AddScoped<IAccountsRepository, AccountsRepository>();
 builder.Services.AddScoped<ICustomersRepository, CustomersRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 // Đăng ký IHttpContextAccessor
 builder.Services.AddHttpContextAccessor();
@@ -58,6 +68,22 @@ builder.Services.AddCors(options =>
 // Thêm controllers
 builder.Services.AddControllers();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
 
 builder.Services.AddLogging(logging =>
 {
