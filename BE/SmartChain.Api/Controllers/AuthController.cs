@@ -56,5 +56,15 @@ namespace SmartChain.Api.Controllers
                 response => Ok(response),
                 Problem);
         }
+         [HttpPost("update-password")]
+        public async Task<IActionResult> UpdatePassword(UpdatePasswordRequest request, CancellationToken cancellationToken)
+        {
+            var command = new UpdatePasswordCommand(request.Username, request.NewPassword);
+            ErrorOr<Account> result = await _mediator.Send(command, cancellationToken);
+
+            return result.Match(
+                account => Ok(new { Message = "Cập nhật mật khẩu thành công", AccountId = account.Id }),
+                Problem);
+        }
     }
 }

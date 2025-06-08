@@ -1,92 +1,104 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FaUser, FaLock } from "react-icons/fa"; // Sử dụng biểu tượng từ react-icons
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { sIsLoggedIn } from "../../../../store";
-import passwordIcon from "../../../assets/icons/password.png"; // Icon Mật khẩu
-import usernameIcon from "../../../assets/icons/user.png"; // Icon Tên đăng nhập
-import logo from "../../../assets/images/clinic4.png";
-import nurseIcon from "../../../assets/images/nurse.png"; // Biểu tượng y tá
-import { showErrorMessageBox } from "../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox"; // Đường dẫn tới hàm hiển thị MessageBox
-import Textbox from "../../../components/Other/Textbox"; // Đường dẫn tới component
+import logo from "../../../assets/icons/logo_CircleK.png";
 import { fetchPost } from "../../../lib/httpHandler";
-import "../../../styles/index.css";
 import "./Login.css";
+
 export default function Login() {
   const [tenTaiKhoan, setTenTaiKhoan] = useState("");
   const [matKhau, setMatKhau] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = () => {
+    if (!tenTaiKhoan || !matKhau) {
+      toast.error("Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!");
+      return;
+    }
+
     const dataSend = {
-      TenTaiKhoan: tenTaiKhoan,
-      MatKhau: matKhau,
+      username: tenTaiKhoan,
+      password: matKhau,
     };
-    const uri = "/api/login";
+    const uri = "/auth/login";
+
     fetchPost(
       uri,
       dataSend,
       (sus) => {
         console.log("Login response:", sus);
-        console.log("Token saved:", sus.data.token);
-        localStorage.setItem("jwtToken", sus.data.token);
+        localStorage.setItem("jwtToken", sus.token);
         sIsLoggedIn.set(true);
-        if (sus.data.user.VaiTroId === "000000000000000000000004") {
+        toast.success("Đăng nhập thành công!");
+        if (sus.user.roleId === "5aabf246-b367-464f-a151-8c967ccd1580") {
           navigate("/");
-        } else if (sus.data.user.VaiTroId === "000000000000000000000001") {
+        } else if (sus.user.roleId === "b17cdfca-dcde-46b3-bd60-d126ff2de7bd") {
           navigate("/admin");
         } else {
           navigate("/staff");
         }
       },
       (fail) => {
-        showErrorMessageBox(fail.message);
+        toast.error(fail.message || "Đăng nhập thất bại!");
       },
       () => {
-        showErrorMessageBox("Có lỗi xảy ra");
+        toast.error("Có lỗi xảy ra, vui lòng thử lại!");
       }
     );
   };
 
   return (
-    <div className="login-page">
-      <div className="login-left">
-        <h1 className="login-title">DERMATOLOGY CLINIC</h1>
-        <div className="login-image">
-          {/* Đặt ảnh tại đây */}
-          <img src={logo} alt="Phòng mạch tư" />
-        </div>
-      </div>
-      <div className="login-right">
-        <div className="login-form">
-          <div className="form-header">
-            <h3 className="form-title">ĐĂNG NHẬP</h3>
-            <img src={nurseIcon} alt="Nurse Icon" className="nurse-icon" />
+    <>
+      <ToastContainer />
+      <div className="login-page">
+        <div className="login-container">
+          <div className="login-left">
+            <img src={logo} alt="Circle K Logo" className="login-logo" />
+            <h1 className="login-title">CIRCLE K MANAGEMENT</h1>
           </div>
-          <div className="form-body">
-            <Textbox
-              icon={usernameIcon}
-              placeholder="Tên đăng nhập"
-              onChange={(e) => setTenTaiKhoan(e.target.value)}
-            />
-            <Textbox
-              icon={passwordIcon}
-              placeholder="Mật khẩu"
-              type="password"
-              onChange={(e) => setMatKhau(e.target.value)}
-            />
-            <div className="form-links">
-              <Link to="/register" className="form-link">
-                Tạo tài khoản
-              </Link>
-              <Link to="/forget-password" className="form-link">
-                Quên mật khẩu
-              </Link>
+          <div className="login-right">
+            <div className="login-form">
+              <h3 className="form-title">ĐĂNG NHẬP</h3>
+              <div className="form-body">
+                <div className="input-group">
+                  <FaUser className="input-icon" />
+                  <input
+                    type="text"
+                    placeholder="Tên đăng nhập"
+                    value={tenTaiKhoan}
+                    onChange={(e) => setTenTaiKhoan(e.target.value)}
+                    className="input-field"
+                  />
+                </div>
+                <div className="input-group">
+                  <FaLock className="input-icon" />
+                  <input
+                    type="password"
+                    placeholder="Mật khẩu"
+                    value={matKhau}
+                    onChange={(e) => setMatKhau(e.target.value)}
+                    className="input-field"
+                  />
+                </div>
+                <div className="form-links">
+                  <Link to="/register" className="form-link">
+                    Tạo tài khoản
+                  </Link>
+                  <Link to="/forget-password" className="form-link">
+                    Quên mật khẩu
+                  </Link>
+                </div>
+                <button onClick={handleLogin} className="submit-button">
+                  Đăng nhập
+                </button>
+              </div>
             </div>
-            <button onClick={handleLogin} className="submit-button">
-              Đăng nhập
-            </button>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

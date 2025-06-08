@@ -108,7 +108,7 @@ namespace SmartChain.Application.Services
             };
 
             var token = _jwtTokenService.GenerateToken(claims);
-            return new LoginResponse(token);
+            return new LoginResponse(token,userInfo);
         }
     }
 }
