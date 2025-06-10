@@ -27,7 +27,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             .HasColumnType("text");
 
         builder.Property(p => p.Price)
-            .IsRequired()
+            .IsRequired(false) // Allow null
             .HasColumnType("decimal(10,2)");
 
         builder.Property(p => p.StockQuantity)
@@ -35,7 +35,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             .HasColumnType("int");
 
         builder.Property(p => p.Image)
-            .IsRequired(false)
+            .IsRequired(false) // Already set to allow null, kept for clarity
             .HasMaxLength(500)
             .HasColumnType("nvarchar(500)");
 

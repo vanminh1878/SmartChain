@@ -4,4 +4,4 @@ using SmartChain.Domain.Product;
 
 namespace SmartChain.Application.Products.Commands.CreateProduct;
 
-public record CreateProductCommand(string name, string description, decimal price, int stockQuantity, Guid categoryId) : IRequest<ErrorOr<Product>>;
+public record CreateProductCommand(string name, string description, string? Image, Guid categoryId) : IRequest<ErrorOr<Product>>;

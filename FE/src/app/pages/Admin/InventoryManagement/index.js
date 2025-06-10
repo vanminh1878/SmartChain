@@ -318,7 +318,7 @@ export default function InventoryManagement() {
           ))}
         </Select>
       </FormControl>
-
+      {/* Danh sách sản phẩm của cửa hàng */}
       <Typography variant="h5" sx={{ mb: 2 }}>
         Danh sách sản phẩm của cửa hàng
       </Typography>
@@ -359,6 +359,7 @@ export default function InventoryManagement() {
         />
       )}
 
+      {/* Danh sách phiếu nhập kho */}
       <Typography variant="h5" sx={{ mb: 2 }}>
         Danh sách phiếu nhập kho
       </Typography>
@@ -388,7 +389,7 @@ export default function InventoryManagement() {
         pageSizeOptions={[5, 10, 20]}
         checkboxSelection
       />
-
+      {/* Danh sách phiếu đặt hàng */}
       <Typography variant="h5" sx={{ mb: 2 }}>
         Danh sách phiếu đặt hàng
       </Typography>

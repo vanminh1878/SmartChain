@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -18,32 +18,76 @@ import { DataGrid } from "@mui/x-data-grid";
 import { toast } from "react-toastify";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { fetchGet,fetchPost } from "../../../../lib/httpHandler";
 
 const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories, user, onCreateIntake, onCreateProduct }) => {
   const [newIntake, setNewIntake] = useState({
     intake_date: new Date().toISOString().split("T")[0],
     created_by: user?.id || "11111111-2222-3333-4444-555555555555",
     status: 0,
-    details: [{
-      id: Date.now(),
-      product_id: "",
-      quantity: 0,
-      unit_price: 0,
-      store_id: "",
-      supplier_id: "",
-      intake_date: new Date().toISOString().split("T")[0],
-    }],
+    details: [
+      {
+        id: Date.now(),
+        product_id: "",
+        quantity: 0,
+        unit_price: 0,
+        store_id: "",
+        supplier_id: "",
+        profit_margin: 0,
+        intake_date: new Date().toISOString().split("T")[0],
+      },
+    ],
   });
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
     category_id: "",
-    store_id: "",
     image: "",
-    unit_price: 0,
   });
+  const [productList, setProductList] = useState([]); // Khởi tạo là mảng rỗng
+  const [categoryList, setCategoryList] = useState([]); // Khởi tạo là mảng rỗng
   const [showNewProductForm, setShowNewProductForm] = useState(false);
   const [selectedStoreId, setSelectedStoreId] = useState("");
+
+  const fetchProductList = useCallback(() => {
+    if (productList.length === 0) { // Chỉ fetch nếu danh sách rỗng
+      fetchGet(
+        "/Inventory/ListProducts",
+        (res) => {
+          console.log("Danh sách sản phẩm đã được tải thành công", res);
+          setProductList(Array.isArray(res) ? res : []); // Đảm bảo res là mảng
+        },
+        (fail) => {
+          console.error("Lỗi khi tải danh sách sản phẩm", fail);
+          toast.error("Không thể tải danh sách sản phẩm");
+        },
+        () => {
+          console.log("Có lỗi xảy ra khi tải danh sách sản phẩm");
+          toast.error("Có lỗi xảy ra khi tải danh sách sản phẩm");
+        }
+      );
+    }
+  }, [productList]);
+
+ const fetchCategoryList = useCallback(() => {
+    if (categoryList.length === 0) { // Chỉ fetch nếu danh sách rỗng
+      fetchGet(
+        "/Categories",
+        (res) => {
+          console.log("Danh sách danh mục đã được tải thành công", res);
+          setCategoryList(Array.isArray(res) ? res : []); // Đảm bảo res là mảng
+        },
+        (fail) => {
+          console.error("Lỗi khi tải danh sách danh mục", fail);
+          toast.error("Không thể tải danh sách danh mục");
+        },
+        () => {
+          console.log("Có lỗi xảy ra khi tải danh sách danh mục");
+          toast.error("Có lỗi xảy ra khi tải danh sách danh mục");
+        }
+      );
+    }
+  }, [categoryList]);
 
   const totalValue = useMemo(() => {
     return newIntake.details.reduce((sum, detail) => sum + (detail.quantity * detail.unit_price || 0), 0);
@@ -127,15 +171,18 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
   const handleAddDetail = () => {
     setNewIntake((prev) => ({
       ...prev,
-      details: [...prev.details, {
-        id: Date.now(),
-        product_id: "",
-        quantity: 0,
-        unit_price: 0,
-        store_id: prev.details[0]?.store_id || "",
-        supplier_id: prev.details[0]?.supplier_id || "",
-        intake_date: prev.intake_date,
-      }],
+      details: [
+        ...prev.details,
+        {
+          id: Date.now(),
+          product_id: "",
+          quantity: 0,
+          unit_price: 0,
+          store_id: prev.details[0]?.store_id || "",
+          supplier_id: prev.details[0]?.supplier_id || "",
+          intake_date: prev.intake_date,
+        },
+      ],
     }));
   };
 
@@ -144,15 +191,17 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
       const newDetails = prev.details.filter((detail) => detail.id !== id);
       return {
         ...prev,
-        details: newDetails.length > 0 ? newDetails : [{
-          id: Date.now(),
-          product_id: "",
-          quantity: 0,
-          unit_price: 0,
-          store_id: "",
-          supplier_id: "",
-          intake_date: prev.intake_date,
-        }],
+        details: newDetails.length > 0 ? newDetails : [
+          {
+            id: Date.now(),
+            product_id: "",
+            quantity: 0,
+            unit_price: 0,
+            store_id: "",
+            supplier_id: "",
+            intake_date: prev.intake_date,
+          },
+        ],
       };
     });
   };
@@ -161,41 +210,46 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
     setNewProduct((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleCreateProduct = () => {
-    if (!newProduct.name || !newProduct.category_id || !newProduct.store_id || !newProduct.unit_price) {
-      toast.error("Vui lòng điền đầy đủ thông tin sản phẩm mới");
+   const handleCreateProduct = () => {
+    // Kiểm tra các trường bắt buộc
+    if (!newProduct.name || !newProduct.category_id || !newProduct.description) {
+      toast.error("Vui lòng điền đầy đủ thông tin: Tên, Danh mục, Mô tả");
       return;
     }
 
-    const selectedCategory = categories?.find((cat) => cat.id === newProduct.category_id);
-    const profitMargin = selectedCategory?.profit_margin || 0.3;
     const newProductData = {
-      ...newProduct,
-      price: newProduct.unit_price * (1 + profitMargin),
-      stock_quantity: 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      Name: newProduct.name,
+      CategoryId: newProduct.category_id,
+      Description: newProduct.description,
+      Image: newProduct.image || null, // Cho phép Image null
     };
 
-    onCreateProduct(newProductData, newIntake.details[0]?.supplier_id, (createdProduct) => {
-      setNewIntake((prev) => ({
-        ...prev,
-        details: [...prev.details, {
-          id: Date.now(),
-          product_id: createdProduct.id,
-          quantity: 0,
-          unit_price: newProduct.unit_price,
-          store_id: newProduct.store_id,
-          supplier_id: prev.details[0]?.supplier_id || "",
-          intake_date: prev.intake_date,
-        }],
-      }));
-      setNewProduct({ name: "", description: "", category_id: "", store_id: newIntake.details[0]?.store_id, image: "", unit_price: 0 });
-      setShowNewProductForm(false);
-      toast.success("Thêm sản phẩm mới thành công");
-    });
-  };
+    fetchPost(
+      "/Inventory/Products",
+      newProductData,
+      (createdProduct) => {
+        // Cập nhật danh sách sản phẩm
+        setProductList((prev) => [...prev, createdProduct]);
 
+        // Reset form sản phẩm mới
+        setNewProduct({
+          name: "",
+          description: "",
+          category_id: "",
+          image: "",
+        });
+
+        // Ẩn form thêm sản phẩm
+        setShowNewProductForm(false);
+
+        toast.success("Thêm sản phẩm mới thành công");
+      },
+      (error) => {
+        console.error("Lỗi khi tạo sản phẩm:", error);
+        toast.error("Không thể tạo sản phẩm mới");
+      }
+    );
+  };
   const handleCreate = () => {
     if (!newIntake.details.every((d) => d.supplier_id && d.store_id)) {
       toast.error("Vui lòng chọn cửa hàng và nhà cung cấp cho tất cả chi tiết");
@@ -241,17 +295,19 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
               label="Ngày nhập kho"
               type="date"
               value={newIntake.intake_date}
-              onChange={(e) => setNewIntake((prev) => ({
-                ...prev,
-                intake_date: e.target.value,
-                details: prev.details.map((d) => ({ ...d, intake_date: e.target.value })),
-              }))}
+              onChange={(e) =>
+                setNewIntake((prev) => ({
+                  ...prev,
+                  intake_date: e.target.value,
+                  details: prev.details.map((d) => ({ ...d, intake_date: e.target.value })),
+                }))
+              }
               fullWidth
               sx={{ backgroundColor: "white" }}
             />
           </Grid>
         </Grid>
-
+        {/* Danh sách sản phẩm của cửa hàng */}
         <Typography variant="h6" sx={{ mb: 2 }}>
           Danh sách sản phẩm của cửa hàng
         </Typography>
@@ -281,7 +337,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
           getRowId={(row) => row.id}
           disableSelectionOnClick
         />
-
+        {/* Thêm sản phẩm mới */}
         {showNewProductForm && (
           <Box sx={{ mt: 3, p: 2, border: "1px solid #ccc", borderRadius: 2 }}>
             <Typography variant="subtitle1">Thêm sản phẩm mới</Typography>
@@ -301,27 +357,19 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                   <Select
                     value={newProduct.category_id}
                     onChange={(e) => handleNewProductChange("category_id", e.target.value)}
+                    onOpen={() => fetchCategoryList()}
                     sx={{ backgroundColor: "white", minWidth: 250 }}
                   >
-                    {Array.isArray(categories) &&
-                      categories.map((category) => (
+                    {Array.isArray(categoryList) &&
+                      categoryList.map((category) => (
                         <MenuItem key={category.id} value={category.id}>
-                          {category.name} ({(category.profit_margin * 100).toFixed(2)}%)
+                          {category.name}
                         </MenuItem>
                       ))}
                   </Select>
                 </FormControl>
               </Grid>
-              {/* <Grid item xs={4}>
-                <TextField
-                  label="Giá nhập (VNĐ)"
-                  type="number"
-                  value={newProduct.unit_price}
-                  onChange={(e) => handleNewProductChange("unit_price", parseFloat(e.target.value) || 0)}
-                  fullWidth
-                  sx={{ backgroundColor: "white" }}
-                />
-              </Grid> */}
+             
               <Grid item xs={4}>
                 <TextField
                   label="Mô tả"
@@ -331,23 +379,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                   sx={{ backgroundColor: "white" }}
                 />
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  label="Giá bán (VNĐ)"
-                  type="number"
-                  value={
-                    newProduct.unit_price && newProduct.category_id
-                      ? (
-                          newProduct.unit_price *
-                          (1 + (categories?.find((c) => c.id === newProduct.category_id)?.profit_margin || 0.3))
-                        ).toFixed(2)
-                      : 0
-                  }
-                  InputProps={{ readOnly: true }}
-                  fullWidth
-                  sx={{ backgroundColor: "white" }}
-                />
-              </Grid>
+              
               <Grid item xs={4}>
                 <TextField
                   label="Ảnh (URL)"
@@ -368,7 +400,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
             </Box>
           </Box>
         )}
-
+        {/* Chi tiết nhập kho */}
         <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
           Chi tiết nhập kho
         </Typography>
@@ -378,46 +410,36 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
               <FormControl fullWidth>
                 <InputLabel>Sản phẩm</InputLabel>
                 <Select
-                  value={detail.product_id}
+                  value={detail.product_id || ""}
                   onChange={(e) => handleDetailChange(detail.id, "product_id", e.target.value)}
+                  onOpen={() => fetchProductList()}
                   sx={{ backgroundColor: "white", minWidth: 200 }}
                 >
-                  {Array.isArray(products) &&
-                    products
-                      .filter((p) => p.store_id === detail.store_id)
-                      .map((product) => (
-                        <MenuItem key={product.id} value={product.id}>
-                          {product.name}
-                        </MenuItem>
-                      ))}
+                  {Array.isArray(productList) && productList.length > 0 ? (
+                    productList.map((product) => (
+                      <MenuItem key={product.id} value={product.id}>
+                        {product.name}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled>Không có sản phẩm</MenuItem>
+                  )}
                 </Select>
               </FormControl>
             </Grid>
-            {/* <Grid item xs={1.5}>
-              <TextField
-                label="Loại SP"
-                value={
-                  detail.product_id
-                    ? categories?.find((c) => c.id === products?.find((p) => p.id === detail.product_id)?.category_id)?.name || "Không xác định"
-                    : "Không xác định"
-                }
-                InputProps={{ readOnly: true }}
-                fullWidth
-                sx={{ backgroundColor: "white" }}
-              />
-            </Grid> */}
-            <Grid item xs={4}>
+             <Grid item xs={4}>
                 <FormControl fullWidth>
                   <InputLabel>Danh mục</InputLabel>
                   <Select
                     value={newProduct.category_id}
                     onChange={(e) => handleNewProductChange("category_id", e.target.value)}
+                    onOpen={() => fetchCategoryList()}
                     sx={{ backgroundColor: "white", minWidth: 250 }}
                   >
-                    {Array.isArray(categories) &&
-                      categories.map((category) => (
+                    {Array.isArray(categoryList) &&
+                      categoryList.map((category) => (
                         <MenuItem key={category.id} value={category.id}>
-                          {category.name} ({(category.profit_margin * 100).toFixed(2)}%)
+                          {category.name}
                         </MenuItem>
                       ))}
                   </Select>
@@ -425,38 +447,38 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
               </Grid>
             <Grid item xs={1}>
               <TextField
-                label="SL"
+                label="Số lượng"
                 type="number"
-                value={detail.quantity}
+                value={detail.quantity || ""}
                 onChange={(e) => handleDetailChange(detail.id, "quantity", parseInt(e.target.value) || 0)}
                 fullWidth
                 sx={{ backgroundColor: "white" }}
+                slotProps={{ input: { min: 0 } }}// Ngăn nhập số âm
+
               />
             </Grid>
             <Grid item xs={1.5}>
               <TextField
                 label="Giá nhập"
                 type="number"
-                value={detail.unit_price}
+                value={detail.unit_price || ""}
                 onChange={(e) => handleDetailChange(detail.id, "unit_price", parseFloat(e.target.value) || 0)}
                 fullWidth
                 sx={{ backgroundColor: "white" }}
+                slotProps={{ input: { min: 0 } }}// Ngăn nhập số âm
               />
             </Grid>
             <Grid item xs={1}>
               <TextField
                 label="% Lợi nhuận"
-                value={
-                  detail.product_id
-                    ? `${((categories?.find((c) => c.id === products?.find((p) => p.id === detail.product_id)?.category_id)?.profit_margin || 0) * 100).toFixed(2)}%`
-                    : "0%"
-                }
-                InputProps={{ readOnly: true }}
+                value={detail.profit_margin || ""}              
+                slotProps={{ input: { min: 0 } }}// Ngăn nhập số âm
+                onChange={(e) => handleDetailChange(detail.id, "profit_margin", parseFloat(e.target.value) || 0)}
                 fullWidth
                 sx={{ backgroundColor: "white" }}
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={2}>
               <FormControl fullWidth>
                 <InputLabel>Cửa hàng</InputLabel>
                 <Select

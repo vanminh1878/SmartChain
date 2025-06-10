@@ -18,7 +18,7 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
     {
         try
         {
-            var Product = new Product(request.name, request.description, request.price, request.stockQuantity, request.categoryId);
+            var Product = new Product(request.name, request.description,request.categoryId, request.Image);
             await _ProductsRepository.AddAsync(Product, cancellationToken);
             return Product;
         }

@@ -134,7 +134,7 @@ public class ProductsRepository : IProductsRepository
                 TenSanPham = p.Name,
                 DanhMuc = categories?.FirstOrDefault(c => c.Id == p.CategoryId)?.Name ?? "Không xác định",
                 GiaNhap = stockDetail?.UnitPrice ?? 0,
-                GiaBan = p.Price,
+                GiaBan = p.Price ?? 0,
                 TonKho = p.StockQuantity,
                 ProductId = p.Id
             };
