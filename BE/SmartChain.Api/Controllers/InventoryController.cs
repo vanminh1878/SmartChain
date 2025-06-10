@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartChain.Application.Products.Queries.GetProductForInventory;
 using SmartChain.Application.StockIntakes.Queries.GetStockIntakesForInventory;
 using SmartChain.Application.StockIntakes.Queries.GetPurchaseOrdersForInventory;
-using SmartChain.Application.StockIntakes.Queries.GetStockIntakesForInventoryHandler;
+// using SmartChain.Application.StockIntakes.Queries.GetStockIntakesForInventoryHandler;
 
 namespace SmartChain.Api.Controllers;
 

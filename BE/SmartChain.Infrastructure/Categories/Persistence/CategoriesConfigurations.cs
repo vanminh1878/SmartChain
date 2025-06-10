@@ -1,13 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartChain.Domain.Categories;
-using SmartChain.Domain.Store;
 
 namespace SmartChain.Infrastructure.Persistence.Configurations;
 
 public class CategoryConfigurations : IEntityTypeConfiguration<Category>
 {
-public void Configure(EntityTypeBuilder<Category> builder)
+    public void Configure(EntityTypeBuilder<Category> builder)
     {
         builder.ToTable("Category");
 
@@ -27,12 +26,6 @@ public void Configure(EntityTypeBuilder<Category> builder)
             .IsRequired()
             .HasColumnType("bit")
             .HasDefaultValue(true);
-
-        builder.Property(c => c.Profit_margin)
-            .IsRequired()
-            .HasColumnName("Profit_margin")
-            .HasColumnType("decimal(5,2)")
-            .HasDefaultValue(0.30m);
 
         builder.Property(c => c.Image)
             .IsRequired(false)

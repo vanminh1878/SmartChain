@@ -9,9 +9,7 @@ namespace SmartChain.Domain.StockIntake;
 
 public class StockIntake : Entity
 {
-    public Guid SupplierId { get; private set; }
-    public Guid StoreId { get; private set; }
-    public DateTime IntakeDate { get; private set; }
+    
     public int Status { get; private set; } // 0: pending, 1: approved
     public Guid CreatedBy { get; private set; }
     public Guid? ApprovedBy { get; private set; }
@@ -20,43 +18,25 @@ public class StockIntake : Entity
     private readonly List<StockIntakeDetail> _stockIntakeDetails = new List<StockIntakeDetail>();
     public IReadOnlyList<StockIntakeDetail> StockIntakeDetails => _stockIntakeDetails.AsReadOnly();
 
-    public StockIntake(Guid supplierId, Guid storeId, DateTime intakeDate, Guid createdBy, Guid? id = null) : base(id)
+    public StockIntake( Guid createdBy, Guid? id = null) : base(id)
     {
-        if (supplierId == Guid.Empty)
-        {
-            throw new ArgumentException("Supplier ID cannot be empty.");
-        }
-        if (storeId == Guid.Empty)
-        {
-            throw new ArgumentException("Store ID cannot be empty.");
-        }
-        if (intakeDate == DateTime.MinValue)
-        {
-            throw new ArgumentException("Intake date cannot be empty or invalid.");
-        }
-        var now = DateTime.UtcNow;
-        var minDate = now.AddDays(-20);
-        if (intakeDate < minDate || intakeDate > now)
-        {
-            throw new ArgumentException("Intake date must be between today and 20 days prior.");
-        }
+        
         if (createdBy == Guid.Empty)
         {
             throw new ArgumentException("CreatedBy ID cannot be empty.");
         }
 
-        SupplierId = supplierId;
-        StoreId = storeId;
-        IntakeDate = intakeDate;
+        
+        
         Status = 0; // 0 = pending
         CreatedBy = createdBy;
         ApprovedBy = null; // Mới tạo, chưa có người phê duyệt
         CreatedAt = DateTime.UtcNow;
 
-        _domainEvents.Add(new StockIntakeCreatedEvent(id ?? Guid.NewGuid(), supplierId, storeId, intakeDate, createdBy));
+        _domainEvents.Add(new StockIntakeCreatedEvent(id ?? Guid.NewGuid(), createdBy));
     }
 
-    public ErrorOr<Success> AddStockIntakeDetail(Guid productId, int quantity, decimal unitPrice)
+    public ErrorOr<Success> AddStockIntakeDetail(Guid productId,Guid supplierId, Guid storeId, int quantity, decimal unitPrice,DateTime intakeDate, decimal? profitMargin = null)
     {
         if (Status != 0)
         {
@@ -84,7 +64,7 @@ public class StockIntake : Entity
         else
         {
             // Thêm mục mới
-            stockIntakeDetail = new StockIntakeDetail(Id,productId, quantity, unitPrice);
+            stockIntakeDetail = new StockIntakeDetail(Id,supplierId,storeId, productId, quantity, unitPrice,intakeDate,profitMargin);
             _stockIntakeDetails.Add(stockIntakeDetail);
         }
 

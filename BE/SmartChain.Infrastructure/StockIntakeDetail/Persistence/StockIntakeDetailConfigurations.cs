@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SmartChain.Domain.Product;
 using SmartChain.Domain.StockIntake;
+using SmartChain.Domain.Product;
+using SmartChain.Domain.Store;
+using SmartChain.Domain.Supplier;
 
 namespace SmartChain.Infrastructure.Persistence.Configurations;
 
@@ -9,64 +11,86 @@ public class StockIntakeDetailConfigurations : IEntityTypeConfiguration<StockInt
 {
     public void Configure(EntityTypeBuilder<StockIntakeDetail> builder)
     {
-        // Định nghĩa bảng
         builder.ToTable("Stock_Intake_Detail");
 
-        // Khóa chính
         builder.HasKey(sid => sid.Id);
 
-        // Ánh xạ Id (Guid)
         builder.Property(sid => sid.Id)
             .HasColumnName("Id")
             .HasColumnType("uniqueidentifier")
-            .HasDefaultValueSql("newid()"); // Sinh Guid tự động
+            .HasDefaultValueSql("newid()");
 
-        // Thuộc tính StockIntakeId (Guid)
         builder.Property(sid => sid.StockIntakeId)
             .IsRequired()
             .HasColumnName("StockIntakeId")
             .HasColumnType("uniqueidentifier");
 
-        // Thuộc tính ProductId (Guid)
         builder.Property(sid => sid.ProductId)
             .IsRequired()
             .HasColumnName("Product_id")
             .HasColumnType("uniqueidentifier");
 
-        // Thuộc tính Quantity
+        builder.Property(sid => sid.StoreId)
+            .IsRequired()
+            .HasColumnName("Store_id")
+            .HasColumnType("uniqueidentifier");
+
+        builder.Property(sid => sid.SupplierId)
+            .IsRequired()
+            .HasColumnName("Supplier_id")
+            .HasColumnType("uniqueidentifier");
+
+        builder.Property(sid => sid.Profit_margin)
+            .IsRequired()
+            .HasColumnName("Profit_margin")
+            .HasColumnType("decimal(5,2)")
+            .HasDefaultValue(0.30m);
+
         builder.Property(sid => sid.Quantity)
             .IsRequired()
             .HasColumnType("int");
 
-        // Thuộc tính UnitPrice
         builder.Property(sid => sid.UnitPrice)
             .IsRequired()
+            .HasColumnName("Unit_price")
             .HasColumnType("decimal(10,2)");
 
-        // Thuộc tính CreatedAt
+        builder.Property(sid => sid.IntakeDate)
+            .IsRequired()
+            .HasColumnType("datetime");
+
         builder.Property(sid => sid.CreatedAt)
             .IsRequired()
             .HasColumnType("datetime")
             .HasColumnName("Created_at");
 
-        // Thuộc tính UpdatedAt
         builder.Property(sid => sid.UpdatedAt)
-            .IsRequired(false) // Nullable
+            .IsRequired(false)
             .HasColumnType("datetime")
             .HasColumnName("Updated_at");
 
-        // Mối quan hệ khóa ngoại với Product
-        builder.HasOne<Product>()
-            .WithMany()
-            .HasForeignKey(sid => sid.ProductId)
-            .HasConstraintName("FK_StockIntakeDetail_Product")
-            .OnDelete(DeleteBehavior.Restrict); // Không xóa Product nếu StockIntakeDetail tham chiếu
-
-        // Mối quan hệ khóa ngoại với StockIntake
         builder.HasOne<StockIntake>()
             .WithMany(si => si.StockIntakeDetails)
             .HasForeignKey(sid => sid.StockIntakeId)
             .HasConstraintName("FK_StockIntakeDetail_StockIntake")
-            .OnDelete(DeleteBehavior.Cascade); // Xóa StockIntake thì xóa luôn StockIntakeDetail
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Product>()
+            .WithMany()
+            .HasForeignKey(sid => sid.ProductId)
+            .HasConstraintName("FK_StockIntakeDetail_Product")
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Store>()
+            .WithMany()
+            .HasForeignKey(sid => sid.StoreId)
+            .HasConstraintName("FK_StockIntakeDetail_Store")
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Supplier>()
+            .WithMany()
+            .HasForeignKey(sid => sid.SupplierId)
+            .HasConstraintName("FK_StockIntakeDetail_Supplier")
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

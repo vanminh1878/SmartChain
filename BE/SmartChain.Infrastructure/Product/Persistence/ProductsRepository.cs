@@ -65,12 +65,12 @@ public class ProductsRepository : IProductsRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<Product>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken)
-    {
-        return await _context.Products
-            .Where(p => p.StoreId == storeId)
-            .ToListAsync(cancellationToken);
-    }
+    // public async Task<List<Product>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken)
+    // {
+    //     return await _context.Products
+    //         .Where(p => p.StoreId == storeId)
+    //         .ToListAsync(cancellationToken);
+    // }
 
     public async Task<List<Product>> ListByCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken)
     {
@@ -127,21 +127,15 @@ public class ProductsRepository : IProductsRepository
                 ? stockIntakes?.FirstOrDefault(si => si.Id == stockDetail.StockIntakeId)
                 : null;
 
-            // Tìm nhà cung cấp
-            var supplier = stockIntake != null
-                ? suppliers?.FirstOrDefault(s => s.Id == stockIntake.SupplierId)
-                : null;
+
 
             return new ProductForInventoryDto
             {
                 TenSanPham = p.Name,
                 DanhMuc = categories?.FirstOrDefault(c => c.Id == p.CategoryId)?.Name ?? "Không xác định",
-                CuaHang = stores?.FirstOrDefault(s => s.Id == p.StoreId)?.Name ?? "Không xác định",
-                NhaCungCap = supplier?.Name ?? "Không xác định",
                 GiaNhap = stockDetail?.UnitPrice ?? 0,
                 GiaBan = p.Price,
                 TonKho = p.StockQuantity,
-                StoreId = p.StoreId,
                 ProductId = p.Id
             };
         }).ToList();

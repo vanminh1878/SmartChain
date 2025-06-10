@@ -32,19 +32,19 @@ public class StockIntakesRepository : IStockIntakesRepository
             .FirstOrDefaultAsync(si => si.Id == stockIntakeId, cancellationToken);
     }
 
-    public async Task<List<StockIntake>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken)
-    {
-        return await _context.StockIntakes
-            .Where(si => si.StoreId == storeId)
-            .ToListAsync(cancellationToken);
-    }
+    // public async Task<List<StockIntake>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken)
+    // {
+    //     return await _context.StockIntakes
+    //         .Where(si => si.StoreId == storeId)
+    //         .ToListAsync(cancellationToken);
+    // }
 
-    public async Task<List<StockIntake>> ListBySupplierIdAsync(Guid supplierId, CancellationToken cancellationToken)
-    {
-        return await _context.StockIntakes
-            .Where(si => si.SupplierId == supplierId)
-            .ToListAsync(cancellationToken);
-    }
+    // public async Task<List<StockIntake>> ListBySupplierIdAsync(Guid supplierId, CancellationToken cancellationToken)
+    // {
+    //     return await _context.StockIntakes
+    //         .Where(si => si.SupplierId == supplierId)
+    //         .ToListAsync(cancellationToken);
+    // }
 
     public async Task<List<StockIntake>> ListByCreatedByAsync(Guid createdBy, CancellationToken cancellationToken)
     {

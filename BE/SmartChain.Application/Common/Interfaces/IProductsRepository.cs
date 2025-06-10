@@ -15,7 +15,7 @@ public interface IProductsRepository
     Task<Category> GetCategoryByProductIdAsync(Guid productId, CancellationToken cancellationToken);
     Task<List<ProductForInventoryDto>> GetProductsForInventoryAsync(CancellationToken cancellationToken);
     Task<List<Product>> ListAllAsync(CancellationToken cancellationToken);
-    Task<List<Product>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken);
+    // Task<List<Product>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken);
     Task<List<Product>> ListByCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken);
     Task RemoveAsync(Product product, CancellationToken cancellationToken);
     Task RemoveRangeAsync(List<Product> products, CancellationToken cancellationToken);

@@ -21,12 +21,18 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories, user, onCreateIntake, onCreateProduct }) => {
   const [newIntake, setNewIntake] = useState({
-    supplier_id: "",
-    store_id: "",
     intake_date: new Date().toISOString().split("T")[0],
     created_by: user?.id || "11111111-2222-3333-4444-555555555555",
     status: 0,
-    details: [{ id: Date.now(), product_id: "", quantity: 0, unit_price: 0 }],
+    details: [{
+      id: Date.now(),
+      product_id: "",
+      quantity: 0,
+      unit_price: 0,
+      store_id: "",
+      supplier_id: "",
+      intake_date: new Date().toISOString().split("T")[0],
+    }],
   });
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -37,14 +43,15 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
     unit_price: 0,
   });
   const [showNewProductForm, setShowNewProductForm] = useState(false);
+  const [selectedStoreId, setSelectedStoreId] = useState("");
 
   const totalValue = useMemo(() => {
     return newIntake.details.reduce((sum, detail) => sum + (detail.quantity * detail.unit_price || 0), 0);
   }, [newIntake.details]);
 
   const filteredProducts = useMemo(() => {
-    return Array.isArray(products) ? products.filter((p) => p.store_id === newIntake.store_id) : [];
-  }, [products, newIntake.store_id]);
+    return Array.isArray(products) ? products.filter((p) => p.store_id === selectedStoreId) : [];
+  }, [products, selectedStoreId]);
 
   const productColumns = [
     {
@@ -68,8 +75,8 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
       headerName: "Nhà cung cấp",
       width: 200,
       valueGetter: (params) => {
-        if (!params.row || !newIntake.supplier_id) return "Không xác định";
-        const productSupplier = params.row.suppliers?.find((ps) => ps.supplier_id === newIntake.supplier_id);
+        if (!params.row || !newIntake.details[0]?.supplier_id) return "Không xác định";
+        const productSupplier = params.row.suppliers?.find((ps) => ps.supplier_id === newIntake.details[0]?.supplier_id);
         const supplier = suppliers?.find((s) => s.id === productSupplier?.supplier_id);
         return supplier?.name || "Không xác định";
       },
@@ -89,8 +96,8 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
       headerName: "Giá nhập",
       width: 120,
       valueGetter: (params) => {
-        if (!params.row || !newIntake.supplier_id) return "0 VNĐ";
-        const productSupplier = params.row.suppliers?.find((ps) => ps.supplier_id === newIntake.supplier_id);
+        if (!params.row || !newIntake.details[0]?.supplier_id) return "0 VNĐ";
+        const productSupplier = params.row.suppliers?.find((ps) => ps.supplier_id === newIntake.details[0]?.supplier_id);
         return productSupplier?.unit_price ? `${productSupplier.unit_price.toLocaleString("vi-VN")} VNĐ` : "0 VNĐ";
       },
     },
@@ -120,7 +127,15 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
   const handleAddDetail = () => {
     setNewIntake((prev) => ({
       ...prev,
-      details: [...prev.details, { id: Date.now(), product_id: "", quantity: 0, unit_price: 0 }],
+      details: [...prev.details, {
+        id: Date.now(),
+        product_id: "",
+        quantity: 0,
+        unit_price: 0,
+        store_id: prev.details[0]?.store_id || "",
+        supplier_id: prev.details[0]?.supplier_id || "",
+        intake_date: prev.intake_date,
+      }],
     }));
   };
 
@@ -129,7 +144,15 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
       const newDetails = prev.details.filter((detail) => detail.id !== id);
       return {
         ...prev,
-        details: newDetails.length > 0 ? newDetails : [{ id: Date.now(), product_id: "", quantity: 0, unit_price: 0 }],
+        details: newDetails.length > 0 ? newDetails : [{
+          id: Date.now(),
+          product_id: "",
+          quantity: 0,
+          unit_price: 0,
+          store_id: "",
+          supplier_id: "",
+          intake_date: prev.intake_date,
+        }],
       };
     });
   };
@@ -154,20 +177,28 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
       updated_at: new Date().toISOString(),
     };
 
-    onCreateProduct(newProductData, newIntake.supplier_id, (createdProduct) => {
+    onCreateProduct(newProductData, newIntake.details[0]?.supplier_id, (createdProduct) => {
       setNewIntake((prev) => ({
         ...prev,
-        details: [...prev.details, { id: Date.now(), product_id: createdProduct.id, quantity: 0, unit_price: newProduct.unit_price }],
+        details: [...prev.details, {
+          id: Date.now(),
+          product_id: createdProduct.id,
+          quantity: 0,
+          unit_price: newProduct.unit_price,
+          store_id: newProduct.store_id,
+          supplier_id: prev.details[0]?.supplier_id || "",
+          intake_date: prev.intake_date,
+        }],
       }));
-      setNewProduct({ name: "", description: "", category_id: "", store_id: newIntake.store_id, image: "", unit_price: 0 });
+      setNewProduct({ name: "", description: "", category_id: "", store_id: newIntake.details[0]?.store_id, image: "", unit_price: 0 });
       setShowNewProductForm(false);
       toast.success("Thêm sản phẩm mới thành công");
     });
   };
 
   const handleCreate = () => {
-    if (!newIntake.supplier_id || !newIntake.store_id) {
-      toast.error("Vui lòng chọn cửa hàng và nhà cung cấp");
+    if (!newIntake.details.every((d) => d.supplier_id && d.store_id)) {
+      toast.error("Vui lòng chọn cửa hàng và nhà cung cấp cho tất cả chi tiết");
       return;
     }
     if (!newIntake.details.every((d) => d.product_id && d.quantity > 0 && d.unit_price > 0)) {
@@ -176,7 +207,11 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
     }
 
     const intakeData = {
-      ...newIntake,
+      supplier_id: newIntake.details[0].supplier_id,
+      store_id: newIntake.details[0].store_id,
+      intake_date: newIntake.intake_date,
+      created_by: newIntake.created_by,
+      status: newIntake.status,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       details: newIntake.details.map((detail) => ({
@@ -206,7 +241,11 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
               label="Ngày nhập kho"
               type="date"
               value={newIntake.intake_date}
-              onChange={(e) => setNewIntake({ ...newIntake, intake_date: e.target.value })}
+              onChange={(e) => setNewIntake((prev) => ({
+                ...prev,
+                intake_date: e.target.value,
+                details: prev.details.map((d) => ({ ...d, intake_date: e.target.value })),
+              }))}
               fullWidth
               sx={{ backgroundColor: "white" }}
             />
@@ -219,8 +258,8 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
         <FormControl fullWidth sx={{ mb: 3 }}>
           <InputLabel>Cửa hàng</InputLabel>
           <Select
-            value={newIntake.store_id}
-            onChange={(e) => setNewIntake({ ...newIntake, store_id: e.target.value })}
+            value={selectedStoreId}
+            onChange={(e) => setSelectedStoreId(e.target.value)}
             sx={{ backgroundColor: "white" }}
           >
             {Array.isArray(stores) &&
@@ -262,7 +301,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                   <Select
                     value={newProduct.category_id}
                     onChange={(e) => handleNewProductChange("category_id", e.target.value)}
-                    sx={{ backgroundColor: "white" }}
+                    sx={{ backgroundColor: "white", minWidth: 250 }}
                   >
                     {Array.isArray(categories) &&
                       categories.map((category) => (
@@ -273,7 +312,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={4}>
+              {/* <Grid item xs={4}>
                 <TextField
                   label="Giá nhập (VNĐ)"
                   type="number"
@@ -282,7 +321,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                   fullWidth
                   sx={{ backgroundColor: "white" }}
                 />
-              </Grid>
+              </Grid> */}
               <Grid item xs={4}>
                 <TextField
                   label="Mô tả"
@@ -333,42 +372,60 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
         <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
           Chi tiết nhập kho
         </Typography>
-        <FormControl fullWidth sx={{ mb: 3 }}>
-          <InputLabel>Nhà cung cấp</InputLabel>
-          <Select
-            value={newIntake.supplier_id}
-            onChange={(e) => setNewIntake({ ...newIntake, supplier_id: e.target.value })}
-            sx={{ backgroundColor: "white" }}
-          >
-            {Array.isArray(suppliers) &&
-              suppliers.map((supplier) => (
-                <MenuItem key={supplier.id} value={supplier.id}>
-                  {supplier.name}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
         {newIntake.details.map((detail, index) => (
-          <Grid container spacing={2} key={detail.id} sx={{ mb: 2, alignItems: "center" }}>
-            <Grid item xs={3}>
+          <Grid container spacing={1} key={detail.id} sx={{ mb: 2, alignItems: "center" }}>
+            <Grid item xs={2}>
               <FormControl fullWidth>
                 <InputLabel>Sản phẩm</InputLabel>
                 <Select
                   value={detail.product_id}
                   onChange={(e) => handleDetailChange(detail.id, "product_id", e.target.value)}
-                  sx={{ backgroundColor: "white" }}
+                  sx={{ backgroundColor: "white", minWidth: 200 }}
                 >
-                  {filteredProducts.map((product) => (
-                    <MenuItem key={product.id} value={product.id}>
-                      {product.name}
-                    </MenuItem>
-                  ))}
+                  {Array.isArray(products) &&
+                    products
+                      .filter((p) => p.store_id === detail.store_id)
+                      .map((product) => (
+                        <MenuItem key={product.id} value={product.id}>
+                          {product.name}
+                        </MenuItem>
+                      ))}
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={3}>
+            {/* <Grid item xs={1.5}>
               <TextField
-                label="Số lượng"
+                label="Loại SP"
+                value={
+                  detail.product_id
+                    ? categories?.find((c) => c.id === products?.find((p) => p.id === detail.product_id)?.category_id)?.name || "Không xác định"
+                    : "Không xác định"
+                }
+                InputProps={{ readOnly: true }}
+                fullWidth
+                sx={{ backgroundColor: "white" }}
+              />
+            </Grid> */}
+            <Grid item xs={4}>
+                <FormControl fullWidth>
+                  <InputLabel>Danh mục</InputLabel>
+                  <Select
+                    value={newProduct.category_id}
+                    onChange={(e) => handleNewProductChange("category_id", e.target.value)}
+                    sx={{ backgroundColor: "white", minWidth: 250 }}
+                  >
+                    {Array.isArray(categories) &&
+                      categories.map((category) => (
+                        <MenuItem key={category.id} value={category.id}>
+                          {category.name} ({(category.profit_margin * 100).toFixed(2)}%)
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            <Grid item xs={1}>
+              <TextField
+                label="SL"
                 type="number"
                 value={detail.quantity}
                 onChange={(e) => handleDetailChange(detail.id, "quantity", parseInt(e.target.value) || 0)}
@@ -376,9 +433,9 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                 sx={{ backgroundColor: "white" }}
               />
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={1.5}>
               <TextField
-                label="Giá nhập (VNĐ)"
+                label="Giá nhập"
                 type="number"
                 value={detail.unit_price}
                 onChange={(e) => handleDetailChange(detail.id, "unit_price", parseFloat(e.target.value) || 0)}
@@ -386,7 +443,64 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                 sx={{ backgroundColor: "white" }}
               />
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={1}>
+              <TextField
+                label="% Lợi nhuận"
+                value={
+                  detail.product_id
+                    ? `${((categories?.find((c) => c.id === products?.find((p) => p.id === detail.product_id)?.category_id)?.profit_margin || 0) * 100).toFixed(2)}%`
+                    : "0%"
+                }
+                InputProps={{ readOnly: true }}
+                fullWidth
+                sx={{ backgroundColor: "white" }}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <InputLabel>Cửa hàng</InputLabel>
+                <Select
+                  value={detail.store_id}
+                  onChange={(e) => handleDetailChange(detail.id, "store_id", e.target.value)}
+                  sx={{ backgroundColor: "white" }}
+                >
+                  {Array.isArray(stores) &&
+                    stores.map((store) => (
+                      <MenuItem key={store.id} value={store.id}>
+                        {store.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={1.5}>
+              <TextField
+                label="Ngày nhập"
+                type="date"
+                value={detail.intake_date}
+                onChange={(e) => handleDetailChange(detail.id, "intake_date", e.target.value)}
+                fullWidth
+                sx={{ backgroundColor: "white" }}
+              />
+            </Grid>
+            <Grid item xs={1.5}>
+              <FormControl fullWidth>
+                <InputLabel>Nhà cung cấp</InputLabel>
+                <Select
+                  value={detail.supplier_id}
+                  onChange={(e) => handleDetailChange(detail.id, "supplier_id", e.target.value)}
+                  sx={{ backgroundColor: "white" }}
+                >
+                  {Array.isArray(suppliers) &&
+                    suppliers.map((supplier) => (
+                      <MenuItem key={supplier.id} value={supplier.id}>
+                        {supplier.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={0.5}>
               <IconButton onClick={() => handleRemoveDetail(detail.id)} color="error">
                 <DeleteIcon />
               </IconButton>

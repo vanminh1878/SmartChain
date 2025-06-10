@@ -12,32 +12,24 @@ public class Product : Entity
     public decimal Price { get; private set; }
     public int StockQuantity { get; private set; }
     public Guid CategoryId { get; private set; }
-    public Guid StoreId { get; private set; }
     public string? Image { get; private set; } // nvarchar(500)
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
-    public Product(string name, string description, decimal price, int stockQuantity, Guid categoryId, Guid storeId, string? image = null, Guid? id = null) : base(id)
+    public Product(string name, string description, decimal price, int stockQuantity, Guid categoryId, string? image = null, Guid? id = null) : base(id)
     {
         if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentException("Product name cannot be empty.");
         }
-        if (price < 0)
-        {
-            throw new ArgumentException("Price cannot be negative.");
-        }
         if (stockQuantity < 0)
         {
             throw new ArgumentException("Stock quantity cannot be negative.");
         }
+        
         if (categoryId == Guid.Empty)
         {
             throw new ArgumentException("Category ID cannot be empty.");
-        }
-        if (storeId == Guid.Empty)
-        {
-            throw new ArgumentException("Store ID cannot be empty.");
         }
         if (image != null && image.Length > 500)
         {
@@ -49,11 +41,10 @@ public class Product : Entity
         Price = price;
         StockQuantity = stockQuantity;
         CategoryId = categoryId;
-        StoreId = storeId;
         Image = image;
         CreatedAt = DateTime.UtcNow;
 
-        _domainEvents.Add(new ProductCreatedEvent(id ?? Guid.NewGuid(), name, categoryId, storeId));
+        _domainEvents.Add(new ProductCreatedEvent(id ?? Guid.NewGuid(), name, categoryId));
     }
 
     public ErrorOr<Success> Update(string name, string description, decimal price, int stockQuantity, Guid categoryId, string? image = null)
@@ -61,10 +52,6 @@ public class Product : Entity
         if (string.IsNullOrEmpty(name))
         {
             return Error.Failure("Product name cannot be empty.");
-        }
-        if (price < 0)
-        {
-            return Error.Failure("Price cannot be negative.");
         }
         if (stockQuantity < 0)
         {
@@ -83,7 +70,7 @@ public class Product : Entity
         Description = description ?? string.Empty;
         Price = price;
         StockQuantity = stockQuantity;
-        CategoryId = categoryId;
+        CategoryId = categoryId; 
         Image = image ?? Image;
         UpdatedAt = DateTime.UtcNow;
 

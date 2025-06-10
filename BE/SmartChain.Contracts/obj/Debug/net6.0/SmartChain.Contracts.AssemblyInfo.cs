@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartChain.Contracts")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ef2d907549adf0ea08543e9ca6155f40512b4db9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ca44e8786075612ff1ad5d13a50cfdb0d32866ca")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartChain.Contracts")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartChain.Contracts")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
