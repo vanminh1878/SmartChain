@@ -42,6 +42,7 @@ export default function InventoryManagement() {
   const [intakeSearchText, setIntakeSearchText] = useState("");
   const [orderSearchText, setOrderSearchText] = useState("");
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
 
   const fetchStores = useCallback(() => {
     fetchGet(
@@ -116,46 +117,107 @@ export default function InventoryManagement() {
       "/Inventory/StockIntakes",
       (res) => {
         const intakeList = Array.isArray(res) ? res : [];
-        // Ánh xạ dữ liệu để đảm bảo có stockIntakeId
-        const validatedIntakes = intakeList
-          .filter((item) => item && typeof item === "object" && item.id)
-          .map((item) => ({
-            ...item,
-            stockIntakeId: item.id, // Đảm bảo stockIntakeId khớp với id
-            supplier: suppliers.find((s) => s.id === item.supplier_id)?.name || "Không xác định",
-            intakeDate: item.intake_date || "Không xác định",
-            created_By_Name: item.createdBy || "Không xác định",
-            approved_By_Name: item.approvedBy || "Không xác định",
-          }));
-        setStockIntakes(validatedIntakes);
+
+        Promise.all(
+          intakeList
+            .filter((item) => item && typeof item === "object" && item.id)
+            .map(
+              (item) =>
+                new Promise((resolve) => {
+                  let createdByName = "Không xác định";
+                  let approvedByName = "Không xác định";
+
+                  let fetchCount = 0;
+                  const totalFetches = (item.createdBy ? 1 : 0) + (item.approvedBy ? 1 : 0);
+
+                  const resolveIfDone = () => {
+                    fetchCount++;
+                    if (fetchCount === totalFetches || totalFetches === 0) {
+                      resolve({
+                        ...item,
+                        stockIntakeId: item.id,
+                        intakeDate: item.createdAt || "Không xác định",
+                        created_By_Name: createdByName,
+                        approved_By_Name: approvedByName,
+                      });
+                    }
+                  };
+
+                  if (item.createdBy) {
+                    fetchGet(
+                      `/Users/${item.createdBy}`,
+                      (userRes) => {
+                        createdByName = userRes?.fullname || "Không xác định";
+                        resolveIfDone();
+                      },
+                      (error) => {
+                        console.error(`Lỗi khi lấy thông tin user ${item.createdBy}:`, error);
+                        resolveIfDone();
+                      }
+                    );
+                  }
+
+                  if (item.approvedBy) {
+                    fetchGet(
+                      `/Users/${item.approvedBy}`,
+                      (userRes) => {
+                        approvedByName = userRes?.fullname || "Không xác định";
+                        resolveIfDone();
+                      },
+                      (error) => {
+                        console.error(`Lỗi khi lấy thông tin user ${item.approvedBy}:`, error);
+                        resolveIfDone();
+                      }
+                    );
+                  }
+
+                  if (!item.createdBy && !item.approvedBy) {
+                    resolveIfDone();
+                  }
+                })
+            )
+        )
+          .then((validatedIntakes) => {
+            setStockIntakes(validatedIntakes);
+            console.log("Danh sách phiếu nhập kho:", validatedIntakes);
+          })
+          .catch((error) => {
+            console.error("Lỗi khi xử lý danh sách phiếu nhập kho:", error);
+            toast.error("Lỗi khi xử lý danh sách phiếu nhập kho");
+          });
       },
       (fail) => {
         console.error("Lỗi khi lấy danh sách phiếu nhập kho:", fail);
         toast.error("Lỗi khi lấy danh sách phiếu nhập kho");
       }
     );
-  }, [suppliers]);
+  }, []);
 
   const fetchPurchaseOrders = useCallback(() => {
+    setIsLoadingOrders(true);
     fetchGet(
       "/Inventory/PurchaseOrders",
       (res) => {
+        console.log("Raw API response:", res);
         const orderList = Array.isArray(res) ? res : [];
-        // Ánh xạ dữ liệu để đảm bảo có supplierId
         const validatedOrders = orderList
           .filter((item) => item && typeof item === "object" && item.supplierId)
           .map((item, index) => ({
-            ...item,
-            id: item.supplierId || `temp-id-${index}`, // Fallback ID
+            id: item.id || item.supplierId || `temp-id-${index}`, // Sử dụng id từ API hoặc supplierId làm fallback
+            supplierId: item.supplierId,
             supplier: item.supplier || "Không xác định",
             intakeDate: item.intakeDate || "Không xác định",
             totalAmount: Number(item.totalAmount) || 0,
+            purchaseOrders: item.purchaseOrders || [],
           }));
+        console.log("Danh sách phiếu đặt hàng:", validatedOrders);
         setPurchaseOrders(validatedOrders);
+        setIsLoadingOrders(false);
       },
       (fail) => {
         console.error("Lỗi khi lấy danh sách phiếu đặt hàng:", fail);
         toast.error("Lỗi khi lấy danh sách phiếu đặt hàng");
+        setIsLoadingOrders(false);
       }
     );
   }, []);
@@ -194,8 +256,8 @@ export default function InventoryManagement() {
     const lowercasedSearch = intakeSearchText.toLowerCase();
     return stockIntakes.filter(
       (intake) =>
-        intake.supplier?.toLowerCase().includes(lowercasedSearch) ||
-        intake.intakeDate?.includes(lowercasedSearch)
+        intake.created_By_Name?.toLowerCase().includes(lowercasedSearch) ||
+        intake.intakeDate?.toLowerCase().includes(lowercasedSearch)
     );
   }, [stockIntakes, intakeSearchText]);
 
@@ -203,21 +265,27 @@ export default function InventoryManagement() {
     if (!Array.isArray(purchaseOrders)) return [];
     if (!orderSearchText.trim()) return purchaseOrders;
     const lowercasedSearch = orderSearchText.toLowerCase();
-    return purchaseOrders.filter((order) => order.supplier?.toLowerCase().includes(lowercasedSearch));
+    return purchaseOrders.filter((order) =>
+      order.supplier?.toLowerCase().includes(lowercasedSearch)
+    );
   }, [purchaseOrders, orderSearchText]);
 
   useEffect(() => {
     fetchStores();
     fetchSuppliers();
-  }, [fetchStores, fetchSuppliers]);
+    fetchStockIntakes();
+    fetchPurchaseOrders();
+  }, [fetchStores, fetchSuppliers, fetchStockIntakes, fetchPurchaseOrders]);
 
   useEffect(() => {
     if (selectedStore) {
       fetchProducts();
-      fetchStockIntakes();
-      fetchPurchaseOrders();
     }
-  }, [selectedStore, fetchProducts, fetchStockIntakes, fetchPurchaseOrders]);
+  }, [selectedStore, fetchProducts]);
+
+  useEffect(() => {
+    console.log("Updated purchaseOrders:", purchaseOrders);
+  }, [purchaseOrders]);
 
   const productColumns = [
     {
@@ -233,39 +301,81 @@ export default function InventoryManagement() {
       field: "unit_price",
       headerName: "Giá nhập",
       width: 120,
-      valueGetter: (params) => `${(params.row?.unit_price || 0).toLocaleString("vi-VN")} VNĐ`,
+      valueFormatter: ({ value }) =>
+        value != null ? `${Number(value).toLocaleString("vi-VN")} VNĐ` : "0 VNĐ",
     },
     {
       field: "price",
       headerName: "Giá bán",
       width: 120,
-      valueGetter: (params) => `${(params.row?.price || 0).toLocaleString("vi-VN")} VNĐ`,
+      valueFormatter: ({ value }) =>
+        value != null ? `${Number(value).toLocaleString("vi-VN")} VNĐ` : "0 VNĐ",
     },
     {
       field: "stock_quantity",
       headerName: "Tồn kho",
       width: 120,
-      valueGetter: (params) => `${params.row?.stock_quantity || 0} cái`,
+      valueFormatter: ({ value }) => `${value || 0} cái`,
     },
   ];
 
   const intakeColumns = [
-    { field: "stockIntakeId", headerName: "ID", width: 100 },
-    { field: "supplier", headerName: "Nhà cung cấp", width: 200 },
-    { field: "intakeDate", headerName: "Ngày nhập", width: 150 },
+    { field: "stockIntakeId", headerName: "ID", width: 300 },
+    {
+    field: "intakeDate",
+    headerName: "Ngày nhập",
+    width: 200,
+    renderCell: (params) => {
+      console.log("IntakeDate:", params.row.intakeDate);
+      const date = params.row.intakeDate
+        ? new Date(params.row.intakeDate).toLocaleString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          })
+        : "Không xác định";
+      return date;
+    },
+  },
     { field: "created_By_Name", headerName: "Người tạo", width: 150 },
     { field: "status", headerName: "Trạng thái", width: 120 },
     { field: "approved_By_Name", headerName: "Người phê duyệt", width: 150 },
   ];
 
   const orderColumns = [
-    { field: "supplier", headerName: "Nhà cung cấp", width: 200 },
-    { field: "intakeDate", headerName: "Ngày nhập", width: 150 },
+    { field: "supplier", headerName: "Nhà cung cấp", width: 300 },
+     {
+    field: "intakeDate",
+    headerName: "Ngày nhập",
+    width: 300,
+    renderCell: (params) => {
+      console.log("IntakeDate:", params.row.intakeDate);
+      const date = params.row.intakeDate
+        ? new Date(params.row.intakeDate).toLocaleString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          })
+        : "Không xác định";
+      return date;
+    },
+  },
     {
       field: "totalAmount",
       headerName: "Tổng tiền",
-      width: 120,
-      valueGetter: (params) => `${(params.row?.totalAmount || 0).toLocaleString("vi-VN")} VNĐ`,
+      width: 300,
+      renderCell: (params) => {
+        console.log("TotalAmount:", params.row.totalAmount); // Log totalAmount
+        return params.row.totalAmount != null
+          ? `${Number(params.row.totalAmount).toLocaleString("vi-VN")} VNĐ`
+          : "0 VNĐ";
+      },
     },
   ];
 
@@ -373,17 +483,21 @@ export default function InventoryManagement() {
           }}
         />
       </Box>
-      <DataGrid
-        sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0 }}
-        rows={filteredPurchaseOrders}
-        columns={orderColumns}
-        getRowId={(row) => row.id}
-        initialState={{
-          pagination: { paginationModel: { page: 0, pageSize: 5 } },
-        }}
-        pageSizeOptions={[5, 10, 20]}
-        checkboxSelection
-      />
+      {isLoadingOrders ? (
+        <Typography>Đang tải dữ liệu phiếu đặt hàng...</Typography>
+      ) : (
+        <DataGrid
+          sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0 }}
+          rows={filteredPurchaseOrders}
+          columns={orderColumns}
+          getRowId={(row) => row.id}
+          initialState={{
+            pagination: { paginationModel: { page: 0, pageSize: 5 } },
+          }}
+          pageSizeOptions={[5, 10, 20]}
+          checkboxSelection
+        />
+      )}
       <AddStockIntake
         open={openDialog}
         onClose={() => setOpenDialog(false)}
