@@ -23,9 +23,9 @@ public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryComman
             return Error.NotFound(description: "Category not found.");
         }
         var products = await _productsRepository.GetCategoryByProductIdAsync(request.CategoryId, cancellationToken);
-        if (products is not null)
+        if (products is null)
         {
-            return Error.Failure("Cannot delete category with associated products.");
+            return Error.Conflict("Cannot delete category with associated products.");
         }
 
         await _categoriesRepository.DeleteAsync(category, cancellationToken);

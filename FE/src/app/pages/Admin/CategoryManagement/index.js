@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import { showYesNoMessageBox } from "../../../components/MessageBox/YesNoMessageBox/showYesNoMessgeBox.js";
+import { showErrorMessageBox } from "../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox.js";
 import AddCategory from "../../../components/Admin/CategoryManagement/AddCategory/AddCategory.jsx";
 import EditCategory from "../../../components/Admin/CategoryManagement/DetailCategory/DetailCategory.jsx";
 import "./CategoryManagement.css";
@@ -79,54 +80,45 @@ export default function CategoryManagement() {
 
   // Handle delete category
   const handleDeleteCategory = useCallback(async (categoryId) => {
-    console.log("Bắt đầu xóa danh mục với ID:", categoryId);
-    if (!categoryId) {
-      console.error("ID danh mục không tồn tại");
-      toast.error("ID danh mục không tồn tại. Không thể xóa.");
-      return;
+  console.log("Bắt đầu xóa danh mục với ID:", categoryId);
+  if (!categoryId) {
+    console.error("ID danh mục không tồn tại");
+    await showErrorMessageBox("ID danh mục không tồn tại. Không thể xóa.");
+    return;
+  }
+  if (categoryId.startsWith("temp-")) {
+    console.error("ID danh mục tạm thời:", categoryId);
+    await showErrorMessageBox("Danh mục này chưa được lưu trên server. Vui lòng làm mới trang.");
+    return;
+  }
+  const confirmDelete = await showYesNoMessageBox("Bạn có muốn xóa danh mục này không?");
+  if (!confirmDelete) {
+    console.log("Hủy xóa danh mục");
+    return;
+  }
+  fetchDelete(
+    `/categories/${categoryId}`,
+    null, // Không cần reqData cho DELETE
+    (response) => {
+      console.log("Xóa danh mục thành công, phản hồi từ server:", response);
+      toast.success("Xóa danh mục thành công!");
+      setListCategories((prev) => {
+        console.log("Danh sách trước khi lọc:", prev);
+        const updatedList = prev.filter((item) => item.id !== categoryId);
+        console.log("Danh sách sau khi lọc:", updatedList);
+        return updatedList;
+      });
+    },
+    async (fail) => {
+      console.error("Phản hồi lỗi từ server:", fail);
+      // Hiển thị lỗi từ server bằng showErrorMessageBox
+      await showErrorMessageBox(fail.message || "Không thể xóa danh mục đã có sản phẩm");
+    },
+    () => {
+      console.log("Yêu cầu xóa danh mục hoàn tất");
     }
-    if (categoryId.startsWith("temp-")) {
-      console.error("ID danh mục tạm thời:", categoryId);
-      toast.error("Danh mục này chưa được lưu trên server. Vui lòng làm mới trang.");
-      return;
-    }
-    const confirmDelete = await showYesNoMessageBox("Bạn có muốn xóa danh mục này không?");
-    if (!confirmDelete) {
-      console.log("Hủy xóa danh mục");
-      return;
-    }
-    fetchDelete(
-      `/categories/${categoryId}`,
-      (response) => {
-        console.log("Xóa danh mục thành công, phản hồi từ server:", response);
-        toast.success("Xóa danh mục thành công!");
-        setListCategories((prev) => {
-          console.log("Danh sách trước khi lọc:", prev);
-          const updatedList = prev.filter((item) => item.id !== categoryId);
-          console.log("Danh sách sau khi lọc:", updatedList);
-          return updatedList;
-        });
-      },
-      (fail) => {
-        console.error("Phản hồi lỗi từ server:", fail);
-        if (fail.message === "Xóa thành công") {
-          console.log("Server báo thành công trong errorCallback, cập nhật danh sách cục bộ");
-          toast.success("Xóa danh mục thành công!");
-          setListCategories((prev) => {
-            console.log("Danh sách trước khi lọc:", prev);
-            const updatedList = prev.filter((item) => item.id !== categoryId);
-            console.log("Danh sách sau khi lọc:", updatedList);
-            return updatedList;
-          });
-        } else {
-          toast.error(fail.message || "Lỗi khi xóa danh mục");
-        }
-      },
-      () => {
-        console.log("Yêu cầu xóa danh mục hoàn tất");
-      }
-    );
-  }, []);
+  );
+}, []);
 
   return (
     <>
