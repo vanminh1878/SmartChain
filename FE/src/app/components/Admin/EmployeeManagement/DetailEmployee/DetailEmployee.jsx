@@ -3,7 +3,7 @@ import Modal from "react-modal";
 import { GrCircleInformation } from "react-icons/gr";
 import { TiEdit } from "react-icons/ti";
 import { IoClose } from "react-icons/io5";
-import { fetchGet, fetchPut } from "../../../../lib/httpHandler";
+import { fetchGet, fetchPut, fetchUpload, BE_ENPOINT } from "../../../../lib/httpHandler";
 import { showErrorMessageBox } from "../../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox";
 import { showSuccessMessageBox } from "../../../MessageBox/SuccessMessageBox/showSuccessMessageBox";
 import "./DetailEmployee.css";
@@ -24,6 +24,7 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
     status: "",
     storeId: "",
     roleId: "",
+    avatar: "", // Thêm trường avatar
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [stores, setStores] = useState([]);
@@ -157,6 +158,7 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
             status: employeeInfo.status !== undefined ? (employeeInfo.status ? "1" : "0") : "",
             storeId: employeeRes.storeId || "",
             roleId: userData.roleId || "",
+            avatar: employeeInfo.avatar || "",
           });
         },
         (err) => {
@@ -183,6 +185,35 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
     setDataForm((prev) => ({ ...prev, [name]: value }));
   }, []);
 
+  // Xử lý upload ảnh
+  const handleAvatarChange = useCallback((e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      showErrorMessageBox("Vui lòng chọn một file ảnh!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetchUpload(
+      "/api/asset/upload-image",
+      formData,
+      (data) => {
+        const avatarUrl = data.fileName; // Lưu tên file
+        setEmployeeInfo((prev) => ({ ...prev, avatar: avatarUrl }));
+        setDataForm((prev) => ({ ...prev, avatar: avatarUrl }));
+        showSuccessMessageBox("Ảnh đại diện đã được upload thành công!");
+      },
+      (fail) => {
+        showErrorMessageBox(fail.message || "Upload ảnh thất bại!");
+      },
+      () => {
+        showErrorMessageBox("Không thể kết nối đến server");
+      }
+    );
+  }, []);
+
   // Xử lý toggle chế độ chỉnh sửa
   const handleEditToggle = useCallback(() => {
     setEditStatus((prev) => !prev);
@@ -205,6 +236,7 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
       status: employeeInfo.status !== undefined ? (employeeInfo.status ? "1" : "0") : "",
       storeId: employeeInfo.storeId || "",
       roleId: employeeInfo.roleId || "",
+      avatar: employeeInfo.avatar || "",
     });
     setIsModalOpen(false);
   }, [employeeInfo]);
@@ -262,64 +294,78 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
     [dataForm]
   );
 
-  // Xử lý cập nhật nhân viên
-  const handleUpdate = useCallback(() => {
-    const uri = `/employees/${item.id}`;
-    console.log(dataForm);
-    const updatedData = {
-      fullname: dataForm.fullname.trim(),
-      email: dataForm.email.trim(),
-      phoneNumber: dataForm.phoneNumber.trim(),
-      birthday: dataForm.birthday,
-      address: dataForm.address.trim(),
-      sex: parseInt(dataForm.sex),
-      // status: parseInt(dataForm.status),
-      storeId: dataForm.storeId,
-      // roleId: dataForm.roleId,
-      avatar: employeeInfo.avatar || null
-    };
-    console.log("Sending PUT request to:", uri, "with data:", updatedData);
+ const handleUpdate = useCallback(() => {
+  const uri = `/employees/${item.id}`;
+  console.log(dataForm);
+  const updatedData = {
+    fullname: dataForm.fullname.trim(),
+    email: dataForm.email.trim(),
+    phoneNumber: dataForm.phoneNumber,
+    birthday: dataForm.birthday,
+    address: dataForm.address.trim(),
+    sex: parseInt(dataForm.sex) === 1, // Boolean cho backend
+    storeId: dataForm.storeId,
+    avatar: dataForm.avatar || null
+  };
+  console.log("Sending PUT request to:", uri, "with data:", updatedData);
 
-    fetchPut(
-      uri,
-      updatedData,
-      async (res) => {
-        console.log("Update response:", res);
-        await showSuccessMessageBox(res.message || "Cập nhật nhân viên thành công");
-        setEmployeeInfo({ ...employeeInfo, ...updatedData });
-        setDataForm({ ...updatedData });
-        setListEmployees((prevList) =>
-          prevList.map((listItem) =>
-            listItem.id === item.id
-              ? {
-                  ...listItem,
-                  fullname: updatedData.fullname,
-                  email: updatedData.email,
-                  phoneNumber: updatedData.phoneNumber,
-                  birthday: updatedData.birthday,
-                  address: updatedData.address,
-                  sex: updatedData.sex,
-                  storeName: stores.find((store) => store.id === updatedData.storeId)?.name || "",
-                  status: updatedData.status ? "Active" : "Locked",
-                  roleName: roles.find((role) => role.id === updatedData.roleId)?.name || "",
-                }
-              : listItem
-          )
-        );
-        setEditStatus(false);
-        setIsModalOpen(false);
-      },
-      (err) => {
-        console.error("Update error details:", err);
-        if (err.status === 409) {
-          showErrorMessageBox(err.message || "Thông tin nhân viên đã tồn tại. Vui lòng kiểm tra lại.");
-        } else {
-          showErrorMessageBox(err.message || "Lỗi khi cập nhật nhân viên. Vui lòng thử lại.");
-        }
-      },
-      () => console.log("Update request completed")
-    );
-  }, [item.id, dataForm, setListEmployees, employeeInfo, stores, roles]);
+  fetchPut(
+    uri,
+    updatedData,
+    async (res) => {
+      await showSuccessMessageBox(res.message || "Cập nhật nhân viên thành công");
+      
+      // Cập nhật employeeInfo đầy đủ
+      const updatedEmployeeInfo = {
+        ...employeeInfo,
+        ...updatedData,
+        roleId: dataForm.roleId,
+        status: parseInt(dataForm.status) === 1,
+        roleName: roles.find((role) => role.id === dataForm.roleId)?.name || "",
+        storeName: stores.find((store) => store.id === updatedData.storeId)?.name || ""
+      };
+      setEmployeeInfo(updatedEmployeeInfo);
+
+      // Cập nhật dataForm đầy đủ
+      setDataForm({
+        ...updatedData,
+        roleId: dataForm.roleId,
+        status: parseInt(dataForm.status) ? "1" : "0",
+        sex: parseInt(dataForm.sex) ? "1" : "0"
+      });
+
+      // Cập nhật listEmployees với định dạng của EmployeeManagement
+      setListEmployees((prevList) =>
+        prevList.map((listItem) =>
+          listItem.id === item.id
+            ? {
+                ...listItem,
+                fullname: updatedData.fullname,
+                email: updatedData.email,
+                phoneNumber: updatedData.phoneNumber,
+                birthday: updatedData.birthday ? new Date(updatedData.birthday).toLocaleDateString("vi-VN") : "Không có",
+                address: updatedData.address,
+                sex: parseInt(dataForm.sex) === 1 ? "Nam" : "Nữ", // Định dạng "Nam"/"Nữ"
+                avatar: updatedData.avatar,
+                storeName: stores.find((store) => store.id === updatedData.storeId)?.name || "Không có",
+                status: parseInt(dataForm.status) === 1 ? "Active" : "Locked", // Định dạng "Active"/"Locked"
+                roleName: roles.find((role) => role.id === dataForm.roleId)?.name || "Không có",
+                roleId: dataForm.roleId
+              }
+            : listItem
+        )
+      );
+      setEditStatus(false);
+      setIsModalOpen(false);
+    },
+    (err) => {
+      console.error("Update error details:", err);
+      console.log("Error response:", JSON.stringify(err, null, 2));
+      showErrorMessageBox(err.title || "Lỗi khi cập nhật nhân viên. Vui lòng thử lại.");
+    },
+    () => console.log("Update request completed")
+  );
+}, [item.id, dataForm, setListEmployees, employeeInfo, stores, roles]);
 
   // Hàm mở modal
   const openModal = useCallback(() => {
@@ -370,16 +416,35 @@ export default React.memo(function DetailEmployee({ item, setListEmployees }) {
             className="btn-closeDetailEmployee"
             onClick={closeModal}
             aria-label="Close"
-          ><IoClose />  
-            </button>
+          >
+            <IoClose />
+          </button>
         </div>
         <div className="modalBodyDetailEmployee">
           <div className="avatarSectionDetailEmployee">
             <img
-              src={employeeInfo.avatar || "https://via.placeholder.com/100"}
+              src={
+                employeeInfo.avatar
+                  ? `${BE_ENPOINT}/api/asset/view-image/${employeeInfo.avatar}`
+                  : "https://via.placeholder.com/100"
+              }
               alt="Avatar"
               className="avatarImageDetailEmployee"
             />
+            {editStatus && (
+              <>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="avatarUploadDetailEmployee"
+                  id="avatar-upload"
+                />
+                <label htmlFor="avatar-upload" className="uploadButtonDetailEmployee">
+                  Tải ảnh lên
+                </label>
+              </>
+            )}
           </div>
           <form className="formColumnsDetailEmployee" onSubmit={handleSubmit}>
             <div className="formColumnDetailEmployee">

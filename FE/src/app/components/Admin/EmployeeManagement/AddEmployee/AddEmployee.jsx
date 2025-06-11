@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Modal from "react-modal";
 import { IoAddCircleOutline, IoClose } from "react-icons/io5";
-import { fetchPost, fetchGet } from "../../../../lib/httpHandler";
+import { fetchPost, fetchGet, fetchUpload, BE_ENPOINT } from "../../../../lib/httpHandler";
 import { showErrorMessageBox } from "../../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox";
 import { showSuccessMessageBox } from "../../../MessageBox/SuccessMessageBox/showSuccessMessageBox";
 import "./AddEmployee.css";
 
-// Bind modal to app element for accessibility
 Modal.setAppElement("#root");
 
 export default React.memo(function AddEmployee({ setListEmployees }) {
@@ -18,55 +17,99 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
     birthday: "",
     address: "",
     sex: "",
-    status: "1", // Default: Active
+    status: "1",
     storeId: "",
     roleId: "",
+    avatar: "",
+    username: "",
+    password: ""
   });
   const [stores, setStores] = useState([]);
   const [roles, setRoles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch stores
   const fetchStores = useCallback(() => {
     fetchGet(
       "/Stores",
       (res) => {
-        setStores(Array.isArray(res) ? res : []);
+        if (Array.isArray(res) && res.every(item => item.id && typeof item.id === 'string')) {
+          setStores(res);
+          console.log("Fetched stores:", res);
+        } else {
+          console.error("Invalid stores data:", res);
+          showErrorMessageBox("Dữ liệu cửa hàng không hợp lệ");
+        }
       },
       (err) => {
+        console.error("Fetch stores error:", err);
         showErrorMessageBox(err.message || "Lỗi khi lấy danh sách cửa hàng");
-      }
+      },
+      () => console.log("Fetch stores completed")
     );
   }, []);
 
-  // Fetch roles
   const fetchRoles = useCallback(() => {
     fetchGet(
       "/roles",
       (res) => {
-        setRoles(Array.isArray(res) ? res : []);
+        if (Array.isArray(res) && res.every(item => item.id && typeof item.id === 'string')) {
+          setRoles(res);
+          console.log("Fetched roles:", res);
+        } else {
+          console.error("Invalid roles data:", res);
+          showErrorMessageBox("Dữ liệu vai trò không hợp lệ");
+        }
       },
       (err) => {
+        console.error("Fetch roles error:", err);
         showErrorMessageBox(err.message || "Lỗi khi lấy danh sách vai trò");
-      }
+      },
+      () => console.log("Fetch roles completed")
     );
   }, []);
 
-  // Load data when modal opens
   useEffect(() => {
     if (isModalOpen) {
       fetchStores();
       fetchRoles();
+      setTimeout(() => {
+        const input = document.querySelector(`input[name="fullname"]`);
+        if (input) input.focus();
+      }, 100);
     }
   }, [isModalOpen, fetchStores, fetchRoles]);
 
-  // Handle input change
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setDataForm((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  // Handle form submit
+  const handleAvatarChange = useCallback((e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      showErrorMessageBox("Vui lòng chọn một file ảnh!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetchUpload(
+      "/api/asset/upload-image",
+      formData,
+      (data) => {
+        const avatarUrl = data.fileName;
+        setDataForm((prev) => ({ ...prev, avatar: avatarUrl }));
+        showSuccessMessageBox("Ảnh đại diện đã được upload thành công!");
+      },
+      (err) => {
+        console.error("Upload avatar error:", err);
+        showErrorMessageBox(err.message || "Upload ảnh thất bại!");
+      },
+      () => console.log("Upload avatar completed")
+    );
+  }, []);
+
   const handleSubmit = useCallback(
     (e) => {
       e.preventDefault();
@@ -80,6 +123,14 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dataForm.email.trim())) {
         showErrorMessageBox("Email không hợp lệ");
+        return;
+      }
+      if (!dataForm.username.trim()) {
+        showErrorMessageBox("Vui lòng điền tên đăng nhập");
+        return;
+      }
+      if (!dataForm.password.trim()) {
+        showErrorMessageBox("Vui lòng điền mật khẩu");
         return;
       }
       if (!dataForm.phoneNumber.trim()) {
@@ -119,7 +170,6 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
     [dataForm]
   );
 
-  // Handle add employee
   const handleAdd = useCallback(() => {
     const newEmployee = {
       fullname: dataForm.fullname.trim(),
@@ -127,10 +177,12 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
       phoneNumber: dataForm.phoneNumber.trim(),
       birthday: dataForm.birthday,
       address: dataForm.address.trim(),
-      sex: parseInt(dataForm.sex),
-      status: parseInt(dataForm.status),
+      sex: parseInt(dataForm.sex) === 1,
       storeId: dataForm.storeId,
       roleId: dataForm.roleId,
+      avatar: dataForm.avatar || null,
+      username: dataForm.username.trim(),
+      password: dataForm.password.trim()
     };
 
     setIsSubmitting(true);
@@ -146,13 +198,14 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
             fullname: newEmployee.fullname,
             email: newEmployee.email,
             phoneNumber: newEmployee.phoneNumber,
-            birthday: newEmployee.birthday,
+            birthday: new Date(newEmployee.birthday).toLocaleDateString("vi-VN"),
             address: newEmployee.address,
-            sex: newEmployee.sex,
-            status: newEmployee.status ? "Active" : "Locked",
-            storeName: stores.find((store) => store.id === newEmployee.storeId)?.name || "",
-            roleName: roles.find((role) => role.id === newEmployee.roleId)?.name || "",
-          },
+            sex: parseInt(dataForm.sex) === 1 ? "Nam" : "Nữ",
+            status: parseInt(dataForm.status) === 1 ? "Active" : "Locked",
+            storeName: stores.find((store) => store.id === newEmployee.storeId)?.name || "Không có",
+            roleName: roles.find((role) => role.id === newEmployee.roleId)?.name || "Không có",
+            avatar: newEmployee.avatar
+          }
         ]);
         setDataForm({
           fullname: "",
@@ -164,15 +217,15 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
           status: "1",
           storeId: "",
           roleId: "",
+          avatar: "",
+          username: "",
+          password: ""
         });
         setIsModalOpen(false);
       },
       (err) => {
-        if (err.status === 409) {
-          showErrorMessageBox(err.message || "Thông tin nhân viên đã tồn tại. Vui lòng kiểm tra lại.");
-        } else {
-          showErrorMessageBox(err.message || "Lỗi khi thêm nhân viên. Vui lòng thử lại.");
-        }
+        console.error("Add employee error:", err);
+        showErrorMessageBox(err.message || "Lỗi khi thêm nhân viên. Vui lòng thử lại.");
       },
       () => {
         setIsSubmitting(false);
@@ -181,12 +234,10 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
     );
   }, [dataForm, setListEmployees, stores, roles]);
 
-  // Open modal
   const openModal = useCallback(() => {
     setIsModalOpen(true);
   }, []);
 
-  // Close modal
   const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setDataForm({
@@ -199,13 +250,15 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
       status: "1",
       storeId: "",
       roleId: "",
+      avatar: "",
+      username: "",
+      password: ""
     });
     if (document.activeElement) {
       document.activeElement.blur();
     }
   }, []);
 
-  // Handle after close
   const handleAfterClose = useCallback(() => {
     const modalInputs = document.querySelectorAll("input, select, button");
     modalInputs.forEach((el) => el.blur());
@@ -228,8 +281,9 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
         onAfterClose={handleAfterClose}
         className="modalContentAddEmployee"
         overlayClassName="modalOverlayAddEmployee"
-        contentLabel="Thêm nhân viên mới"
+        contentLabel="Thêm nhân viên"
         shouldCloseOnOverlayClick={false}
+        shouldFocusAfterRender={true}
       >
         <div className="modalHeaderAddEmployee">
           <h5 className="modalTitleAddEmployee">Thêm nhân viên mới</h5>
@@ -243,6 +297,27 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
           </button>
         </div>
         <div className="modalBodyAddEmployee">
+          <div className="avatarSectionAddEmployee">
+            <img
+              src={
+                dataForm.avatar
+                  ? `${BE_ENPOINT}/api/asset/view-image/${dataForm.avatar}`
+                  : "https://via.placeholder.com/100"
+              }
+              alt="Avatar"
+              className="avatarImageAddEmployee"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="avatarUploadAddEmployee"
+              id="avatar-upload"
+            />
+            <label htmlFor="avatar-upload" className="uploadButtonAddEmployee">
+              Tải ảnh lên
+            </label>
+          </div>
           <form className="formColumnsAddEmployee" onSubmit={handleSubmit}>
             <div className="formColumnAddEmployee">
               <div className="formGroupAddEmployee">
@@ -256,7 +331,6 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
                   type="text"
                   value={dataForm.fullname}
                   onChange={handleChange}
-                  autoFocus
                 />
               </div>
               <div className="formGroupAddEmployee">
@@ -269,6 +343,32 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
                   id="email"
                   type="email"
                   value={dataForm.email}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="formGroupAddEmployee">
+                <label htmlFor="username" className="formLabelAddEmployee">
+                  Tên đăng nhập:
+                </label>
+                <input
+                  className="formControlAddEmployee"
+                  name="username"
+                  id="username"
+                  type="text"
+                  value={dataForm.username}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="formGroupAddEmployee">
+                <label htmlFor="password" className="formLabelAddEmployee">
+                  Mật khẩu:
+                </label>
+                <input
+                  className="formControlAddEmployee"
+                  name="password"
+                  id="password"
+                  type="password"
+                  value={dataForm.password}
                   onChange={handleChange}
                 />
               </div>
@@ -352,14 +452,13 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
                 <select
                   className="formControlAddEmployee"
                   name="storeId"
-                  id="storeId"
                   value={dataForm.storeId}
                   onChange={handleChange}
                 >
                   <option value="">Chọn cửa hàng</option>
-                  {stores.map((store) => (
-                    <option key={store.id} value={store.id}>
-                      {store.name}
+                  {stores.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.name}
                     </option>
                   ))}
                 </select>
@@ -371,14 +470,13 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
                 <select
                   className="formControlAddEmployee"
                   name="roleId"
-                  id="roleId"
                   value={dataForm.roleId}
                   onChange={handleChange}
                 >
                   <option value="">Chọn vai trò</option>
-                  {roles.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.name}
+                  {roles.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.name}
                     </option>
                   ))}
                 </select>
@@ -391,7 +489,7 @@ export default React.memo(function AddEmployee({ setListEmployees }) {
             Hủy
           </button>
           <button
-            type="submit"
+            type="button"
             className="submitButtonAddEmployee"
             onClick={handleSubmit}
             disabled={isSubmitting}

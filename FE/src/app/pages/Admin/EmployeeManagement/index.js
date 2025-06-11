@@ -98,9 +98,9 @@ export default function EmployeeManagement() {
               fullname: userData.fullname || "Không có tên",
               birthday: userData.birthday ? new Date(userData.birthday).toLocaleDateString("vi-VN") : "Không có",
               phoneNumber: userData.phoneNumber || "Không có",
-              sex: userData.sex !== undefined ? (userData.sex === 1 ? "Nam" : "Nữ") : "Không có",
+              sex: userData.sex !== undefined ? (userData.sex === true ? "Nam" : "Nữ") : "Không có",
               storeName: storeData.name || "Không có",
-              status: accountData.status !== undefined ? (accountData.status === 1 ? "Active" : "Locked") : "Không có",
+              status: accountData.status !== undefined ? (accountData.status === true ? "Active" : "Locked") : "Không có",
             };
           })
         );
@@ -210,7 +210,7 @@ export default function EmployeeManagement() {
                 <IoIosSearch className="icon_search translate-middle-y text-secondary" />
               </div>
             </div>
-            <AddEmployee fetchEmployees={fetchEmployees} />
+            <AddEmployee setListEmployees={setListEmployees} />
           </div>
           <div className="contain_Table mx-0 col-12 bg-white rounded-2">
             <table className="table table-hover">

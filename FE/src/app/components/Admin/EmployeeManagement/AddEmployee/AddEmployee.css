@@ -1,4 +1,3 @@
-/* AddEmployee.css */
 :root {
   --primary-color: #1a73e8;
   --secondary-color: #5f6368;
@@ -47,8 +46,9 @@
   transition: var(--transition);
   padding: 0;
   overflow: hidden;
-  max-height: fit-content;
-  height: 600px;
+  max-height: 90vh;
+  height: auto;
+  overflow-y: auto;
 }
 
 .ReactModalContentAddEmployeeAfterOpen {
@@ -100,7 +100,51 @@
 .modalBodyAddEmployee {
   padding: 24px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatarSectionAddEmployee {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.avatarImageAddEmployee {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.avatarImageAddEmployee:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.avatarUploadAddEmployee {
+  display: none;
+}
+
+.uploadButtonAddEmployee {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 8px 16px;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: var(--transition);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.uploadButtonAddEmployee:hover {
+  background-color: #1557b0;
+  transform: translateY(-1px);
 }
 
 .formColumnsAddEmployee {
@@ -111,13 +155,15 @@
 
 .formColumnAddEmployee {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .formGroupAddEmployee {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -137,7 +183,6 @@
   font-size: 1rem;
   transition: var(--transition);
   min-width: 0;
-  margin-top: 10px;
 }
 
 .formControlAddEmployee:focus {
@@ -168,7 +213,6 @@
   width: 100px;
   height: 40px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 10px;
 }
 
 .cancelButtonAddEmployee:hover {
@@ -190,7 +234,6 @@
   height: 40px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-right: 20px;
-  margin-bottom: 10px;
 }
 
 .submitButtonAddEmployee:hover {
@@ -220,4 +263,20 @@
 
 .addIconAddEmployee {
   font-size: 1.25rem;
+}
+
+.spinnerAddEmployee {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
