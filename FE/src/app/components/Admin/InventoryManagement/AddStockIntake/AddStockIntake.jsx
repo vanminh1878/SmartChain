@@ -13,12 +13,27 @@ import {
   MenuItem,
   Grid,
   IconButton,
+  Avatar,
+  InputAdornment,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { toast } from "react-toastify";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
 import { fetchGet, fetchPost } from "../../../../lib/httpHandler";
+
+// Component Product để hiển thị tên sản phẩm với Avatar
+const Product = ({ productName }) => (
+  <Box sx={{ display: "flex", alignItems: "center" }}>
+    <Avatar alt={productName} sx={{ width: 30, height: 30 }}>
+      {productName ? productName[0].toUpperCase() : "A"}
+    </Avatar>
+    <Typography sx={{ mx: 3 }} variant="subtitle2">
+      {productName}
+    </Typography>
+  </Box>
+);
 
 const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories, user, onCreateIntake, onCreateProduct }) => {
   const [newIntake, setNewIntake] = useState({
@@ -49,51 +64,68 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
   const [showNewProductForm, setShowNewProductForm] = useState(false);
   const [selectedStoreId, setSelectedStoreId] = useState("");
   const [userFullname, setUserFullname] = useState(user?.fullname || "Không xác định");
+  const [productSearchText, setProductSearchText] = useState("");
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
   // Fetch thông tin người dùng
   useEffect(() => {
-  fetchGet(
-    "/users/profile",
-    (res) => {
-      console.log("Dữ liệu người dùng:", res);
-      setUserFullname(res.fullname || "Không xác định");
-      setNewIntake((prev) => {
-        const updatedIntake = {
+    fetchGet(
+      "/users/profile",
+      (res) => {
+        console.log("Dữ liệu người dùng:", res);
+        setUserFullname(res.fullname || "Không xác định");
+        setNewIntake((prev) => ({
           ...prev,
           created_by: res.userId || prev.created_by || "Không xác định",
-        };
-        return updatedIntake;
-      });
-    },
-    (fail) => {
-      toast.error(fail.message || "Không thể tải thông tin cá nhân");
-    },
-    () => {
-      toast.error("Có lỗi xảy ra khi tải thông tin");
-    }
-  );
-}, []);
+        }));
+      },
+      (fail) => {
+        toast.error(fail.message || "Không thể tải thông tin cá nhân");
+      }
+    );
+  }, []);
 
-  const fetchProductList = useCallback(() => {
-    if (productList.length === 0) {
-      fetchGet(
-        "/Inventory/ListProducts",
-        (res) => {
-          console.log("Danh sách sản phẩm đã được tải thành công", res);
-          setProductList(Array.isArray(res) ? res : []);
-        },
-        (fail) => {
-          console.error("Lỗi khi tải danh sách sản phẩm", fail);
-          toast.error("Không thể tải danh sách sản phẩm");
-        },
-        () => {
-          console.log("Có lỗi xảy ra khi tải danh sách sản phẩm");
-          toast.error("Có lỗi xảy ra khi tải danh sách sản phẩm");
+  // Fetch danh sách sản phẩm theo cửa hàng
+  const fetchProducts = useCallback(() => {
+    if (!selectedStoreId) return;
+    setIsLoadingProducts(true);
+    fetchGet(
+      "/Inventory/Products",
+      (res) => {
+        const productList = Array.isArray(res) ? res : [];
+        if (!productList.length) {
+          toast.error("Không có dữ liệu sản phẩm");
+          setProductList([]);
+          setIsLoadingProducts(false);
+          return;
         }
-      );
-    }
-  }, [productList]);
 
+        const validatedProducts = productList
+          .filter((item) => item && typeof item === "object" && item.productId && item.storeId === selectedStoreId)
+          .map((item) => ({
+            id: item.productId,
+            name: item.tenSanPham || "Không xác định",
+            category: item.danhMuc || "Không xác định",
+            supplier: item.nhaCungCap || "Không xác định",
+            store: item.cuaHang || "Không xác định",
+            unit_price: Number(item.giaNhap) || 0,
+            price: Number(item.giaBan) || 0,
+            stock_quantity: Number(item.tonKho) || 0,
+          }));
+        console.log("validatedProducts: ", validatedProducts);
+        setProductList(validatedProducts);
+        setIsLoadingProducts(false);
+      },
+      (fail) => {
+        console.error("Lỗi khi lấy danh sách sản phẩm:", fail);
+        toast.error("Lỗi khi lấy danh sách sản phẩm");
+        setProductList([]);
+        setIsLoadingProducts(false);
+      }
+    );
+  }, [selectedStoreId]);
+
+  // Fetch danh mục
   const fetchCategoryList = useCallback(() => {
     if (categoryList.length === 0) {
       fetchGet(
@@ -105,85 +137,59 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
         (fail) => {
           console.error("Lỗi khi tải danh sách danh mục", fail);
           toast.error("Không thể tải danh sách danh mục");
-        },
-        () => {
-          console.log("Có lỗi xảy ra khi tải danh sách danh mục");
-          toast.error("Có lỗi xảy ra khi tải danh sách danh mục");
         }
       );
     }
   }, [categoryList]);
 
+  // Lọc sản phẩm theo tìm kiếm
+  const filteredProducts = useMemo(() => {
+    if (!Array.isArray(productList)) return [];
+    const validProducts = productList.filter((item) => item && item.id);
+    if (!productSearchText.trim()) return validProducts;
+    const lowercasedSearch = productSearchText.toLowerCase();
+    return validProducts.filter((item) => item.name?.toLowerCase().includes(lowercasedSearch));
+  }, [productList, productSearchText]);
+
+  // Tính tổng giá trị
   const totalValue = useMemo(() => {
     return newIntake.details.reduce((sum, detail) => sum + (detail.quantity * detail.unit_price || 0), 0);
   }, [newIntake.details]);
 
-  const filteredProducts = useMemo(() => {
-    return Array.isArray(products) ? products.filter((p) => p.store_id === selectedStoreId) : [];
-  }, [products, selectedStoreId]);
-
+  // Cột hiển thị sản phẩm
   const productColumns = [
     {
-      field: "name",
+      field: "product",
       headerName: "Tên SP",
-      width: 200,
-      valueGetter: (params) => params.row?.name || "Không xác định",
+      width: 250,
+      renderCell: (cellData) => <Product productName={cellData.row?.name || "Không xác định"} />,
     },
-    {
-      field: "category",
-      headerName: "Danh mục",
-      width: 150,
-      valueGetter: (params) => {
-        if (!params.row?.category_id) return "Không xác định";
-        const category = categories?.find((c) => c.id === params.row.category_id);
-        return category?.name || "Không xác định";
-      },
-    },
-    {
-      field: "supplier",
-      headerName: "Nhà cung cấp",
-      width: 200,
-      valueGetter: (params) => {
-        if (!params.row || !newIntake.details[0]?.supplier_id) return "Không xác định";
-        const productSupplier = params.row.suppliers?.find((ps) => ps.supplier_id === newIntake.details[0]?.supplier_id);
-        const supplier = suppliers?.find((s) => s.id === productSupplier?.supplier_id);
-        return supplier?.name || "Không xác định";
-      },
-    },
-    {
-      field: "store",
-      headerName: "Cửa hàng",
-      width: 150,
-      valueGetter: (params) => {
-        if (!params.row?.store_id) return "Không xác định";
-        const store = stores?.find((s) => s.id === params.row.store_id);
-        return store?.name || "Không xác định";
-      },
-    },
-    {
-      field: "unit_price",
-      headerName: "Giá nhập",
-      width: 120,
-      valueGetter: (params) => {
-        if (!params.row || !newIntake.details[0]?.supplier_id) return "0 VNĐ";
-        const productSupplier = params.row.suppliers?.find((ps) => ps.supplier_id === newIntake.details[0]?.supplier_id);
-        return productSupplier?.unit_price ? `${productSupplier.unit_price.toLocaleString("vi-VN")} VNĐ` : "0 VNĐ";
-      },
-    },
+    { field: "category", headerName: "Danh mục", width: 150 },
+    { field: "supplier", headerName: "Nhà cung cấp", width: 200 },
+    { field: "store", headerName: "Cửa hàng", width: 150 },
     {
       field: "price",
       headerName: "Giá bán",
-      width: 120,
-      valueGetter: (params) => `${params.row?.price?.toLocaleString("vi-VN") || 0} VNĐ`,
+      width: 150,
+      renderCell: (params) => {
+        return params.row.price != null
+          ? `${Number(params.row.price).toLocaleString("vi-VN")} VNĐ`
+          : "0 VNĐ";
+      },
     },
     {
       field: "stock_quantity",
       headerName: "Tồn kho",
       width: 120,
-      valueGetter: (params) => `${params.row?.stock_quantity || 0} cái`,
+      renderCell: (params) => {
+        return params.row.stock_quantity != null
+          ? `${Number(params.row.stock_quantity)} cái`
+          : "0 cái";
+      },
     },
   ];
 
+  // Cập nhật chi tiết phiếu nhập
   const handleDetailChange = (id, field, value) => {
     setNewIntake((prev) => {
       const newDetails = prev.details.map((detail) => {
@@ -191,7 +197,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
           const updatedDetail = { ...detail, [field]: value };
           if (field === "product_id") {
             const selectedProduct = productList.find((p) => p.id === value);
-            updatedDetail.category_id = selectedProduct?.categoryId || "";
+            updatedDetail.category_id = selectedProduct?.category || "";
           }
           return updatedDetail;
         }
@@ -201,6 +207,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
     });
   };
 
+  // Thêm chi tiết phiếu nhập
   const handleAddDetail = () => {
     setNewIntake((prev) => ({
       ...prev,
@@ -221,6 +228,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
     }));
   };
 
+  // Xóa chi tiết phiếu nhập
   const handleRemoveDetail = (id) => {
     setNewIntake((prev) => {
       const newDetails = prev.details.filter((detail) => detail.id !== id);
@@ -243,10 +251,12 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
     });
   };
 
+  // Cập nhật thông tin sản phẩm mới
   const handleNewProductChange = (field, value) => {
     setNewProduct((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Tạo sản phẩm mới
   const handleCreateProduct = () => {
     if (!newProduct.name || !newProduct.category_id || !newProduct.description) {
       toast.error("Vui lòng điền đầy đủ thông tin: Tên, Danh mục, Mô tả");
@@ -264,7 +274,16 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
       "/Inventory/Products",
       newProductData,
       (createdProduct) => {
-        setProductList((prev) => [...prev, createdProduct]);
+        setProductList((prev) => [...prev, {
+          id: createdProduct.productId,
+          name: createdProduct.tenSanPham || "Không xác định",
+          category: createdProduct.danhMuc || "Không xác định",
+          supplier: createdProduct.nhaCungCap || "Không xác định",
+          store: createdProduct.cuaHang || "Không xác định",
+          unit_price: Number(createdProduct.giaNhap) || 0,
+          price: Number(createdProduct.giaBan) || 0,
+          stock_quantity: Number(createdProduct.tonKho) || 0,
+        }]);
         setNewProduct({
           name: "",
           description: "",
@@ -281,75 +300,81 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
     );
   };
 
-const handleCreate = async () => {
-  if (!newIntake.details.every((d) => d.supplier_id && d.store_id)) {
-    toast.error("Vui lòng chọn cửa hàng và nhà cung cấp cho tất cả chi tiết");
-    return;
-  }
-  if (!newIntake.details.every((d) => d.product_id && d.quantity > 0 && d.unit_price > 0)) {
-    toast.error("Vui lòng điền đầy đủ thông tin chi tiết sản phẩm");
-    return;
-  }
+  // Tạo phiếu nhập kho
+  const handleCreate = async () => {
+    if (!newIntake.details.every((d) => d.supplier_id && d.store_id)) {
+      toast.error("Vui lòng chọn cửa hàng và nhà cung cấp cho tất cả chi tiết");
+      return;
+    }
+    if (!newIntake.details.every((d) => d.product_id && d.quantity > 0 && d.unit_price > 0)) {
+      toast.error("Vui lòng điền đầy đủ thông tin chi tiết sản phẩm");
+      return;
+    }
 
-  try {
-    // Bước 1: Tạo StockIntake
-    const stockIntakeData = {
-      CreatedBy: newIntake.created_by,
-    };
-    console.log("StockIntake data gửi đi:", stockIntakeData);
-
-    const stockIntakeResponse = await fetchPost(
-      "/Inventory/StockIntakes",
-      stockIntakeData,
-      (res) => {
-        console.log("StockIntake response:", res);
-        return res;
-      },
-      (error) => {
-        throw new Error(error.message || "Không thể tạo phiếu nhập kho");
-      }
-    );
-
-    const stockIntakeId = stockIntakeResponse.id;
-    console.log("StockIntakeId:", stockIntakeId);
-
-    // Bước 2: Tạo StockIntakeDetails
-    const detailPromises = newIntake.details.map((detail) => {
-      const detailData = {
-        StockIntakeId: stockIntakeId,
-        SupplierId: detail.supplier_id,
-        ProductId: detail.product_id,
-        StoreId: detail.store_id,
-        ProfitMargin: detail.profit_margin,
-        Quantity: detail.quantity,
-        UnitPrice: detail.unit_price,
-        IntakeDate: detail.intake_date,
+    try {
+      const stockIntakeData = {
+        CreatedBy: newIntake.created_by,
       };
-      console.log("Detail data gửi đi:", JSON.stringify(detailData, null, 2));
-      return fetchPost(
-        "/Inventory/StockIntakeDetails", // Kiểm tra endpoint
-        detailData,
+      console.log("StockIntake data gửi đi:", stockIntakeData);
+
+      const stockIntakeResponse = await fetchPost(
+        "/Inventory/StockIntakes",
+        stockIntakeData,
         (res) => {
-          console.log("StockIntakeDetail response:", res);
+          console.log("StockIntake response:", res);
           return res;
         },
         (error) => {
-          console.error("Lỗi chi tiết:", error);
-          throw new Error(error.message || "Không thể tạo chi tiết phiếu nhập kho");
+          throw new Error(error.message || "Không thể tạo phiếu nhập kho");
         }
       );
-    });
 
-    await Promise.all(detailPromises);
+      const stockIntakeId = stockIntakeResponse.id;
+      console.log("StockIntakeId:", stockIntakeId);
 
-    toast.success("Tạo phiếu nhập kho và chi tiết thành công");
-    console.log("onCreateIntake called with:", stockIntakeResponse);
-    onClose();
-  } catch (error) {
-    console.error("Lỗi khi tạo phiếu nhập kho:", error);
-    toast.error(error.message || "Có lỗi xảy ra khi tạo phiếu nhập kho");
-  }
-};
+      const detailPromises = newIntake.details.map((detail) => {
+        const detailData = {
+          StockIntakeId: stockIntakeId,
+          SupplierId: detail.supplier_id,
+          ProductId: detail.product_id,
+          StoreId: detail.store_id,
+          ProfitMargin: detail.profit_margin,
+          Quantity: detail.quantity,
+          UnitPrice: detail.unit_price,
+          IntakeDate: detail.intake_date,
+        };
+        console.log("Detail data gửi đi:", JSON.stringify(detailData, null, 2));
+        return fetchPost(
+          "/Inventory/StockIntakeDetails",
+          detailData,
+          (res) => {
+            console.log("StockIntakeDetail response:", res);
+            return res;
+          },
+          (error) => {
+            console.error("Lỗi chi tiết:", error);
+            throw new Error(error.message || "Không thể tạo chi tiết phiếu nhập kho");
+          }
+        );
+      });
+
+      await Promise.all(detailPromises);
+
+      toast.success("Tạo phiếu nhập kho và chi tiết thành công");
+      onCreateIntake(stockIntakeResponse);
+      onClose();
+    } catch (error) {
+      console.error("Lỗi khi tạo phiếu nhập kho:", error);
+      toast.error(error.message || "Có lỗi xảy ra khi tạo phiếu nhập kho");
+    }
+  };
+
+  // Tự động fetch sản phẩm khi chọn cửa hàng
+  useEffect(() => {
+    if (selectedStoreId) {
+      fetchProducts();
+    }
+  }, [selectedStoreId, fetchProducts]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
@@ -396,17 +421,36 @@ const handleCreate = async () => {
               ))}
           </Select>
         </FormControl>
-        <DataGrid
-          sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0, mb: 4 }}
-          rows={filteredProducts}
-          columns={productColumns}
-          initialState={{
-            pagination: { paginationModel: { page: 0, pageSize: 5 } },
-          }}
-          pageSizeOptions={[5, 10]}
-          getRowId={(row) => row.id}
-          disableSelectionOnClick
-        />
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+          <TextField
+            placeholder="Tìm kiếm sản phẩm"
+            value={productSearchText}
+            onChange={(e) => setProductSearchText(e.target.value)}
+            sx={{ width: "40%", backgroundColor: "white" }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+        {isLoadingProducts ? (
+          <Typography>Đang tải dữ liệu sản phẩm...</Typography>
+        ) : (
+          <DataGrid
+            sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0, mb: 4 }}
+            rows={filteredProducts}
+            columns={productColumns}
+            initialState={{
+              pagination: { paginationModel: { page: 0, pageSize: 5 } },
+            }}
+            pageSizeOptions={[5, 10]}
+            getRowId={(row) => row.id}
+            disableSelectionOnClick
+          />
+        )}
         {showNewProductForm && (
           <Box sx={{ mt: 3, p: 2, border: "1px solid #ccc", borderRadius: 2 }}>
             <Typography variant="subtitle1">Thêm sản phẩm mới</Typography>
@@ -479,9 +523,9 @@ const handleCreate = async () => {
                   value={detail.product_id || ""}
                   onChange={(e) => handleDetailChange(detail.id, "product_id", e.target.value)}
                   onOpen={() => {
-                        fetchProductList();
-                        fetchCategoryList();
-                      }}
+                    fetchProducts();
+                    fetchCategoryList();
+                  }}
                   sx={{ backgroundColor: "white", minWidth: 200 }}
                 >
                   {Array.isArray(productList) && productList.length > 0 ? (

@@ -97,49 +97,54 @@ public class ProductsRepository : IProductsRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<List<ProductForInventoryDto>> GetProductsForInventoryAsync(CancellationToken cancellationToken)
+   public async Task<List<ProductForInventoryDto>> GetProductsForInventoryAsync(CancellationToken cancellationToken)
+{
+    // Lấy dữ liệu từ các repository
+    var products = await ListAllAsync(cancellationToken);
+    var categories = await _categoriesRepository.ListAllAsync(cancellationToken);
+    var stores = await _storesRepository.ListAllAsync(cancellationToken);
+    var suppliers = await _suppliersRepository.ListAllAsync(cancellationToken);
+    var stockIntakeDetails = await _stockIntakeDetailsRepository.ListAllAsync(cancellationToken);
+
+    // Kiểm tra dữ liệu null
+    if (products == null || !products.Any())
     {
-        // Lấy dữ liệu từ các repository
-        var products = await ListAllAsync(cancellationToken);
-        var categories = await _categoriesRepository.ListAllAsync(cancellationToken);
-        var stores = await _storesRepository.ListAllAsync(cancellationToken);
-        var suppliers = await _suppliersRepository.ListAllAsync(cancellationToken);
-        var stockIntakes = await _stockIntakesRepository.ListAllAsync(cancellationToken);
-        var stockIntakeDetails = await _stockIntakeDetailsRepository.ListAllAsync(cancellationToken);
-
-        // Kiểm tra dữ liệu null
-        if (products == null || !products.Any())
-        {
-            return new List<ProductForInventoryDto>();
-        }
-
-        // Ánh xạ dữ liệu vào DTO
-        var result = products.Select(p =>
-        {
-            // Tìm StockIntakeDetail mới nhất cho sản phẩm
-            var stockDetail = stockIntakeDetails
-                ?.Where(sid => sid.ProductId == p.Id)
-                .OrderByDescending(sid => sid.CreatedAt)
-                .FirstOrDefault();
-
-            // Tìm StockIntake liên quan
-            var stockIntake = stockDetail != null
-                ? stockIntakes?.FirstOrDefault(si => si.Id == stockDetail.StockIntakeId)
-                : null;
-
-
-
-            return new ProductForInventoryDto
-            {
-                TenSanPham = p.Name,
-                DanhMuc = categories?.FirstOrDefault(c => c.Id == p.CategoryId)?.Name ?? "Không xác định",
-                GiaNhap = stockDetail?.UnitPrice ?? 0,
-                GiaBan = p.Price ?? 0,
-                TonKho = p.StockQuantity,
-                ProductId = p.Id
-            };
-        }).ToList();
-
-        return result;
+        return new List<ProductForInventoryDto>();
     }
+
+    // Ánh xạ dữ liệu vào DTO
+    var result = products.Select(p =>
+    {
+        // Tìm StockIntakeDetail mới nhất cho sản phẩm
+        var stockDetail = stockIntakeDetails
+            ?.Where(sid => sid.ProductId == p.Id)
+            .OrderByDescending(sid => sid.CreatedAt)
+            .FirstOrDefault();
+
+        // Tìm cửa hàng từ StockIntakeDetail
+        var store = stockDetail != null
+            ? stores?.FirstOrDefault(s => s.Id == stockDetail.StoreId)
+            : null;
+
+        // Tìm nhà cung cấp từ SupplierId trong StockIntakeDetail
+        var supplier = stockDetail != null
+            ? suppliers?.FirstOrDefault(s => s.Id == stockDetail.SupplierId)
+            : null;
+
+        return new ProductForInventoryDto
+        {
+            TenSanPham = p.Name,
+            DanhMuc = categories?.FirstOrDefault(c => c.Id == p.CategoryId)?.Name ?? "Không xác định",
+            NhaCungCap = supplier?.Name ?? "Không xác định",
+            CuaHang = store?.Name ?? "Không xác định",
+            GiaNhap = stockDetail?.UnitPrice ?? 0,
+            GiaBan = p.Price ?? 0,
+            TonKho = p.StockQuantity,
+            StoreId = stockDetail?.StoreId ?? Guid.Empty,
+            ProductId = p.Id
+        };
+    }).ToList();
+
+    return result;
+}
 }

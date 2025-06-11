@@ -85,7 +85,7 @@ export default function InventoryManagement() {
             price: Number(item.giaBan) || 0,
             stock_quantity: Number(item.tonKho) || 0,
           }));
-
+        console.log("validatedProducts: ",validatedProducts);
         setProducts(validatedProducts);
         setIsLoadingProducts(false);
       },
@@ -151,7 +151,7 @@ export default function InventoryManagement() {
                         resolveIfDone();
                       },
                       (error) => {
-                        console.error(`Lỗi khi lấy thông tin user ${item.createdBy}:`, error);
+                        //console.error(`Lỗi khi lấy thông tin user ${item.createdBy}:`, error);
                         resolveIfDone();
                       }
                     );
@@ -210,7 +210,6 @@ export default function InventoryManagement() {
             totalAmount: Number(item.totalAmount) || 0,
             purchaseOrders: item.purchaseOrders || [],
           }));
-        console.log("Danh sách phiếu đặt hàng:", validatedOrders);
         setPurchaseOrders(validatedOrders);
         setIsLoadingOrders(false);
       },
@@ -298,24 +297,24 @@ export default function InventoryManagement() {
     { field: "supplier", headerName: "Nhà cung cấp", width: 200 },
     { field: "store", headerName: "Cửa hàng", width: 150 },
     {
-      field: "unit_price",
-      headerName: "Giá nhập",
-      width: 120,
-      valueFormatter: ({ value }) =>
-        value != null ? `${Number(value).toLocaleString("vi-VN")} VNĐ` : "0 VNĐ",
-    },
-    {
       field: "price",
       headerName: "Giá bán",
-      width: 120,
-      valueFormatter: ({ value }) =>
-        value != null ? `${Number(value).toLocaleString("vi-VN")} VNĐ` : "0 VNĐ",
+      width: 150,
+      renderCell: (params) => {
+        return params.row.price != null
+          ? `${Number(params.row.price).toLocaleString("vi-VN")} VNĐ`
+          : "0 VNĐ";
+      },
     },
     {
       field: "stock_quantity",
       headerName: "Tồn kho",
       width: 120,
-      valueFormatter: ({ value }) => `${value || 0} cái`,
+       renderCell: (params) => {
+        return params.row.stock_quantity != null
+          ? `${Number(params.row.stock_quantity)} cái`
+          : "0 cái";
+      },
     },
   ];
 
@@ -326,7 +325,6 @@ export default function InventoryManagement() {
     headerName: "Ngày nhập",
     width: 200,
     renderCell: (params) => {
-      console.log("IntakeDate:", params.row.intakeDate);
       const date = params.row.intakeDate
         ? new Date(params.row.intakeDate).toLocaleString("vi-VN", {
             day: "2-digit",
@@ -352,7 +350,6 @@ export default function InventoryManagement() {
     headerName: "Ngày nhập",
     width: 300,
     renderCell: (params) => {
-      console.log("IntakeDate:", params.row.intakeDate);
       const date = params.row.intakeDate
         ? new Date(params.row.intakeDate).toLocaleString("vi-VN", {
             day: "2-digit",
@@ -371,7 +368,6 @@ export default function InventoryManagement() {
       headerName: "Tổng tiền",
       width: 300,
       renderCell: (params) => {
-        console.log("TotalAmount:", params.row.totalAmount); // Log totalAmount
         return params.row.totalAmount != null
           ? `${Number(params.row.totalAmount).toLocaleString("vi-VN")} VNĐ`
           : "0 VNĐ";
