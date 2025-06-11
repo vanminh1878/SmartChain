@@ -37,7 +37,7 @@ export default function InventoryManagement() {
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [selectedStore, setSelectedStore] = useState("");
-  const [openDialog, setOpenDialog] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
   const [productSearchText, setProductSearchText] = useState("");
   const [intakeSearchText, setIntakeSearchText] = useState("");
   const [orderSearchText, setOrderSearchText] = useState("");
@@ -47,7 +47,6 @@ export default function InventoryManagement() {
     fetchGet(
       "/Stores",
       (res) => {
-        console.log("Dữ liệu từ API /Stores:", res);
         const storeList = Array.isArray(res) ? res : [];
         setStores(storeList);
         if (storeList.length > 0) setSelectedStore(storeList[0].id);
@@ -55,10 +54,6 @@ export default function InventoryManagement() {
       (fail) => {
         console.error("Lỗi khi lấy danh sách cửa hàng:", fail);
         toast.error("Lỗi khi lấy danh sách cửa hàng");
-      },
-      () => {
-        console.error("Có lỗi xảy ra khi lấy danh sách cửa hàng");
-        toast.error("Có lỗi xảy ra khi lấy danh sách cửa hàng");
       }
     );
   }, []);
@@ -69,7 +64,6 @@ export default function InventoryManagement() {
     fetchGet(
       "/Inventory/Products",
       (res) => {
-        console.log("Dữ liệu từ API /Inventory/Products:", res);
         const productList = Array.isArray(res) ? res : [];
         if (!productList.length) {
           toast.error("Không có dữ liệu sản phẩm");
@@ -91,7 +85,6 @@ export default function InventoryManagement() {
             stock_quantity: Number(item.tonKho) || 0,
           }));
 
-        console.log("Dữ liệu sản phẩm sau ánh xạ:", validatedProducts);
         setProducts(validatedProducts);
         setIsLoadingProducts(false);
       },
@@ -99,11 +92,6 @@ export default function InventoryManagement() {
         console.error("Lỗi khi lấy danh sách sản phẩm:", fail);
         toast.error("Lỗi khi lấy danh sách sản phẩm");
         setProducts([]);
-        setIsLoadingProducts(false);
-      },
-      () => {
-        console.error("Có lỗi xảy ra khi lấy danh sách sản phẩm");
-        toast.error("Có lỗi xảy ra khi lấy danh sách sản phẩm");
         setIsLoadingProducts(false);
       }
     );
@@ -113,56 +101,61 @@ export default function InventoryManagement() {
     fetchGet(
       "/Suppliers",
       (res) => {
-        console.log("Dữ liệu từ API /Suppliers:", res);
         const supplierList = Array.isArray(res) ? res : [];
         setSuppliers(supplierList);
       },
       (fail) => {
         console.error("Lỗi khi lấy danh sách nhà cung cấp:", fail);
         toast.error("Lỗi khi lấy danh sách nhà cung cấp");
-      },
-      () => {
-        console.error("Có lỗi xảy ra khi lấy danh sách nhà cung cấp");
-        toast.error("Có lỗi xảy ra khi lấy danh sách nhà cung cấp");
       }
     );
   }, []);
 
   const fetchStockIntakes = useCallback(() => {
     fetchGet(
-      `/Inventory/StockIntakes`,
+      "/Inventory/StockIntakes",
       (res) => {
-        console.log("Dữ liệu từ API /StockIntake:", res);
         const intakeList = Array.isArray(res) ? res : [];
-        setStockIntakes(intakeList);
+        // Ánh xạ dữ liệu để đảm bảo có stockIntakeId
+        const validatedIntakes = intakeList
+          .filter((item) => item && typeof item === "object" && item.id)
+          .map((item) => ({
+            ...item,
+            stockIntakeId: item.id, // Đảm bảo stockIntakeId khớp với id
+            supplier: suppliers.find((s) => s.id === item.supplier_id)?.name || "Không xác định",
+            intakeDate: item.intake_date || "Không xác định",
+            created_By_Name: item.createdBy || "Không xác định",
+            approved_By_Name: item.approvedBy || "Không xác định",
+          }));
+        setStockIntakes(validatedIntakes);
       },
       (fail) => {
         console.error("Lỗi khi lấy danh sách phiếu nhập kho:", fail);
         toast.error("Lỗi khi lấy danh sách phiếu nhập kho");
-      },
-      () => {
-        console.error("Có lỗi xảy ra khi lấy danh sách phiếu nhập kho");
-        toast.error("Có lỗi xảy ra khi lấy danh sách phiếu nhập kho");
       }
     );
-  }, []);
+  }, [suppliers]);
 
   const fetchPurchaseOrders = useCallback(() => {
-    console.log("Fetching PurchaseOrders for store:");
     fetchGet(
-      `/Inventory/PurchaseOrders`,
+      "/Inventory/PurchaseOrders",
       (res) => {
-        console.log("Dữ liệu từ API /PurchaseOrders:", res);
-        const intakeList = Array.isArray(res) ? res : [];
-        setPurchaseOrders(intakeList);
+        const orderList = Array.isArray(res) ? res : [];
+        // Ánh xạ dữ liệu để đảm bảo có supplierId
+        const validatedOrders = orderList
+          .filter((item) => item && typeof item === "object" && item.supplierId)
+          .map((item, index) => ({
+            ...item,
+            id: item.supplierId || `temp-id-${index}`, // Fallback ID
+            supplier: item.supplier || "Không xác định",
+            intakeDate: item.intakeDate || "Không xác định",
+            totalAmount: Number(item.totalAmount) || 0,
+          }));
+        setPurchaseOrders(validatedOrders);
       },
       (fail) => {
-        console.error("Lỗi khi lấy danh sách phiếu nhập kho:", fail);
-        toast.error("Lỗi khi lấy danh sách phiếu nhập kho");
-      },
-      () => {
-        console.error("Có lỗi xảy ra khi lấy danh sách phiếu nhập kho");
-        toast.error("Có lỗi xảy ra khi lấy danh sách phiếu nhập kho");
+        console.error("Lỗi khi lấy danh sách phiếu đặt hàng:", fail);
+        toast.error("Lỗi khi lấy danh sách phiếu đặt hàng");
       }
     );
   }, []);
@@ -173,7 +166,6 @@ export default function InventoryManagement() {
         "/StockIntakes",
         newIntake,
         (res) => {
-          console.log("Kết quả tạo phiếu nhập kho:", res);
           toast.success("Tạo phiếu nhập kho thành công");
           setOpenDialog(false);
           fetchStockIntakes();
@@ -182,10 +174,6 @@ export default function InventoryManagement() {
         (fail) => {
           console.error("Lỗi khi tạo phiếu nhập kho:", fail);
           toast.error("Lỗi khi tạo phiếu nhập kho");
-        },
-        () => {
-          console.error("Có lỗi xảy ra khi tạo phiếu nhập kho");
-          toast.error("Có lỗi xảy ra khi tạo phiếu nhập kho");
         }
       );
     },
@@ -194,36 +182,28 @@ export default function InventoryManagement() {
 
   const filteredProducts = useMemo(() => {
     if (!Array.isArray(products)) return [];
-    const validProducts = products.filter((item) => item && item.id && typeof item === "object");
+    const validProducts = products.filter((item) => item && item.id);
     if (!productSearchText.trim()) return validProducts;
     const lowercasedSearch = productSearchText.toLowerCase();
-    return validProducts.filter(
-      (item) => item.name?.toLowerCase().includes(lowercasedSearch)
-    );
+    return validProducts.filter((item) => item.name?.toLowerCase().includes(lowercasedSearch));
   }, [products, productSearchText]);
 
   const filteredStockIntakes = useMemo(() => {
     if (!Array.isArray(stockIntakes)) return [];
     if (!intakeSearchText.trim()) return stockIntakes;
     const lowercasedSearch = intakeSearchText.toLowerCase();
-    return stockIntakes.filter((intake) => {
-      const supplier = suppliers.find((s) => s.id === intake.supplier_id);
-      return (
-        supplier?.name?.toLowerCase().includes(lowercasedSearch) ||
-        intake.intake_date?.includes(lowercasedSearch)
-      );
-    });
-  }, [stockIntakes, intakeSearchText, suppliers]);
+    return stockIntakes.filter(
+      (intake) =>
+        intake.supplier?.toLowerCase().includes(lowercasedSearch) ||
+        intake.intakeDate?.includes(lowercasedSearch)
+    );
+  }, [stockIntakes, intakeSearchText]);
 
   const filteredPurchaseOrders = useMemo(() => {
     if (!Array.isArray(purchaseOrders)) return [];
     if (!orderSearchText.trim()) return purchaseOrders;
     const lowercasedSearch = orderSearchText.toLowerCase();
-    return purchaseOrders.filter((order) => {
-      return (
-        order.supplier?.toLowerCase().includes(lowercasedSearch)
-      );
-    });
+    return purchaseOrders.filter((order) => order.supplier?.toLowerCase().includes(lowercasedSearch));
   }, [purchaseOrders, orderSearchText]);
 
   useEffect(() => {
@@ -253,28 +233,19 @@ export default function InventoryManagement() {
       field: "unit_price",
       headerName: "Giá nhập",
       width: 120,
-      valueGetter: (params) => {
-        const value = typeof params === "number" ? params : params.row?.unit_price || 0;
-        return `${value.toLocaleString("vi-VN")} VNĐ`;
-      },
+      valueGetter: (params) => `${(params.row?.unit_price || 0).toLocaleString("vi-VN")} VNĐ`,
     },
     {
       field: "price",
       headerName: "Giá bán",
       width: 120,
-      valueGetter: (params) => {
-        const value = typeof params === "number" ? params : params.row?.price || 0;
-        return `${value.toLocaleString("vi-VN")} VNĐ`;
-      },
+      valueGetter: (params) => `${(params.row?.price || 0).toLocaleString("vi-VN")} VNĐ`,
     },
     {
       field: "stock_quantity",
       headerName: "Tồn kho",
       width: 120,
-      valueGetter: (params) => {
-        const value = typeof params === "number" ? params : params.row?.stock_quantity || 0;
-        return `${value} cái`;
-      },
+      valueGetter: (params) => `${params.row?.stock_quantity || 0} cái`,
     },
   ];
 
@@ -294,10 +265,7 @@ export default function InventoryManagement() {
       field: "totalAmount",
       headerName: "Tổng tiền",
       width: 120,
-      valueGetter: (params) => {
-        const value = typeof params === "number" ? params : params.row?.totalAmount || 0;
-        return `${value.toLocaleString("vi-VN")} VNĐ`;
-      },
+      valueGetter: (params) => `${(params.row?.totalAmount || 0).toLocaleString("vi-VN")} VNĐ`,
     },
   ];
 
@@ -318,7 +286,6 @@ export default function InventoryManagement() {
           ))}
         </Select>
       </FormControl>
-      {/* Danh sách sản phẩm của cửa hàng */}
       <Typography variant="h5" sx={{ mb: 2 }}>
         Danh sách sản phẩm của cửa hàng
       </Typography>
@@ -351,6 +318,7 @@ export default function InventoryManagement() {
           sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0, mb: 4 }}
           rows={filteredProducts}
           columns={productColumns}
+          getRowId={(row) => row.id}
           initialState={{
             pagination: { paginationModel: { page: 0, pageSize: 10 } },
           }}
@@ -358,8 +326,6 @@ export default function InventoryManagement() {
           checkboxSelection
         />
       )}
-
-      {/* Danh sách phiếu nhập kho */}
       <Typography variant="h5" sx={{ mb: 2 }}>
         Danh sách phiếu nhập kho
       </Typography>
@@ -389,7 +355,6 @@ export default function InventoryManagement() {
         pageSizeOptions={[5, 10, 20]}
         checkboxSelection
       />
-      {/* Danh sách phiếu đặt hàng */}
       <Typography variant="h5" sx={{ mb: 2 }}>
         Danh sách phiếu đặt hàng
       </Typography>
@@ -411,15 +376,14 @@ export default function InventoryManagement() {
       <DataGrid
         sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0 }}
         rows={filteredPurchaseOrders}
-        getRowId={(row) => row.supplierId}
         columns={orderColumns}
+        getRowId={(row) => row.id}
         initialState={{
           pagination: { paginationModel: { page: 0, pageSize: 5 } },
         }}
         pageSizeOptions={[5, 10, 20]}
         checkboxSelection
       />
-
       <AddStockIntake
         open={openDialog}
         onClose={() => setOpenDialog(false)}

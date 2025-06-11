@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -18,12 +18,12 @@ import { DataGrid } from "@mui/x-data-grid";
 import { toast } from "react-toastify";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { fetchGet,fetchPost } from "../../../../lib/httpHandler";
+import { fetchGet, fetchPost } from "../../../../lib/httpHandler";
 
 const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories, user, onCreateIntake, onCreateProduct }) => {
   const [newIntake, setNewIntake] = useState({
     intake_date: new Date().toISOString().split("T")[0],
-    created_by: user?.id || "11111111-2222-3333-4444-555555555555",
+    created_by: user?.id,
     status: 0,
     details: [
       {
@@ -44,18 +44,43 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
     category_id: "",
     image: "",
   });
-  const [productList, setProductList] = useState([]); // Khởi tạo là mảng rỗng
-  const [categoryList, setCategoryList] = useState([]); // Khởi tạo là mảng rỗng
+  const [productList, setProductList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
   const [showNewProductForm, setShowNewProductForm] = useState(false);
   const [selectedStoreId, setSelectedStoreId] = useState("");
+  const [userFullname, setUserFullname] = useState(user?.fullname || "Không xác định");
+
+  // Fetch thông tin người dùng
+  useEffect(() => {
+  fetchGet(
+    "/users/profile",
+    (res) => {
+      console.log("Dữ liệu người dùng:", res);
+      setUserFullname(res.fullname || "Không xác định");
+      setNewIntake((prev) => {
+        const updatedIntake = {
+          ...prev,
+          created_by: res.userId || prev.created_by || "Không xác định",
+        };
+        return updatedIntake;
+      });
+    },
+    (fail) => {
+      toast.error(fail.message || "Không thể tải thông tin cá nhân");
+    },
+    () => {
+      toast.error("Có lỗi xảy ra khi tải thông tin");
+    }
+  );
+}, []);
 
   const fetchProductList = useCallback(() => {
-    if (productList.length === 0) { // Chỉ fetch nếu danh sách rỗng
+    if (productList.length === 0) {
       fetchGet(
         "/Inventory/ListProducts",
         (res) => {
           console.log("Danh sách sản phẩm đã được tải thành công", res);
-          setProductList(Array.isArray(res) ? res : []); // Đảm bảo res là mảng
+          setProductList(Array.isArray(res) ? res : []);
         },
         (fail) => {
           console.error("Lỗi khi tải danh sách sản phẩm", fail);
@@ -69,13 +94,13 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
     }
   }, [productList]);
 
- const fetchCategoryList = useCallback(() => {
-    if (categoryList.length === 0) { // Chỉ fetch nếu danh sách rỗng
+  const fetchCategoryList = useCallback(() => {
+    if (categoryList.length === 0) {
       fetchGet(
         "/Categories",
         (res) => {
           console.log("Danh sách danh mục đã được tải thành công", res);
-          setCategoryList(Array.isArray(res) ? res : []); // Đảm bảo res là mảng
+          setCategoryList(Array.isArray(res) ? res : []);
         },
         (fail) => {
           console.error("Lỗi khi tải danh sách danh mục", fail);
@@ -161,9 +186,17 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
 
   const handleDetailChange = (id, field, value) => {
     setNewIntake((prev) => {
-      const newDetails = prev.details.map((detail) =>
-        detail.id === id ? { ...detail, [field]: value } : detail
-      );
+      const newDetails = prev.details.map((detail) => {
+        if (detail.id === id) {
+          const updatedDetail = { ...detail, [field]: value };
+          if (field === "product_id") {
+            const selectedProduct = productList.find((p) => p.id === value);
+            updatedDetail.category_id = selectedProduct?.categoryId || "";
+          }
+          return updatedDetail;
+        }
+        return detail;
+      });
       return { ...prev, details: newDetails };
     });
   };
@@ -180,7 +213,9 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
           unit_price: 0,
           store_id: prev.details[0]?.store_id || "",
           supplier_id: prev.details[0]?.supplier_id || "",
+          profit_margin: 0,
           intake_date: prev.intake_date,
+          category_id: "",
         },
       ],
     }));
@@ -199,7 +234,9 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
             unit_price: 0,
             store_id: "",
             supplier_id: "",
+            profit_margin: 0,
             intake_date: prev.intake_date,
+            category_id: "",
           },
         ],
       };
@@ -210,8 +247,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
     setNewProduct((prev) => ({ ...prev, [field]: value }));
   };
 
-   const handleCreateProduct = () => {
-    // Kiểm tra các trường bắt buộc
+  const handleCreateProduct = () => {
     if (!newProduct.name || !newProduct.category_id || !newProduct.description) {
       toast.error("Vui lòng điền đầy đủ thông tin: Tên, Danh mục, Mô tả");
       return;
@@ -221,27 +257,21 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
       Name: newProduct.name,
       CategoryId: newProduct.category_id,
       Description: newProduct.description,
-      Image: newProduct.image || null, // Cho phép Image null
+      Image: newProduct.image || null,
     };
 
     fetchPost(
       "/Inventory/Products",
       newProductData,
       (createdProduct) => {
-        // Cập nhật danh sách sản phẩm
         setProductList((prev) => [...prev, createdProduct]);
-
-        // Reset form sản phẩm mới
         setNewProduct({
           name: "",
           description: "",
           category_id: "",
           image: "",
         });
-
-        // Ẩn form thêm sản phẩm
         setShowNewProductForm(false);
-
         toast.success("Thêm sản phẩm mới thành công");
       },
       (error) => {
@@ -250,35 +280,76 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
       }
     );
   };
-  const handleCreate = () => {
-    if (!newIntake.details.every((d) => d.supplier_id && d.store_id)) {
-      toast.error("Vui lòng chọn cửa hàng và nhà cung cấp cho tất cả chi tiết");
-      return;
-    }
-    if (!newIntake.details.every((d) => d.product_id && d.quantity > 0 && d.unit_price > 0)) {
-      toast.error("Vui lòng điền đầy đủ thông tin chi tiết sản phẩm");
-      return;
-    }
 
-    const intakeData = {
-      supplier_id: newIntake.details[0].supplier_id,
-      store_id: newIntake.details[0].store_id,
-      intake_date: newIntake.intake_date,
-      created_by: newIntake.created_by,
-      status: newIntake.status,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      details: newIntake.details.map((detail) => ({
-        product_id: detail.product_id,
-        quantity: detail.quantity,
-        unit_price: detail.unit_price,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })),
+const handleCreate = async () => {
+  if (!newIntake.details.every((d) => d.supplier_id && d.store_id)) {
+    toast.error("Vui lòng chọn cửa hàng và nhà cung cấp cho tất cả chi tiết");
+    return;
+  }
+  if (!newIntake.details.every((d) => d.product_id && d.quantity > 0 && d.unit_price > 0)) {
+    toast.error("Vui lòng điền đầy đủ thông tin chi tiết sản phẩm");
+    return;
+  }
+
+  try {
+    // Bước 1: Tạo StockIntake
+    const stockIntakeData = {
+      CreatedBy: newIntake.created_by,
     };
+    console.log("StockIntake data gửi đi:", stockIntakeData);
 
-    onCreateIntake(intakeData);
-  };
+    const stockIntakeResponse = await fetchPost(
+      "/Inventory/StockIntakes",
+      stockIntakeData,
+      (res) => {
+        console.log("StockIntake response:", res);
+        return res;
+      },
+      (error) => {
+        throw new Error(error.message || "Không thể tạo phiếu nhập kho");
+      }
+    );
+
+    const stockIntakeId = stockIntakeResponse.id;
+    console.log("StockIntakeId:", stockIntakeId);
+
+    // Bước 2: Tạo StockIntakeDetails
+    const detailPromises = newIntake.details.map((detail) => {
+      const detailData = {
+        StockIntakeId: stockIntakeId,
+        SupplierId: detail.supplier_id,
+        ProductId: detail.product_id,
+        StoreId: detail.store_id,
+        ProfitMargin: detail.profit_margin,
+        Quantity: detail.quantity,
+        UnitPrice: detail.unit_price,
+        IntakeDate: detail.intake_date,
+      };
+      console.log("Detail data gửi đi:", JSON.stringify(detailData, null, 2));
+      return fetchPost(
+        "/Inventory/StockIntakeDetails", // Kiểm tra endpoint
+        detailData,
+        (res) => {
+          console.log("StockIntakeDetail response:", res);
+          return res;
+        },
+        (error) => {
+          console.error("Lỗi chi tiết:", error);
+          throw new Error(error.message || "Không thể tạo chi tiết phiếu nhập kho");
+        }
+      );
+    });
+
+    await Promise.all(detailPromises);
+
+    toast.success("Tạo phiếu nhập kho và chi tiết thành công");
+    console.log("onCreateIntake called with:", stockIntakeResponse);
+    onClose();
+  } catch (error) {
+    console.error("Lỗi khi tạo phiếu nhập kho:", error);
+    toast.error(error.message || "Có lỗi xảy ra khi tạo phiếu nhập kho");
+  }
+};
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
@@ -287,7 +358,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={6}>
             <Typography variant="subtitle1">
-              Người tạo: {user?.fullname || "Không xác định"}
+              Người tạo: {userFullname}
             </Typography>
           </Grid>
           <Grid item xs={6}>
@@ -307,7 +378,6 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
             />
           </Grid>
         </Grid>
-        {/* Danh sách sản phẩm của cửa hàng */}
         <Typography variant="h6" sx={{ mb: 2 }}>
           Danh sách sản phẩm của cửa hàng
         </Typography>
@@ -337,7 +407,6 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
           getRowId={(row) => row.id}
           disableSelectionOnClick
         />
-        {/* Thêm sản phẩm mới */}
         {showNewProductForm && (
           <Box sx={{ mt: 3, p: 2, border: "1px solid #ccc", borderRadius: 2 }}>
             <Typography variant="subtitle1">Thêm sản phẩm mới</Typography>
@@ -369,7 +438,6 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                   </Select>
                 </FormControl>
               </Grid>
-             
               <Grid item xs={4}>
                 <TextField
                   label="Mô tả"
@@ -379,7 +447,6 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                   sx={{ backgroundColor: "white" }}
                 />
               </Grid>
-              
               <Grid item xs={4}>
                 <TextField
                   label="Ảnh (URL)"
@@ -400,7 +467,6 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
             </Box>
           </Box>
         )}
-        {/* Chi tiết nhập kho */}
         <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
           Chi tiết nhập kho
         </Typography>
@@ -412,7 +478,10 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                 <Select
                   value={detail.product_id || ""}
                   onChange={(e) => handleDetailChange(detail.id, "product_id", e.target.value)}
-                  onOpen={() => fetchProductList()}
+                  onOpen={() => {
+                        fetchProductList();
+                        fetchCategoryList();
+                      }}
                   sx={{ backgroundColor: "white", minWidth: 200 }}
                 >
                   {Array.isArray(productList) && productList.length > 0 ? (
@@ -427,24 +496,17 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                 </Select>
               </FormControl>
             </Grid>
-             <Grid item xs={4}>
-                <FormControl fullWidth>
-                  <InputLabel>Danh mục</InputLabel>
-                  <Select
-                    value={newProduct.category_id}
-                    onChange={(e) => handleNewProductChange("category_id", e.target.value)}
-                    onOpen={() => fetchCategoryList()}
-                    sx={{ backgroundColor: "white", minWidth: 250 }}
-                  >
-                    {Array.isArray(categoryList) &&
-                      categoryList.map((category) => (
-                        <MenuItem key={category.id} value={category.id}>
-                          {category.name}
-                        </MenuItem>
-                      ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+            <Grid item xs={2}>
+              <TextField
+                label="Danh mục"
+                value={
+                  categoryList.find((category) => category.id === detail.category_id)?.name || ""
+                }
+                fullWidth
+                sx={{ backgroundColor: "white" }}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
             <Grid item xs={1}>
               <TextField
                 label="Số lượng"
@@ -453,8 +515,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                 onChange={(e) => handleDetailChange(detail.id, "quantity", parseInt(e.target.value) || 0)}
                 fullWidth
                 sx={{ backgroundColor: "white" }}
-                slotProps={{ input: { min: 0 } }}// Ngăn nhập số âm
-
+                slotProps={{ input: { min: 0 } }}
               />
             </Grid>
             <Grid item xs={1.5}>
@@ -465,17 +526,18 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                 onChange={(e) => handleDetailChange(detail.id, "unit_price", parseFloat(e.target.value) || 0)}
                 fullWidth
                 sx={{ backgroundColor: "white" }}
-                slotProps={{ input: { min: 0 } }}// Ngăn nhập số âm
+                slotProps={{ input: { min: 0 } }}
               />
             </Grid>
             <Grid item xs={1}>
               <TextField
                 label="% Lợi nhuận"
-                value={detail.profit_margin || ""}              
-                slotProps={{ input: { min: 0 } }}// Ngăn nhập số âm
+                type="number"
+                value={detail.profit_margin || ""}
                 onChange={(e) => handleDetailChange(detail.id, "profit_margin", parseFloat(e.target.value) || 0)}
                 fullWidth
                 sx={{ backgroundColor: "white" }}
+                slotProps={{ input: { min: 0 } }}
               />
             </Grid>
             <Grid item xs={2}>
@@ -505,7 +567,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                 sx={{ backgroundColor: "white" }}
               />
             </Grid>
-            <Grid item xs={1.5}>
+            <Grid item xs={1}>
               <FormControl fullWidth>
                 <InputLabel>Nhà cung cấp</InputLabel>
                 <Select

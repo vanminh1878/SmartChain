@@ -9,4 +9,5 @@ namespace SmartChain.Application.Users.Queries.GetUserByAccountId;
         string Address,
         bool Sex,
         string Avatar,
-        string RoleName);
+        string RoleName,
+        Guid UserId);

@@ -38,7 +38,7 @@ public class GetUserByAccountIdQueryHandler : IRequestHandler<GetUserByAccountId
         }
         // Tạo DTO
         var response = new ProfileResponse(account.Username,user.Fullname, user.Email, user.PhoneNumber,
-                                         user.Birthday, user.Address, user.Sex, user.Avatar, role.Name);
+                                         user.Birthday, user.Address, user.Sex, user.Avatar, role.Name,user.Id);
 
         return response; 
     }
