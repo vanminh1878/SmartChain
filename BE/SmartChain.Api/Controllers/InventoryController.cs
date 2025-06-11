@@ -6,7 +6,12 @@ using SmartChain.Application.StockIntakes.Queries.GetStockIntakesForInventory;
 using SmartChain.Application.StockIntakes.Queries.GetPurchaseOrdersForInventory;
 using SmartChain.Application.Products.Commands.CreateProduct;
 using SmartChain.Application.Products.Queries.GetProduct;
-// using SmartChain.Application.StockIntakes.Queries.GetStockIntakesForInventoryHandler;
+using SmartChain.Application.StockIntakes.Commands.CreateStockIntake;
+using SmartChain.Application.StockIntakeDetails.Queries;
+using SmartChain.Application.StockIntakeDetails.Commands.CreateStockIntakeDetail;
+using SmartChain.Application.StockIntakes.Queries;
+using SmartChain.Application.StockIntakes.Queries.GetStockIntakeById;
+using SmartChain.Application.StockIntakes.Queries.GetStockIntake;
 
 namespace SmartChain.Api.Controllers;
 
@@ -21,6 +26,52 @@ public class InventoryController : ApiController
         _mediator = mediator;
     }
 
+    [HttpPost("StockIntakes")]
+    public async Task<IActionResult> CreateStockIntake(CreateStockIntakeCommand command)
+    {
+        var result = await _mediator.Send(command);
+
+        return result.Match(
+            stockIntake => CreatedAtAction(
+                nameof(GetStockIntake),
+                new { id = stockIntake.Id },
+                stockIntake),
+            Problem);
+    }
+    [HttpGet("StockIntakes")]
+    public async Task<IActionResult> GetStockIntake()
+    {
+        var query = new GetStockIntakeQuery();
+        var result = await _mediator.Send(query);
+
+        return result.Match(
+            stockIntake => Ok(stockIntake),
+            Problem);
+    }
+
+    [HttpPost("StockIntakeDetails")]
+    public async Task<IActionResult> CreateStockIntakeDetail(CreateStockIntakeDetailCommand command)
+    {
+        var result = await _mediator.Send(command);
+
+        return result.Match(
+            stockIntakeDetail => CreatedAtAction(
+                nameof(GetStockIntakeDetail),
+                new { id = stockIntakeDetail.Id },
+                stockIntakeDetail),
+            Problem);
+    }
+
+    [HttpGet("StockIntakeDetails/{id:guid}")]
+    public async Task<IActionResult> GetStockIntakeDetail(Guid id)
+    {
+        var query = new GetStockIntakeDetailQuery(id);
+        var result = await _mediator.Send(query);
+
+        return result.Match(
+            stockIntakeDetail => Ok(stockIntakeDetail),
+            Problem);
+    }
     [HttpGet("Products")]
     public async Task<IActionResult> GetAllProductsForInventory()
     {
@@ -53,10 +104,10 @@ public class InventoryController : ApiController
                                         product),
             Problem);
     }
-    [HttpGet("StockIntakes")]
-    public async Task<IActionResult> GetAllStockIntakes()
+    [HttpGet("StockIntakesById/{stockIntakeId:guid}")]
+    public async Task<IActionResult> GetAllStockIntakes(Guid stockIntakeId)
     {
-        var query = new GetStockIntakesForInventoryQuery();
+        var query = new GetStockIntakeByIdQuery(stockIntakeId);
         var result = await _mediator.Send(query);
 
         return result.Match(

@@ -7,6 +7,7 @@ using SmartChain.Application.Categories.Commands.DeleteCategory;
 using SmartChain.Application.Categories.Commands.UpdateCategory;
 using SmartChain.Application.Categories.Queries.GetCategoriesQuery;
 using SmartChain.Application.Categories.Queries.GetCategoryById;
+using SmartChain.Application.Categories.Queries.GetCategoryByProductId;
 using SmartChain.Application.Products.Queries.GetProductByCategoryId;
 using SmartChain.Contracts.Categories;
 using SmartChain.Domain.Categories;
@@ -64,6 +65,17 @@ public class CategoriesController : ApiController
     public async Task<IActionResult> GetCategory( Guid categoryId)
     {
         var query = new GetCategoryQueryById(categoryId);
+        var result = await _mediator.Send(query);
+
+        return result.Match(
+            category => Ok(ToDto(category)),
+            Problem);
+    }
+
+     [HttpGet("{productId:guid}")]
+    public async Task<IActionResult> GetCategoryByProductId( Guid productId)
+    {
+        var query = new GetCategoryQueryByProductId(productId);
         var result = await _mediator.Send(query);
 
         return result.Match(

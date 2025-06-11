@@ -25,10 +25,10 @@ public class StockIntakeDetail : Entity
             throw new ArgumentException("Intake date cannot be empty or invalid.");
         }
         var now = DateTime.UtcNow;
-        var minDate = now.AddDays(-20);
-        if (intakeDate < minDate || intakeDate > now)
+        var maxDate = now.AddDays(15);
+        if (intakeDate > maxDate || intakeDate < now)
         {
-            throw new ArgumentException("Intake date must be between today and 20 days prior.");
+            throw new ArgumentException("Intake date must be between today and 15 days later.");
         }
         if (stockIntakeId == Guid.Empty)
         {
