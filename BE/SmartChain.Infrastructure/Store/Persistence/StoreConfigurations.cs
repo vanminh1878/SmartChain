@@ -55,10 +55,6 @@ public class StoreConfigurations : IEntityTypeConfiguration<Store>
             .HasMaxLength(500)
             .HasColumnType("nvarchar(500)");
 
-        builder.Property(s => s.OwnerId)
-            .HasColumnName("Owner_id")
-            .HasColumnType("uniqueidentifier");
-
         builder.Property(s => s.CreatedAt)
             .IsRequired()
             .HasColumnType("datetime")
@@ -68,10 +64,5 @@ public class StoreConfigurations : IEntityTypeConfiguration<Store>
             .IsRequired(false)
             .HasColumnType("datetime")
             .HasColumnName("Updated_at");
-
-        builder.HasOne<User>()
-            .WithMany()
-            .HasForeignKey(s => s.OwnerId)
-            .HasConstraintName("FK_Store_User");
     }
 }

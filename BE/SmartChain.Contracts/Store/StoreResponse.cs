@@ -7,6 +7,5 @@ public record StoreResponse(
     string PhoneNumber,
     string Email,
     bool? Status, // true: active, false: locked
-    Guid OwnerId,
     DateTime CreatedAt,
     DateTime? UpdatedAt);

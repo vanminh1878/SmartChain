@@ -21,7 +21,7 @@ public class CreateStoreCommandHandler : IRequestHandler<CreateStoreCommand, Err
             {
                 return Error.Conflict("Store with the same name already exists.");
             }
-            var Store = new Store(request.name, request.address, request.phoneNumber, request.email, request.ownerId,
+            var Store = new Store(request.name, request.address, request.phoneNumber, request.email,
                 request.latitude, request.longitude, request.image);
             await _StoresRepository.AddAsync(Store, cancellationToken);
             return Store;

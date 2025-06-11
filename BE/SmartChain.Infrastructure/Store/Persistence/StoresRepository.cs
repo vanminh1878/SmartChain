@@ -47,12 +47,7 @@ public class StoresRepository : IStoresRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<Store>> ListByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken)
-    {
-        return await _context.Stores
-            .Where(s => s.OwnerId == ownerId)
-            .ToListAsync(cancellationToken);
-    }
+ 
 
     public async Task<List<Store>> ListByStatusAsync(bool status, CancellationToken cancellationToken)
     {

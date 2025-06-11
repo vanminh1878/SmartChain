@@ -27,7 +27,7 @@ public class UpdateStoreCommandHandler : IRequestHandler<UpdateStoreCommand, Err
             return Error.Conflict("Store with the same name already exists.");
         }
         var result = Store.Update(request.name, request.address, request.phoneNumber, request.email,
-            request.ownerId, request.latitude, request.longitude, request.image);
+             request.latitude, request.longitude, request.image);
         if (result.IsError)
         {
             return result.Errors;

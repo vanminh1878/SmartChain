@@ -23,37 +23,7 @@ export default function StoreManagement() {
         }
         setListStores(stores);
 
-        // Lấy thông tin chủ sở hữu
-        const ownerIds = [...new Set(stores.map((store) => store.ownerId))];
-        console.log("Owner IDs:", ownerIds);
-
-        const ownerPromises = ownerIds.map((ownerId) =>
-          fetchGet(
-            `/Users/${ownerId}`,
-            (user) => {
-              console.log(`User data for ${ownerId}:`, user);
-              return { [ownerId]: user };
-            },
-            (error) => {
-              console.log(`Error fetching user ${ownerId}:`, error);
-              return { [ownerId]: null };
-            },
-            (error) => {
-              console.log(`Catch error for user ${ownerId}:`, error);
-              return { [ownerId]: null };
-            }
-          ).catch((err) => {
-            console.error(`Promise error for user ${ownerId}:`, err);
-            return { [ownerId]: null };
-          })
-        );
-
-        // Chờ tất cả các request hoàn thành
-        const ownerResults = await Promise.all(ownerPromises);
-        console.log("Owner results:", ownerResults); // Debug ownerResults
-        const ownersMap = ownerResults.reduce((acc, curr) => ({ ...acc, ...curr }), {});
-        console.log("Owners map:", ownersMap); // Debug ownersMap
-        setOwners(ownersMap);
+        
       },
       (fail) => {
         toast.error(fail.message || "Lỗi khi lấy danh sách cửa hàng");
@@ -137,7 +107,6 @@ export default function StoreManagement() {
                   <th>Địa chỉ</th>
                   <th>Số điện thoại</th>
                   <th>Email</th>
-                  <th>Chủ sở hữu</th>
                   <th>Trạng thái</th>
                   <th>Thao tác</th>
                 </tr>
@@ -151,9 +120,7 @@ export default function StoreManagement() {
                       <td>{item.address || "Không có địa chỉ"}</td>
                       <td>{item.phoneNumber || "Không có số điện thoại"}</td>
                       <td>{item.email || "Không có email"}</td>
-                      <td>
-                        {owners[item.ownerId]?.fullname || owners[item.ownerId]?.email || "Không có thông tin"}
-                      </td>
+                      
                       <td>{item.status ? "Hoạt động" : "Khóa"}</td>
                       <td>
                         <div className="list_Action d-flex gap-2">

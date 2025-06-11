@@ -13,7 +13,6 @@ public interface IStoresRepository
     Task<Store?> GetByNameAsync(string name, CancellationToken cancellationToken);
     Task<Store?> GetByEmailAsync(string email, CancellationToken cancellationToken);
     Task<List<Store>> ListAllAsync(CancellationToken cancellationToken);
-    Task<List<Store>> ListByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken);
     Task<List<Store>> ListByStatusAsync(bool status, CancellationToken cancellationToken);
     Task RemoveAsync(Store store, CancellationToken cancellationToken);
     Task RemoveRangeAsync(List<Store> stores, CancellationToken cancellationToken);

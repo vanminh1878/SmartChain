@@ -24,7 +24,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             .HasColumnType("nvarchar(100)");
 
         builder.Property(p => p.Description)
-            .HasColumnType("text");
+            .HasColumnType("nvarchar(500)");
 
         builder.Property(p => p.Price)
             .IsRequired(false) // Allow null

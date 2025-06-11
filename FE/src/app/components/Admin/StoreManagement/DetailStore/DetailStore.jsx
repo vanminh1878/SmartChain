@@ -1,52 +1,86 @@
 import React, { useEffect, useState, useCallback } from "react";
-import Modal from "react-modal";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Grid,
+  IconButton,
+  Typography,
+  Box,
+} from "@mui/material";
 import { GrCircleInformation } from "react-icons/gr";
-import { TiEdit } from "react-icons/ti";
-import { IoClose } from "react-icons/io5";
-import { fetchGet, fetchPut } from "../../../../lib/httpHandler";
+import { TiEdit } from "react-icons/ti"; // Correct import for TiEdit
+import { Close, Upload, Search } from "@mui/icons-material";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { fetchGet, fetchPut, fetchUpload, BE_ENPOINT } from "../../../../lib/httpHandler";
 import { showErrorMessageBox } from "../../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox";
 import { showSuccessMessageBox } from "../../../MessageBox/SuccessMessageBox/showSuccessMessageBox";
-import "./DetailStore.css";
 
-// Bind modal to app element for accessibility
-Modal.setAppElement("#root");
+// Sửa lỗi icon Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+const mapContainerStyle = {
+  width: "350px",
+  height: "300px",
+  borderRadius: "8px",
+  marginTop: "16px",
+};
+
+function MapEvents({ onMapClick }) {
+  useMapEvents({
+    click(e) {
+      onMapClick(e.latlng);
+    },
+  });
+  return null;
+}
 
 export default React.memo(function DetailStore({ item, setListStores }) {
   const [editStatus, setEditStatus] = useState(false);
-  const [storeInfo, setStoreInfo] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [dataForm, setDataForm] = useState({
     name: item.name || "",
     phoneNumber: item.phoneNumber || "",
     address: item.address || "",
-    email: item.email || ""
+    email: item.email || "",
+    latitude: item.latitude || 21.028511,
+    longitude: item.longitude || 105.804817,
+    image: item.image || "",
   });
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Hàm lấy thông tin cửa hàng
+  // Lấy thông tin cửa hàng
   const fetchStoreInfo = useCallback(() => {
-    if (item?.id) {
-      fetchGet(
-        `/stores/${item.id}`,
-        (res) => {
-          console.log("Store info fetched:", res);
-          setStoreInfo(res);
-          setDataForm({
-            name: decodeURIComponent(res.name || ""),
-            phoneNumber: decodeURIComponent(res.phoneNumber || ""),
-            address: decodeURIComponent(res.address || ""),
-            email: decodeURIComponent(res.email || "")
-          });
-        },
-        (err) => {
-          console.error("Fetch store error:", err);
-          showErrorMessageBox(err.message || "Lỗi khi lấy thông tin cửa hàng. Vui lòng thử lại.");
-        },
-        () => console.log("Fetch store info completed")
-      );
-    }
+    if (!item?.id) return;
+    fetchGet(
+      `/stores/${item.id}`,
+      (res) => {
+        setDataForm({
+          name: decodeURIComponent(res.name || ""),
+          phoneNumber: decodeURIComponent(res.phoneNumber || ""),
+          address: decodeURIComponent(res.address || ""),
+          email: decodeURIComponent(res.email || ""),
+          latitude: res.latitude || 21.028511,
+          longitude: res.longitude || 105.804817,
+          image: res.image || "",
+        });
+      },
+      (err) => {
+        showErrorMessageBox("Lỗi khi lấy thông tin cửa hàng. Vui lòng thử lại.");
+      },
+      () => console.log("Lấy thông tin cửa hàng hoàn tất")
+    );
   }, [item.id]);
 
-  // Load dữ liệu khi modal mở
   useEffect(() => {
     if (isModalOpen) {
       fetchStoreInfo();
@@ -59,26 +93,101 @@ export default React.memo(function DetailStore({ item, setListStores }) {
     setDataForm((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  // Xử lý toggle chế độ chỉnh sửa
-  const handleEditToggle = useCallback(() => {
-    setEditStatus((prev) => !prev);
-    setTimeout(() => {
-      const input = document.querySelector(`input[name="name"]`);
-      if (input) input.focus();
-    }, 100);
-  }, []);
+  // Xử lý click bản đồ và reverse geocoding
+  const handleMapClick = useCallback(
+    async (latlng) => {
+      if (!editStatus) return;
+      setDataForm((prev) => ({
+        ...prev,
+        latitude: latlng.lat,
+        longitude: latlng.lng,
+      }));
 
-  // Xử lý hủy chỉnh sửa
-  const handleCancel = useCallback(() => {
-    setEditStatus(false);
-    setDataForm({
-      name: storeInfo.name || "",
-      phoneNumber: storeInfo.phoneNumber || "",
-      address: storeInfo.address || "",
-      email: storeInfo.email || ""
-    });
-    setIsModalOpen(false);
-  }, [storeInfo.name, storeInfo.phoneNumber, storeInfo.address, storeInfo.email]);
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}&zoom=18&addressdetails=1`,
+          {
+            headers: {
+              "User-Agent": "SmartChainApp/1.0 (your.email@example.com)",
+            },
+          }
+        );
+        const data = await response.json();
+        if (data.display_name) {
+          setDataForm((prev) => ({ ...prev, address: data.display_name }));
+        }
+      } catch (err) {
+        console.error("Lỗi reverse geocoding:", err);
+        showErrorMessageBox("Không thể lấy địa chỉ từ vị trí. Vui lòng nhập thủ công.");
+      }
+    },
+    [editStatus]
+  );
+
+  // Xử lý geocoding (địa chỉ sang tọa độ)
+  const handleGeocode = useCallback(async () => {
+    if (!editStatus) return;
+    if (!dataForm.address.trim()) {
+      showErrorMessageBox("Vui lòng nhập địa chỉ trước khi tìm!");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(dataForm.address)}&limit=1&addressdetails=1`,
+        {
+          headers: {
+            "User-Agent": "SmartChainApp/1.0 (your.email@example.com)",
+          },
+        }
+      );
+      const data = await response.json();
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        setDataForm((prev) => ({
+          ...prev,
+          latitude: parseFloat(lat),
+          longitude: parseFloat(lon),
+        }));
+        showSuccessMessageBox("Đã tìm thấy vị trí trên bản đồ!");
+      } else {
+        showErrorMessageBox("Không tìm thấy vị trí cho địa chỉ này!");
+      }
+    } catch (err) {
+      console.error("Lỗi geocoding:", err);
+      showErrorMessageBox("Lỗi khi tìm vị trí. Vui lòng thử lại.");
+    }
+  }, [dataForm.address, editStatus]);
+
+  // Xử lý upload ảnh
+  const handleImageChange = useCallback(
+    (e) => {
+      if (!editStatus) return;
+      const file = e.target.files[0];
+      if (!file) {
+        showErrorMessageBox("Vui lòng chọn một file ảnh!");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      fetchUpload(
+        "/api/asset/upload-image",
+        formData,
+        (data) => {
+          const imageUrl = data.fileName;
+          setDataForm((prev) => ({ ...prev, image: imageUrl }));
+          showSuccessMessageBox("Ảnh cửa hàng đã được tải lên thành công!");
+        },
+        (err) => {
+          showErrorMessageBox(err.message || "Tải ảnh thất bại!");
+        },
+        () => console.log("Tải ảnh hoàn tất")
+      );
+    },
+    [editStatus]
+  );
 
   // Xử lý submit form
   const handleSubmit = useCallback(
@@ -108,9 +217,13 @@ export default React.memo(function DetailStore({ item, setListStores }) {
         showErrorMessageBox("Email không hợp lệ");
         return;
       }
+      if (!dataForm.latitude || !dataForm.longitude) {
+        showErrorMessageBox("Vui lòng chọn vị trí trên bản đồ");
+        return;
+      }
       handleUpdate();
     },
-    [dataForm.name, dataForm.phoneNumber, dataForm.address, dataForm.email]
+    [dataForm]
   );
 
   // Xử lý cập nhật cửa hàng
@@ -120,17 +233,18 @@ export default React.memo(function DetailStore({ item, setListStores }) {
       name: dataForm.name.trim(),
       phoneNumber: dataForm.phoneNumber.trim(),
       address: dataForm.address.trim(),
-      email: dataForm.email.trim()
+      email: dataForm.email.trim(),
+      latitude: parseFloat(dataForm.latitude.toFixed(6)),
+      longitude: parseFloat(dataForm.longitude.toFixed(6)),
+      image: dataForm.image || null,
+      status: true,
     };
-    console.log("Sending PUT request to:", uri, "with data:", updatedData);
 
     fetchPut(
       uri,
       updatedData,
       async (res) => {
-        console.log("Update response:", res);
         await showSuccessMessageBox(res.message || "Cập nhật cửa hàng thành công");
-        setStoreInfo({ ...storeInfo, ...updatedData });
         setDataForm({ ...updatedData });
         setListStores((prevList) =>
           prevList.map((listItem) =>
@@ -141,178 +255,253 @@ export default React.memo(function DetailStore({ item, setListStores }) {
         setIsModalOpen(false);
       },
       (err) => {
-        console.error("Update error details:", err);
-        if (err.message === "Phản hồi từ server không phải JSON" || err.status === 500) {
-          console.log("Retrying with only name...");
-          fetchPut(
-            uri,
-            { name: dataForm.name.trim() },
-            async (res) => {
-              console.log("Retry response:", res);
-              await showSuccessMessageBox(res.message || "Cập nhật cửa hàng thành công");
-              setStoreInfo({ ...storeInfo, name: dataForm.name.trim() });
-              setDataForm({ ...dataForm, name: dataForm.name.trim() });
-              setListStores((prevList) =>
-                prevList.map((listItem) =>
-                  listItem.id === item.id ? { ...listItem, name: dataForm.name.trim() } : listItem
-                )
-              );
-              setEditStatus(false);
-              setIsModalOpen(false);
-            },
-            (retryErr) => {
-              console.error("Retry error:", retryErr);
-              showErrorMessageBox(retryErr.message || "Lỗi khi cập nhật cửa hàng. Vui lòng thử lại sau.");
-            },
-            () => console.log("Retry request completed")
-          );
+        if (err.status === 409) {
+          showErrorMessageBox("Tên cửa hàng đã tồn tại. Vui lòng chọn tên khác.");
         } else {
-          if (err.status === 409) {
-            showErrorMessageBox(err.message || "Tên cửa hàng đã tồn tại. Vui lòng chọn tên khác.");
-          } else {
-            showErrorMessageBox(err.message || "Lỗi khi cập nhật cửa hàng. Vui lòng thử lại.");
-          }
+          showErrorMessageBox(err.message || "Lỗi khi cập nhật cửa hàng. Vui lòng thử lại.");
         }
       },
-      () => console.log("Update request completed")
+      () => console.log("Cập nhật cửa hàng hoàn tất")
     );
-  }, [item.id, dataForm.name, dataForm.phoneNumber, dataForm.address, dataForm.email, setListStores, storeInfo]);
+  }, [item.id, dataForm, setListStores]);
 
-  // Hàm mở modal
+  // Bật/tắt chế độ chỉnh sửa
+  const handleEditToggle = useCallback(() => {
+    setEditStatus((prev) => !prev);
+    if (!editStatus) {
+      setTimeout(() => {
+        const input = document.querySelector(`input[name="name"]`);
+        if (input) input.focus();
+      }, 100);
+    }
+  }, [editStatus]);
+
+  // Hủy chỉnh sửa
+  const handleCancel = useCallback(() => {
+    setEditStatus(false);
+    setDataForm({
+      name: item.name || "",
+      phoneNumber: item.phoneNumber || "",
+      address: item.address || "",
+      email: item.email || "",
+      latitude: item.latitude || 21.028511,
+      longitude: item.longitude || 105.804817,
+      image: item.image || "",
+    });
+    setIsModalOpen(false);
+  }, [item]);
+
+  // Mở modal
   const openModal = useCallback(() => {
     setIsModalOpen(true);
   }, []);
 
-  // Hàm đóng modal
+  // Đóng modal
   const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setEditStatus(false);
-    if (document.activeElement) {
-      document.activeElement.blur();
-    }
-  }, []);
-
-  // Xử lý khi modal đóng
-  const handleAfterClose = useCallback(() => {
-    const modalInputs = document.querySelectorAll("input, button");
-    modalInputs.forEach((el) => el.blur());
   }, []);
 
   return (
     <>
-      <button
-        type="button"
-        className="iconButtonDetailStore"
+      <Button
+        variant="outlined"
+        startIcon={<GrCircleInformation />}
         onClick={openModal}
+        sx={{ borderRadius: 2 }}
       >
-        <GrCircleInformation className="iconInformationDetailStore" />
-      </button>
+        Xem
+      </Button>
 
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={closeModal}
-        onAfterClose={handleAfterClose}
-        className="modalContentDetailStore"
-        overlayClassName="modalOverlayDetailStore"
-        contentLabel="Thông tin cửa hàng"
-        shouldFocusAfterRender={editStatus}
-        shouldCloseOnOverlayClick={false}
+      <Dialog
+        open={isModalOpen}
+        onClose={closeModal}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3, padding: 2 } }}
       >
-        <div className="modalHeaderDetailStore">
-          <h5 className="modalTitleDetailStore">
+        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Typography variant="h6">
             {editStatus ? "Sửa thông tin cửa hàng" : "Thông tin cửa hàng"}
-          </h5>
-          <button
-            type="button"
-            className="btn-closeDetailStore"
-            onClick={closeModal}
-            aria-label="Close"
-          >
-            <IoClose />
-          </button>
-        </div>
-        <div className="modalBodyDetailStore">
-          <form className="formColumnsDetailStore" onSubmit={handleSubmit}>
-            <div className="formGroupDetailStore">
-              <label htmlFor="name" className="formLabelDetailStore">
-                Tên cửa hàng:
-              </label>
-              <input
-                className="formControlDetailStore"
-                name="name"
-                id="name"
-                type="text"
-                value={dataForm.name}
-                onChange={handleChange}
-                readOnly={!editStatus}
-              />
-            </div>
-            <div className="formGroupDetailStore">
-              <label htmlFor="phoneNumber" className="formLabelDetailStore">
-                Số điện thoại:
-              </label>
-              <input
-                className="formControlDetailStore"
-                name="phoneNumber"
-                id="phoneNumber"
-                type="text"
-                value={dataForm.phoneNumber}
-                onChange={handleChange}
-                readOnly={!editStatus}
-              />
-            </div>
-            <div className="formGroupDetailStore">
-              <label htmlFor="address" className="formLabelDetailStore">
-                Địa chỉ:
-              </label>
-              <input
-                className="formControlDetailStore"
-                name="address"
-                id="address"
-                type="text"
-                value={dataForm.address}
-                onChange={handleChange}
-                readOnly={!editStatus}
-              />
-            </div>
-            <div className="formGroupDetailStore">
-              <label htmlFor="email" className="formLabelDetailStore">
-                Email:
-              </label>
-              <input
-                className="formControlDetailStore"
-                name="email"
-                id="email"
-                type="email"
-                value={dataForm.email}
-                onChange={handleChange}
-                readOnly={!editStatus}
-              />
-            </div>
-          </form>
-        </div>
-        {editStatus ? (
-          <div className="modalFooterDetailStore">
-            <button className="cancelButtonDetailStore" onClick={handleCancel}>
+          </Typography>
+          <Box>
+            {!editStatus && (
+              <IconButton onClick={handleEditToggle} sx={{ mr: 1 }}>
+                <TiEdit />
+              </IconButton>
+            )}
+            <IconButton onClick={closeModal}>
+              <Close />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+            <Grid container spacing={2}>
+              {/* Hàng 1: Upload ảnh */}
+              <Grid container item spacing={2}>
+                <Grid item xs={12} sm={3}>
+                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                    <img
+                      src={
+                        dataForm.image
+                          ? `${BE_ENPOINT}/api/asset/view-image/${dataForm.image}`
+                          : "https://via.placeholder.com/100"
+                      }
+                      alt="Cửa hàng"
+                      style={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        border: "2px solid #e0e0e0",
+                      }}
+                    />
+                    {editStatus && (
+                      <>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          style={{ display: "none" }}
+                          id="store-image-upload"
+                        />
+                        <label htmlFor="store-image-upload">
+                          <Button
+                            variant="outlined"
+                            component="span"
+                            startIcon={<Upload />}
+                            sx={{ borderRadius: 2 }}
+                          >
+                            Tải ảnh lên
+                          </Button>
+                        </label>
+                      </>
+                    )}
+                  </Box>
+                </Grid>
+              </Grid>
+              {/* Hàng 2: Tên, Số điện thoại, Email */}
+              <Grid container item spacing={2}>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    label="Tên cửa hàng"
+                    name="name"
+                    value={dataForm.name}
+                    onChange={handleChange}
+                    required
+                    disabled={!editStatus}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    label="Số điện thoại"
+                    name="phoneNumber"
+                    value={dataForm.phoneNumber}
+                    onChange={handleChange}
+                    required
+                    disabled={!editStatus}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={dataForm.email}
+                    onChange={handleChange}
+                    required
+                    disabled={!editStatus}
+                    variant="outlined"
+                  />
+                </Grid>
+              </Grid>
+              {/* Hàng 3: Địa chỉ, Kinh độ, Vĩ độ */}
+              <Grid container item spacing={2}>
+                <Grid item xs={12} sm={4}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <TextField
+                      fullWidth
+                      label="Địa chỉ"
+                      name="address"
+                      value={dataForm.address}
+                      onChange={handleChange}
+                      required
+                      disabled={!editStatus}
+                      variant="outlined"
+                    />
+                    {editStatus && (
+                      <IconButton onClick={handleGeocode} color="primary" title="Tìm vị trí">
+                        <Search />
+                      </IconButton>
+                    )}
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    label="Kinh độ"
+                    name="longitude"
+                    value={dataForm.longitude}
+                    InputProps={{ readOnly: true }}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    label="Vĩ độ"
+                    name="latitude"
+                    value={dataForm.latitude}
+                    InputProps={{ readOnly: true }}
+                    variant="outlined"
+                  />
+                </Grid>
+              </Grid>
+              {/* Hàng 4: Bản đồ */}
+              <Grid container item spacing={2}>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Vị trí trên bản đồ
+                  </Typography>
+                  <MapContainer
+                    center={[dataForm.latitude, dataForm.longitude]}
+                    zoom={15}
+                    style={mapContainerStyle}
+                  >
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    />
+                    <Marker position={[dataForm.latitude, dataForm.longitude]} />
+                    {editStatus && <MapEvents onMapClick={handleMapClick} />}
+                  </MapContainer>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Box>
+        </DialogContent>
+        {editStatus && (
+          <DialogActions sx={{ px: 3, pb: 3 }}>
+            <Button onClick={handleCancel} variant="outlined" sx={{ borderRadius: 2 }}>
               Hủy
-            </button>
-            <button
-              type="submit"
-              className="submitButtonDetailStore"
+            </Button>
+            <Button
               onClick={handleSubmit}
+              variant="contained"
+              type="submit"
+              sx={{ borderRadius: 2 }}
             >
               Lưu
-            </button>
-          </div>
-        ) : (
-          <div className="editContainerDetailStore">
-            <h4 className="editTitleDetailStore">Chỉnh sửa thông tin</h4>
-            <button className="editButtonDetailStore" onClick={handleEditToggle}>
-              <TiEdit className="editIconDetailStore" />
-            </button>
-          </div>
+            </Button>
+          </DialogActions>
         )}
-      </Modal>
+      </Dialog>
     </>
   );
 });

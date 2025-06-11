@@ -15,11 +15,10 @@ public class Store : Entity
     public decimal? Latitude { get; private set; } // decimal(9,6)
     public decimal? Longitude { get; private set; } // decimal(9,6)
     public string? Image { get; private set; } // nvarchar(500)
-    public Guid OwnerId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
-    public Store(string name, string address, string phoneNumber, string email, Guid ownerId,
+    public Store(string name, string address, string phoneNumber, string email,
                  decimal? latitude, decimal? longitude, string? image, Guid? id = null) : base(id)
     {
         if (string.IsNullOrEmpty(name))
@@ -30,10 +29,7 @@ public class Store : Entity
         {
             throw new ArgumentException("Email cannot be empty.");
         }
-        if (ownerId == Guid.Empty)
-        {
-            throw new ArgumentException("Owner ID cannot be empty.");
-        }
+       
         if (latitude.HasValue && (latitude.Value < -90 || latitude.Value > 90))
         {
             throw new ArgumentException("Latitude must be between -90 and 90.");
@@ -55,13 +51,12 @@ public class Store : Entity
         Latitude = latitude;
         Longitude = longitude;
         Image = image;
-        OwnerId = ownerId;
         CreatedAt = DateTime.UtcNow;
 
-        _domainEvents.Add(new StoreCreatedEvent(id ?? Guid.NewGuid(), name, ownerId));
+        _domainEvents.Add(new StoreCreatedEvent(id ?? Guid.NewGuid(), name));
     }
 
-    public ErrorOr<Success> Update(string name, string address, string phoneNumber, string email,Guid ownerId,
+    public ErrorOr<Success> Update(string name, string address, string phoneNumber, string email,
                                    decimal? latitude, decimal? longitude, string? image)
     {
         if (string.IsNullOrEmpty(name))
@@ -92,7 +87,6 @@ public class Store : Entity
         Latitude = latitude;
         Longitude = longitude;
         Image = image;
-        OwnerId = ownerId;
         UpdatedAt = DateTime.UtcNow;
 
         _domainEvents.Add(new StoreUpdatedEvent(Id, name));
