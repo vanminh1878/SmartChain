@@ -1,19 +1,32 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { IoIosSearch, IoIosLock, IoIosUnlock } from "react-icons/io";
+import {
+  Box,
+  Typography,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Button,
+} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import SearchIcon from "@mui/icons-material/Search";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import AddIcon from "@mui/icons-material/Add";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { fetchGet, fetchDelete, fetchPut } from "../../../lib/httpHandler";
+import { fetchGet, fetchPut } from "../../../lib/httpHandler";
 import { showYesNoMessageBox } from "../../../components/MessageBox/YesNoMessageBox/showYesNoMessgeBox.js";
 import DetailEmployee from "../../../components/Admin/EmployeeManagement/DetailEmployee/DetailEmployee.jsx";
 import AddEmployee from "../../../components/Admin/EmployeeManagement/AddEmployee/AddEmployee.jsx";
-import "./EmployeeManagement.css";
 
 export default function EmployeeManagement() {
   const [listEmployees, setListEmployees] = useState([]);
   const [dataSearch, setDataSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Hàm fetch danh sách nhân viên từ backend
   const fetchEmployees = useCallback(() => {
+    setIsLoading(true);
     console.log("Bắt đầu fetch danh sách nhân viên...");
     fetchGet(
       "/employees",
@@ -96,22 +109,31 @@ export default function EmployeeManagement() {
               ...item,
               id: item.id || `temp-${Date.now()}-${index}`,
               fullname: userData.fullname || "Không có tên",
-              birthday: userData.birthday ? new Date(userData.birthday).toLocaleDateString("vi-VN") : "Không có",
+              birthday: userData.birthday
+                ? new Date(userData.birthday).toLocaleDateString("vi-VN")
+                : "Không có",
               phoneNumber: userData.phoneNumber || "Không có",
               sex: userData.sex !== undefined ? (userData.sex === true ? "Nam" : "Nữ") : "Không có",
               storeName: storeData.name || "Không có",
-              status: accountData.status !== undefined ? (accountData.status === true ? "Active" : "Locked") : "Không có",
+              status:
+                accountData.status !== undefined
+                  ? accountData.status === true
+                    ? "Active"
+                    : "Locked"
+                  : "Không có",
             };
           })
         );
 
         console.log("Danh sách nhân viên đã xử lý:", validatedEmployees);
         setListEmployees(validatedEmployees);
+        setIsLoading(false);
       },
       (fail) => {
         console.error("Lỗi khi lấy danh sách nhân viên:", fail);
         toast.error(fail.message || "Lỗi khi lấy danh sách nhân viên");
         setListEmployees([]);
+        setIsLoading(false);
       },
       () => {
         console.log("Yêu cầu fetch danh sách nhân viên hoàn tất");
@@ -125,7 +147,7 @@ export default function EmployeeManagement() {
   }, [fetchEmployees]);
 
   // Optimize search with useMemo
-  const listEmployeesShow = useMemo(() => {
+  const filteredEmployees = useMemo(() => {
     if (!Array.isArray(listEmployees)) {
       console.error("listEmployees không phải mảng:", listEmployees);
       return [];
@@ -190,112 +212,84 @@ export default function EmployeeManagement() {
     );
   }, []);
 
+  // Định nghĩa cột cho DataGrid
+  const columns = [
+    // {
+    //   field: "stt",
+    //   headerName: "STT",
+    //   width: 70,
+    //   valueGetter: (params) => params.getRowIndex(params.id) + 1,
+    // },
+    { field: "fullname", headerName: "Họ tên", width: 200 },
+    { field: "birthday", headerName: "Ngày sinh", width: 120 },
+    { field: "phoneNumber", headerName: "Số điện thoại", width: 150 },
+    { field: "sex", headerName: "Giới tính", width: 100 },
+    { field: "storeName", headerName: "Cửa hàng", width: 150 },
+    {
+      field: "status",
+      headerName: "Trạng thái",
+      width: 120,
+      renderCell: (params) => (params.value === "Active" ? "Hoạt động" : "Khóa"),
+    },
+    {
+      field: "actions",
+      headerName: "Thao tác",
+      width: 150,
+      renderCell: (params) => (
+        <Box display="flex" gap={1}>
+          <DetailEmployee item={params.row} setListEmployees={setListEmployees} />
+          <IconButton
+            onClick={() => handleLockEmployee(params.row.id, params.row.status === "Active")}
+            title={params.row.status === "Active" ? "Khóa" : "Mở khóa"}
+            color={params.row.status === "Active" ? "warning" : "success"}
+          >
+            {params.row.status === "Active" ? <LockIcon /> : <LockOpenIcon />}
+          </IconButton>
+        </Box>
+      ),
+    },
+  ];
+
   return (
-    <>
+    <Box sx={{ p: 3 }}>
       <ToastContainer />
-      <div className="employee-management">
-        <div className="title py-3 fs-5 mb-2">
-          Số lượng nhân viên: {listEmployeesShow.length || 0}
-        </div>
-        <div className="row mx-0 my-0">
-          <div className="col-12 pb-4 px-0 d-flex justify-content-between align-items-center mb-2">
-            <div className="d-flex align-items-center col-10">
-              <div className="contain_Search position-relative col-4 me-3">
-                <input
-                  onChange={handleSearch}
-                  value={dataSearch}
-                  className="search rounded-2 px-3"
-                  placeholder="Nhập tên nhân viên muốn tìm"
-                />
-                <IoIosSearch className="icon_search translate-middle-y text-secondary" />
-              </div>
-            </div>
-            <AddEmployee setListEmployees={setListEmployees} />
-          </div>
-          <div className="contain_Table mx-0 col-12 bg-white rounded-2">
-            <table className="table table-hover">
-              <thead>
-                <tr>
-                  <th>STT</th>
-                  <th>Họ tên</th>
-                  <th>Ngày sinh</th>
-                  <th>Số điện thoại</th>
-                  <th>Giới tính</th>
-                  <th>Cửa hàng</th>
-                  <th>Trạng thái</th>
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listEmployeesShow.length > 0 ? (
-                  listEmployeesShow.map((item, index) => (
-                    <tr key={item.id}>
-                      <td>{index + 1}</td>
-                      <td>{item.fullname}</td>
-                      <td>{item.birthday}</td>
-                      <td>{item.phoneNumber}</td>
-                      <td>{item.sex}</td>
-                      <td>{item.storeName}</td>
-                      <td>{item.status === "Active" ? "Hoạt động" : "Khóa"}</td>
-                      <td>
-                        <div className="list_Action d-flex gap-2">
-                          <DetailEmployee item={item} setListEmployees={setListEmployees} key={item.id} />
-                          <button
-                            onClick={() => handleLockEmployee(item.id, item.status === "Active")}
-                            className="btn btn-sm btn-link p-0"
-                            title={item.status === "Active" ? "Khóa" : "Mở khóa"}
-                          >
-                            {item.status === "Active" ? (
-                              <IoIosLock size={20} className="text-warning" />
-                            ) : (
-                              <IoIosUnlock size={20} className="text-success" />
-                            )}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8" className="text-center">
-                      Không có nhân viên nào
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            <nav className="contain_pagination">
-              <ul className="pagination">
-                <li className="page-item">
-                  <a className="page-link page-link-two" href="#">
-                    «
-                  </a>
-                </li>
-                <li className="page-item active">
-                  <a className="page-link" href="#">
-                    1
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    2
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    3
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link page-link-two" href="#">
-                    »
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </div>
-    </>
+      <Typography variant="h5" sx={{ mb: 2 }}>
+        Quản lý nhân viên
+      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+        <TextField
+          placeholder="Tìm kiếm theo tên nhân viên"
+          value={dataSearch}
+          onChange={handleSearch}
+          sx={{ width: "40%", backgroundColor: "white" }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <AddEmployee setListEmployees={setListEmployees} />
+      </Box>
+      {isLoading ? (
+        <Typography>Đang tải dữ liệu nhân viên...</Typography>
+      ) : (
+        <DataGrid
+          sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0 }}
+          rows={filteredEmployees}
+          columns={columns}
+          getRowId={(row) => row.id}
+          initialState={{
+            pagination: { paginationModel: { page: 0, pageSize: 10 } },
+          }}
+          pageSizeOptions={[5, 10, 20]}
+          checkboxSelection
+          localeText={{
+            noRowsLabel: "Không có nhân viên nào",
+          }}
+        />
+      )}
+    </Box>
   );
 }
