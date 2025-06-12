@@ -42,7 +42,7 @@ export default function CartManagement() {
         setCartDetails(res.cartDetails || []);
       },
       (err) => {
-        toast.error(err.detail || "Lỗi khi lấy chi tiết giỏ hàng");
+        toast.error(err.title || "Lỗi khi lấy chi tiết giỏ hàng");
       },
       () => console.log("Lấy chi tiết giỏ hàng hoàn tất")
     );
@@ -56,10 +56,10 @@ export default function CartManagement() {
       fetchGet(
         `/Products?search=${encodeURIComponent(value)}`,
         (res) => {
-          setProducts(res.data.items || res.items || []);
+          setProducts(res.items || []);
         },
         (err) => {
-          toast.error(err.detail || "Lỗi khi tìm kiếm sản phẩm");
+          toast.error(err.title || "Lỗi khi tìm kiếm sản phẩm");
         },
         () => console.log("Tìm kiếm sản phẩm hoàn tất")
       );
@@ -85,7 +85,7 @@ export default function CartManagement() {
           toast.success(`Đã thêm ${product.name} vào giỏ hàng`);
         },
         (err) => {
-          toast.error(err.detail || "Lỗi khi thêm sản phẩm");
+          toast.error(err.title || "Lỗi khi thêm sản phẩm");
         },
         () => console.log("Thêm sản phẩm hoàn tất")
       );
@@ -111,7 +111,7 @@ export default function CartManagement() {
           toast.success("Đã cập nhật số lượng");
         },
         (err) => {
-          toast.error(err.detail || "Lỗi khi cập nhật số lượng");
+          toast.error(err.title || "Lỗi khi cập nhật số lượng");
         },
         () => console.log("Cập nhật số lượng hoàn tất")
       );
@@ -129,7 +129,7 @@ export default function CartManagement() {
           toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
         },
         (err) => {
-          toast.error(err.detail || "Lỗi khi xóa sản phẩm");
+          toast.error(err.title || "Lỗi khi xóa sản phẩm");
         },
         () => console.log("Xóa sản phẩm hoàn tất")
       );
@@ -161,7 +161,7 @@ export default function CartManagement() {
         setCartDetails([]);
       },
       (err) => {
-        toast.error(err.detail || "Lỗi khi tạo đơn hàng");
+        toast.error(err.title || "Lỗi khi tạo đơn hàng");
       },
       () => console.log("Tạo đơn hàng hoàn tất")
     );
@@ -235,7 +235,7 @@ export default function CartManagement() {
                   {products.map((product) => (
                     <TableRow key={product.id}>
                       <TableCell>{product.name}</TableCell>
-                      <TableCell>{product.price.toLocaleString()} VNĐ</TableCell>
+                      <TableCell> {product.price != null ? product.price.toLocaleString() + ' VNĐ' : 'Chưa có giá'}</TableCell>
                       <TableCell>
                         <Button
                           variant="outlined"
