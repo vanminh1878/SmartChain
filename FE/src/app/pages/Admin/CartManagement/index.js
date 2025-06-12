@@ -20,7 +20,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import { Search, Close, Add, Remove, Delete } from "@mui/icons-material";
-import { fetchGet, fetchPost, fetchDelete } from "../../../lib/httpHandler";
+import { fetchGet, fetchPost, fetchDelete, fetchPut } from "../../../lib/httpHandler";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -30,38 +30,19 @@ export default function CartManagement() {
   const [searchProduct, setSearchProduct] = useState(""); // Tìm kiếm sản phẩm
   const [products, setProducts] = useState([]); // Danh sách sản phẩm tìm kiếm
   const [isDialogOpen, setIsDialogOpen] = useState(false); // Dialog xác nhận đơn hàng
-  const [storeId] = useState("YOUR_STORE_ID"); // Thay bằng Store_id từ thông tin đăng nhập
-  const [customerId, setCustomerId] = useState(null); // Customer_id (null cho khách lẻ)
-
-  // Khởi tạo giỏ hàng mới khi tải trang
-  const initializeCart = useCallback(() => {
-    fetchPost(
-      "/api/admin/carts",
-      { Store_id: storeId, Customer_id: customerId },
-      (res) => {
-        setCart(res.data);
-        fetchCartDetails(res.data.Id);
-      },
-      (err) => {
-        toast.error(err.message || "Lỗi khi tạo giỏ hàng");
-      },
-      () => console.log("Tạo giỏ hàng hoàn tất")
-    );
-  }, [storeId, customerId]);
-
-  useEffect(() => {
-    initializeCart();
-  }, [initializeCart]);
+  const [storeId] = useState("YOUR_STORE_ID"); // Thay bằng StoreId từ thông tin đăng nhập
+  const [customerId, setCustomerId] = useState(null); // CustomerId (null cho khách lẻ)
 
   // Lấy chi tiết giỏ hàng
   const fetchCartDetails = useCallback((cartId) => {
     fetchGet(
-      `/api/admin/carts/${cartId}/details`,
+      `/Carts/${cartId}`,
       (res) => {
-        setCartDetails(res.data.items);
+        setCart(res);
+        setCartDetails(res.cartDetails || []);
       },
       (err) => {
-        toast.error(err.message || "Lỗi khi lấy chi tiết giỏ hàng");
+        toast.error(err.detail || "Lỗi khi lấy chi tiết giỏ hàng");
       },
       () => console.log("Lấy chi tiết giỏ hàng hoàn tất")
     );
@@ -73,12 +54,12 @@ export default function CartManagement() {
     setSearchProduct(value);
     if (value.trim()) {
       fetchGet(
-        `/api/products?search=${encodeURIComponent(value)}`,
+        `/Products?search=${encodeURIComponent(value)}`,
         (res) => {
-          setProducts(res.data.items);
+          setProducts(res.data.items || res.items || []);
         },
         (err) => {
-          toast.error(err.message || "Lỗi khi tìm kiếm sản phẩm");
+          toast.error(err.detail || "Lỗi khi tìm kiếm sản phẩm");
         },
         () => console.log("Tìm kiếm sản phẩm hoàn tất")
       );
@@ -90,46 +71,47 @@ export default function CartManagement() {
   // Thêm sản phẩm vào giỏ hàng
   const handleAddProduct = useCallback(
     (product) => {
-      if (!cart) {
-        toast.error("Giỏ hàng chưa được tạo!");
-        return;
-      }
       fetchPost(
-        `/api/admin/cart-details`,
+        `/Carts`,
         {
-          CartId: cart.Id,
-          Product_id: product.Id,
-          Quantity: 1,
-          Price: product.Price,
+          CustomerId: customerId,
+          StoreId: storeId,
+          ProductId: product.id,
+          Quantity: 1
         },
-        () => {
-          fetchCartDetails(cart.Id);
-          toast.success(`Đã thêm ${product.Name} vào giỏ hàng`);
+        (res) => {
+          setCart(res);
+          fetchCartDetails(res.id);
+          toast.success(`Đã thêm ${product.name} vào giỏ hàng`);
         },
         (err) => {
-          toast.error(err.message || "Lỗi khi thêm sản phẩm");
+          toast.error(err.detail || "Lỗi khi thêm sản phẩm");
         },
         () => console.log("Thêm sản phẩm hoàn tất")
       );
     },
-    [cart, fetchCartDetails]
+    [customerId, storeId, fetchCartDetails]
   );
 
   // Cập nhật số lượng sản phẩm
   const handleUpdateQuantity = useCallback(
     (detail, newQuantity) => {
       if (newQuantity < 1) {
-        handleRemoveProduct(detail.Id);
+        handleRemoveProduct(detail.productId);
         return;
       }
-      fetchPost(
-        `/api/admin/cart-details/${detail.Id}`,
-        { Quantity: newQuantity },
+      fetchPut(
+        `/Carts/${cart?.id}/details`,
+        {
+          ProductId: detail.productId,
+          Quantity: newQuantity
+        },
         () => {
-          fetchCartDetails(cart.Id);
+          fetchCartDetails(cart.id);
+          toast.success("Đã cập nhật số lượng");
         },
         (err) => {
-          toast.error(err.message || "Lỗi khi cập nhật số lượng");
+          toast.error(err.detail || "Lỗi khi cập nhật số lượng");
         },
         () => console.log("Cập nhật số lượng hoàn tất")
       );
@@ -139,15 +121,15 @@ export default function CartManagement() {
 
   // Xóa sản phẩm khỏi giỏ hàng
   const handleRemoveProduct = useCallback(
-    (detailId) => {
+    (productId) => {
       fetchDelete(
-        `/api/admin/cart-details/${detailId}`,
+        `/Carts/${cart?.id}/details/${productId}`,
         () => {
-          fetchCartDetails(cart.Id);
+          fetchCartDetails(cart.id);
           toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
         },
         (err) => {
-          toast.error(err.message || "Lỗi khi xóa sản phẩm");
+          toast.error(err.detail || "Lỗi khi xóa sản phẩm");
         },
         () => console.log("Xóa sản phẩm hoàn tất")
       );
@@ -161,53 +143,38 @@ export default function CartManagement() {
       toast.error("Giỏ hàng trống!");
       return;
     }
-    const orderData = {
-      Customer_id: customerId,
-      Store_id: storeId,
-      TotalAmount: cartDetails.reduce((total, item) => total + item.Quantity * item.Price, 0),
-      Status: "Pending",
-    };
-
     fetchPost(
-      "/api/admin/orders",
-      orderData,
-      async (res) => {
-        const orderId = res.id;
-        const orderDetails = cartDetails.map((detail) => ({
-          OrderId: orderId,
-          Product_id: detail.Product_id,
-          Quantity: detail.Quantity,
-          Price: detail.Price,
-        }));
-
-        await fetchPost(
-          "/api/admin/order-details/bulk",
-          orderDetails,
-          () => {
-            toast.success("Đơn hàng đã được tạo thành công!");
-            setIsDialogOpen(false);
-            initializeCart(); // Reset giỏ hàng
-          },
-          (err) => {
-            toast.error(err.message || "Lỗi khi tạo chi tiết đơn hàng");
-          }
-        );
+      "/Orders",
+      {
+        CustomerId: customerId,
+        StoreId: storeId,
+        CartId: cart.id,
+        OrderDetails: cartDetails.map(detail => ({
+          ProductId: detail.productId,
+          Quantity: detail.quantity
+        }))
+      },
+      (res) => {
+        toast.success("Đơn hàng đã được tạo thành công!");
+        setIsDialogOpen(false);
+        setCart(null);
+        setCartDetails([]);
       },
       (err) => {
-        toast.error(err.message || "Lỗi khi tạo đơn hàng");
+        toast.error(err.detail || "Lỗi khi tạo đơn hàng");
       },
       () => console.log("Tạo đơn hàng hoàn tất")
     );
-  }, [cart, cartDetails, customerId, storeId, initializeCart]);
+  }, [cart, cartDetails, customerId, storeId]);
 
   // Mở dialog xác nhận
   const handleOpenDialog = useCallback(() => {
-    if (cartDetails.length === 0) {
+    if (!cart || cartDetails.length === 0) {
       toast.error("Giỏ hàng trống!");
       return;
     }
     setIsDialogOpen(true);
-  }, [cartDetails]);
+  }, [cart, cartDetails]);
 
   // Đóng dialog
   const handleCloseDialog = useCallback(() => {
@@ -245,7 +212,7 @@ export default function CartManagement() {
             <TextField
               fullWidth
               label="Khách hàng"
-              value={cart?.Customer?.Fullname || "Khách lẻ"}
+              value={cart?.customerId ? "Khách hàng đã chọn" : "Khách lẻ"}
               InputProps={{ readOnly: true }}
               variant="outlined"
             />
@@ -266,9 +233,9 @@ export default function CartManagement() {
                 </TableHead>
                 <TableBody>
                   {products.map((product) => (
-                    <TableRow key={product.Id}>
-                      <TableCell>{product.Name}</TableCell>
-                      <TableCell>{product.Price.toLocaleString()} VNĐ</TableCell>
+                    <TableRow key={product.id}>
+                      <TableCell>{product.name}</TableCell>
+                      <TableCell>{product.price.toLocaleString()} VNĐ</TableCell>
                       <TableCell>
                         <Button
                           variant="outlined"
@@ -307,37 +274,37 @@ export default function CartManagement() {
             <TableBody>
               {cartDetails.length > 0 ? (
                 cartDetails.map((detail, index) => (
-                  <TableRow key={detail.Id}>
+                  <TableRow key={detail.productId}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>
                       <img
-                        src={detail.Product?.Image || "https://via.placeholder.com/50"}
-                        alt={detail.Product?.Name}
+                        src={detail.image || "https://via.placeholder.com/50"}
+                        alt={detail.name || "N/A"}
                         style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 4 }}
                       />
                     </TableCell>
-                    <TableCell>{detail.Product?.Name || "N/A"}</TableCell>
+                    <TableCell>{detail.name || "N/A"}</TableCell>
                     <TableCell>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
                         <IconButton
                           size="small"
-                          onClick={() => handleUpdateQuantity(detail, detail.Quantity - 1)}
+                          onClick={() => handleUpdateQuantity(detail, detail.quantity - 1)}
                         >
                           <Remove />
                         </IconButton>
-                        <Typography sx={{ mx: 2 }}>{detail.Quantity}</Typography>
+                        <Typography sx={{ mx: 2 }}>{detail.quantity}</Typography>
                         <IconButton
                           size="small"
-                          onClick={() => handleUpdateQuantity(detail, detail.Quantity + 1)}
+                          onClick={() => handleUpdateQuantity(detail, detail.quantity + 1)}
                         >
                           <Add />
                         </IconButton>
                       </Box>
                     </TableCell>
-                    <TableCell>{detail.Price.toLocaleString()} VNĐ</TableCell>
-                    <TableCell>{(detail.Quantity * detail.Price).toLocaleString()} VNĐ</TableCell>
+                    <TableCell>{detail.price.toLocaleString()} VNĐ</TableCell>
+                    <TableCell>{(detail.quantity * detail.price).toLocaleString()} VNĐ</TableCell>
                     <TableCell>
-                      <IconButton color="error" onClick={() => handleRemoveProduct(detail.Id)}>
+                      <IconButton color="error" onClick={() => handleRemoveProduct(detail.productId)}>
                         <Delete />
                       </IconButton>
                     </TableCell>
@@ -356,7 +323,7 @@ export default function CartManagement() {
 
         {/* Tổng tiền */}
         <Typography variant="h6" sx={{ mt: 2, textAlign: "right" }}>
-          Tổng cộng: {cartDetails.reduce((total, item) => total + item.Quantity * item.Price, 0).toLocaleString()} VNĐ
+          Tổng cộng: {cartDetails.reduce((total, item) => total + item.quantity * item.price, 0).toLocaleString()} VNĐ
         </Typography>
 
         {/* Nút hoàn tất */}
@@ -388,7 +355,7 @@ export default function CartManagement() {
           <DialogContent>
             <Typography>Bạn có chắc muốn hoàn tất đơn hàng này?</Typography>
             <Typography variant="subtitle1" sx={{ mt: 2 }}>
-              Tổng tiền: {cartDetails.reduce((total, item) => total + item.Quantity * item.Price, 0).toLocaleString()} VNĐ
+              Tổng tiền: {cartDetails.reduce((total, item) => total + item.quantity * item.price, 0).toLocaleString()} VNĐ
             </Typography>
           </DialogContent>
           <DialogActions sx={{ px: 3, pb: 3 }}>

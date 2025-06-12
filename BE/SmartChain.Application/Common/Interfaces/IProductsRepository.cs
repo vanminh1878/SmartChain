@@ -12,6 +12,7 @@ public interface IProductsRepository
 {
     Task AddAsync(Product product, CancellationToken cancellationToken);
     Task<Product?> GetByIdAsync(Guid productId, CancellationToken cancellationToken);
+    Task<List<Product>> GetProductsByName(string? search, CancellationToken cancellationToken);
     Task<Category> GetCategoryByProductIdAsync(Guid productId, CancellationToken cancellationToken);
     Task<List<ProductForInventoryDto>> GetProductsForInventoryAsync(CancellationToken cancellationToken);
     Task<List<Product>> ListAllAsync(CancellationToken cancellationToken);
