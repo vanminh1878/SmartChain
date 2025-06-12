@@ -38,6 +38,12 @@ public class CartsRepository : ICartsRepository
             .Include(c => c.CartDetails)
             .FirstOrDefaultAsync(c => c.CustomerId == customerId, cancellationToken);
     }
+    public async Task<Cart?> GetByCustomerAndStoreAsync(Guid customerId, Guid storeId, CancellationToken cancellationToken)
+    {
+         return await _context.Carts
+            .Include(c => c.CartDetails)
+            .FirstOrDefaultAsync(c => c.CustomerId == customerId && c.StoreId == storeId, cancellationToken);
+    }
 
     public async Task<List<Cart>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken)
     {
