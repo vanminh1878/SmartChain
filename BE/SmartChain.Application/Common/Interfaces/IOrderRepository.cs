@@ -12,6 +12,7 @@ public interface IOrderRepository
     Task<Order?> GetByIdAsync(Guid orderId, CancellationToken cancellationToken);
     Task<List<Order>> ListByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken);
     Task<List<Order>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken);
+    Task<List<Order>> ListAllAsync(CancellationToken cancellationToken);
     Task RemoveAsync(Order order, CancellationToken cancellationToken);
     Task RemoveRangeAsync(List<Order> orders, CancellationToken cancellationToken);
     Task UpdateAsync(Order order, CancellationToken cancellationToken);

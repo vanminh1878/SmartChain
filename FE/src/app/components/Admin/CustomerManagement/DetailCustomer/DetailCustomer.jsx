@@ -285,31 +285,7 @@ export default React.memo(function DetailCustomer({ item, setListCustomers }) {
           </button>
         </div>
         <div className="modalBodyDetailCustomer">
-          <div className="avatarSectionDetailCustomer">
-            <img
-              src={
-                customerInfo.avatar
-                  ? `${BE_ENPOINT}/api/asset/view-image/${customerInfo.avatar}`
-                  : "https://via.placeholder.com/100"
-              }
-              alt="Avatar"
-              className="avatarImageDetailCustomer"
-            />
-            {editStatus && (
-              <>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                  className="avatarUploadDetailCustomer"
-                  id="avatar-upload"
-                />
-                <label htmlFor="avatar-upload" className="uploadButtonDetailCustomer">
-                  Tải ảnh lên
-                </label>
-              </>
-            )}
-          </div>
+          
           <form className="formColumnsDetailCustomer" onSubmit={handleSubmit}>
             <div className="formColumnDetailCustomer">
               <div className="formGroupDetailCustomer">

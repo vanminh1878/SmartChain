@@ -51,4 +51,9 @@ public class CartsRepository : ICartsRepository
         _context.Carts.Update(cart);
         await _context.SaveChangesAsync(cancellationToken);
     }
+     public async Task DeleteAsync(Cart cart, CancellationToken cancellationToken)
+    {
+        _context.Carts.Remove(cart);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

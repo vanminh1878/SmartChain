@@ -18,7 +18,7 @@ public class Order : Entity
     private readonly List<OrderDetail> _orderDetails = new List<OrderDetail>();
     public IReadOnlyList<OrderDetail> OrderDetails => _orderDetails.AsReadOnly();
 
-    public Order(Guid customerId, Guid storeId, Guid? id = null) : base(id)
+    public Order(Guid customerId, Guid storeId, string status, List<OrderDetail> orderDetails = null, Guid? id = null) : base(id)
     {
         if (customerId == Guid.Empty)
         {
@@ -28,12 +28,29 @@ public class Order : Entity
         {
             throw new ArgumentException("Store ID cannot be empty.");
         }
+        if (!new[] { "pending", "confirmed", "cancelled" }.Contains(status.ToLower()))
+        {
+            throw new ArgumentException("Invalid status. Allowed values: pending, confirmed, cancelled.");
+        }
 
         CustomerId = customerId;
         StoreId = storeId;
-        Status = "pending";
+        Status = status.ToLower();
         TotalAmount = 0m;
         CreatedAt = DateTime.UtcNow;
+
+        if (orderDetails != null)
+        {
+            foreach (var detail in orderDetails)
+            {
+                var result = AddOrderDetail(detail.ProductId, detail.Quantity, detail.Price);
+                if (result.IsError)
+                {
+                    throw new InvalidOperationException(result.FirstError.Description);
+                }
+            }
+        }
+
         _domainEvents.Add(new OrderCreatedEvent(id ?? Guid.NewGuid(), customerId, storeId));
     }
 
@@ -121,11 +138,11 @@ public class Order : Entity
 
     public ErrorOr<Success> UpdateStatus(string newStatus)
     {
-        if (!new[] { "pending", "confirmed", "cancelled" }.Contains(newStatus))
+        if (!new[] { "pending", "confirmed", "cancelled" }.Contains(newStatus.ToLower()))
         {
             return Error.Failure("Invalid status. Allowed values: pending, confirmed, cancelled.");
         }
-        if (Status == "confirmed" && newStatus == "pending")
+        if (Status == "confirmed" && newStatus.ToLower() == "pending")
         {
             return Error.Conflict("Cannot revert confirmed order to pending.");
         }
@@ -134,9 +151,9 @@ public class Order : Entity
             return Error.Conflict("Cannot modify a cancelled order.");
         }
 
-        Status = newStatus;
+        Status = newStatus.ToLower();
         UpdatedAt = DateTime.UtcNow;
-        _domainEvents.Add(newStatus == "cancelled"
+        _domainEvents.Add(newStatus.ToLower() == "cancelled"
             ? new OrderCancelledEvent(Id)
             : new OrderStatusUpdatedEvent(Id, newStatus));
         return Result.Success;
@@ -157,5 +174,6 @@ public class Order : Entity
     {
         TotalAmount = _orderDetails.Sum(od => od.Quantity * od.Price);
     }
-    private Order() {}
+
+    private Order() { }
 }

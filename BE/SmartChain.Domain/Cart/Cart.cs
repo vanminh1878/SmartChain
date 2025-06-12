@@ -123,7 +123,7 @@ public class Cart : Entity
             return Error.NotFound("None of the selected products found in cart");
         }
 
-        var order = new Order.Order(CustomerId, StoreId);
+        var order = new Order.Order(CustomerId, StoreId,"pending");
         foreach (var detail in selectedDetails)
         {
             var result = order.AddOrderDetail(detail.ProductId, detail.Quantity, detail.Price);

@@ -39,7 +39,7 @@ public class EmployeesRepository : IEmployeesRepository
         return await _context.Employees
             .FirstOrDefaultAsync(e => e.UserId == userId && e.StoreId == storeId, cancellationToken);
     }
-        public async Task<List<Employee>> ListAllAsync(CancellationToken cancellationToken)
+    public async Task<List<Employee>> ListAllAsync(CancellationToken cancellationToken)
     {
         return await _context.Employees
             .ToListAsync(cancellationToken);

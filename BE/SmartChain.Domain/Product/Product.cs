@@ -70,11 +70,6 @@ public class Product : Entity
 
     public ErrorOr<Success> UpdateStockQuantity(int newStockQuantity)
     {
-        if (newStockQuantity < 0)
-        {
-            return Error.Failure("New Stock quantity cannot be negative.");
-        }
-
         StockQuantity += newStockQuantity;
         UpdatedAt = DateTime.UtcNow;
         _domainEvents.Add(new ProductStockUpdatedEvent(Id, newStockQuantity));

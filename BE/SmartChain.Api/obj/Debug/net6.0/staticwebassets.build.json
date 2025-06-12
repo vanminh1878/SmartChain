@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "YW3m85WEyDYssjefOmFxVmu4Ajg+a32p3bkQZl3AyOw=",
+  "Hash": "40UoNvVKeiyK7TeOEtIU/gfpgJDTLrcUiTCDI3JUOog=",
   "Source": "SmartChain.Api",
   "BasePath": "_content/SmartChain.Api",
   "Mode": "Default",
@@ -110,6 +110,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\abkcpm5s.3zh.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\baytervc.251.jpg",
+      "SourceId": "SmartChain.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\",
+      "BasePath": "_content/SmartChain.Api",
+      "RelativePath": "uploads/baytervc.251.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\baytervc.251.jpg"
     },
     {
       "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\bcgxva3w.jia.jpg",

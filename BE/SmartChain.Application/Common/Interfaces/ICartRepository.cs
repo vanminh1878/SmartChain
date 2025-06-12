@@ -13,4 +13,5 @@ public interface ICartsRepository
     Task<Cart?> GetByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken);
     Task<List<Cart>> ListByStoreIdAsync(Guid storeId, CancellationToken cancellationToken);
     Task UpdateAsync(Cart cart, CancellationToken cancellationToken);
+    Task DeleteAsync(Cart cart, CancellationToken cancellationToken);
 }

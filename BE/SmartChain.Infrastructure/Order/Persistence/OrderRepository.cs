@@ -62,4 +62,9 @@ public class OrderRepository : IOrderRepository
         _context.Orders.Update(order);
         await _context.SaveChangesAsync(cancellationToken);
     }
+       public async Task<List<Order>> ListAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Orders
+            .ToListAsync(cancellationToken);
+    }
 }
