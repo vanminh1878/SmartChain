@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { GrCircleInformation } from "react-icons/gr";
 import { TiEdit } from "react-icons/ti"; // Correct import for TiEdit
-import { Close, Upload, Search } from "@mui/icons-material";
+import { Info as InfoIcon, Edit as EditIcon,Close, Upload, Search } from "@mui/icons-material";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -305,13 +305,16 @@ export default React.memo(function DetailStore({ item, setListStores }) {
   return (
     <>
       <Button
-        variant="outlined"
-        startIcon={<GrCircleInformation />}
-        onClick={openModal}
-        sx={{ borderRadius: 2 }}
-      >
-        Xem
-      </Button>
+       variant="outlined"
+       startIcon={<InfoIcon />}
+       onClick={openModal}
+       sx={{
+         borderRadius: 2,
+         minWidth: 'auto',
+         padding: 1,
+         borderColor: 'transparent',
+       }}
+     />
 
       <Dialog
         open={isModalOpen}

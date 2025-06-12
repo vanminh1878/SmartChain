@@ -84,5 +84,5 @@ public class SupplierController : ApiController
 
 
     private SupplierResponse ToDto(Supplier Supplier) =>
-        new(Supplier.Id, Supplier.Name, Supplier.Contact_name, Supplier.Address, Supplier.Email, Supplier.PhoneNumber, Supplier.CreatedAt, Supplier.UpdatedAt);
+        new(Supplier.Id, Supplier.Name, Supplier.Contact_name, Supplier.PhoneNumber, Supplier.Email, Supplier.Address, Supplier.CreatedAt, Supplier.UpdatedAt);
 }

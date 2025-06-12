@@ -1,20 +1,31 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { IoIosSearch } from "react-icons/io";
-import { FaTrash } from "react-icons/fa";
+import {
+  Box,
+  Typography,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Button,
+} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import SearchIcon from "@mui/icons-material/Search";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
 import { showYesNoMessageBox } from "../../../components/MessageBox/YesNoMessageBox/showYesNoMessgeBox.js";
 import AddSupplier from "../../../components/Admin/SupplierManagement/AddSupplier/AddSupplier.jsx";
 import EditSupplier from "../../../components/Admin/SupplierManagement/DetailSupplier/DetailSupplier.jsx";
-import "./SupplierManagement.css";
 
 export default function SupplierManagement() {
   const [listSuppliers, setListSuppliers] = useState([]);
   const [dataSearch, setDataSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Hàm fetch danh sách nhà cung cấp từ backend
   const fetchSuppliers = useCallback(() => {
+    setIsLoading(true);
     console.log("Bắt đầu fetch danh sách nhà cung cấp...");
     fetchGet(
       "/suppliers",
@@ -42,11 +53,13 @@ export default function SupplierManagement() {
         });
         console.log("Danh sách nhà cung cấp đã xử lý:", validatedSuppliers);
         setListSuppliers(validatedSuppliers);
+        setIsLoading(false);
       },
       (fail) => {
         console.error("Lỗi khi lấy danh sách nhà cung cấp:", fail);
         toast.error(fail.message || "Lỗi khi lấy danh sách nhà cung cấp");
         setListSuppliers([]);
+        setIsLoading(false);
       },
       () => {
         console.log("Yêu cầu fetch danh sách nhà cung cấp hoàn tất");
@@ -132,109 +145,72 @@ export default function SupplierManagement() {
     );
   }, []);
 
+  // Định nghĩa cột cho DataGrid
+  const columns = [
+    { field: "name", headerName: "Tên nhà cung cấp", width: 200 },
+    { field: "contactName", headerName: "Người liên hệ", width: 150 },
+    { field: "phoneNumber", headerName: "Số điện thoại", width: 150 },
+    { field: "email", headerName: "Email", width: 200 },
+    { field: "address", headerName: "Địa chỉ", width: 250 },
+    {
+      field: "actions",
+      headerName: "Thao tác",
+      width: 150,
+      renderCell: (params) => (
+        <Box display="flex" gap={1}>
+          <EditSupplier item={params.row} fetchSuppliers={fetchSuppliers} />
+          <IconButton
+            onClick={() => handleDeleteSupplier(params.row.id)}
+            title="Xóa nhà cung cấp"
+            color="error"
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Box>
+      ),
+    },
+  ];
+
   return (
-    <>
+    <Box sx={{ p: 3 }}>
       <ToastContainer />
-      <div className="supplier-management">
-        <div className="title py-3 fs-5 mb-2">
-          Số lượng nhà cung cấp: {listSuppliersShow.length || 0}
-        </div>
-        <div className="row mx-0 my-0">
-          <div className="col-12 pb-4 px-0 d-flex justify-content-between align-items-center mb-2">
-            <div className="d-flex align-items-center col-10">
-              <div className="contain_Search position-relative col-4 me-3">
-                <input
-                  onChange={handleSearch}
-                  value={dataSearch}
-                  className="search rounded-2 px-3"
-                  placeholder="Nhập tên nhà cung cấp muốn tìm"
-                />
-                <IoIosSearch className="icon_search translate-middle-y text-secondary" />
-              </div>
-            </div>
-            <AddSupplier fetchSuppliers={fetchSuppliers} />
-          </div>
-          <div className="contain_Table mx-0 col-12 bg-white rounded-2">
-            <table className="table table-hover">
-              <thead>
-                <tr>
-                  <th>STT</th>
-                  <th>Tên nhà cung cấp</th>
-                  <th>Người liên hệ</th>
-                  <th>Số điện thoại</th>
-                  <th>Email</th>
-                  <th>Địa chỉ</th>
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listSuppliersShow.length > 0 ? (
-                  listSuppliersShow.map((item, index) => (
-                    <tr key={item.id}>
-                      <td>{index + 1}</td>
-                      <td>{item.name}</td>
-                      <td>{item.contactName}</td>
-                      <td>{item.phoneNumber}</td>
-                      <td>{item.email}</td>
-                      <td>{item.address}</td>
-                      <td>
-                        <div className="list_Action d-flex gap-2">
-                          <EditSupplier
-                            item={item}
-                            fetchSuppliers={fetchSuppliers}
-                          />
-                          <button
-                            onClick={() => handleDeleteSupplier(item.id)}
-                            className="btn btn-sm btn-link p-0"
-                            title="Xóa nhà cung cấp"
-                          >
-                            <FaTrash size={20} className="text-danger" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="text-center">
-                      Không có nhà cung cấp nào
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            <nav className="contain_pagination">
-              <ul className="pagination">
-                <li className="page-item">
-                  <a className="page-link page-link-two" href="#">
-                    «
-                  </a>
-                </li>
-                <li className="page-item active">
-                  <a className="page-link" href="#">
-                    1
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    2
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    3
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link page-link-two" href="#">
-                    »
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </div>
-    </>
+      <Typography variant="h5" sx={{ mb: 2 }}>
+        Quản lý nhà cung cấp
+      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+        <TextField
+          placeholder="Tìm kiếm theo tên nhà cung cấp"
+          value={dataSearch}
+          onChange={handleSearch}
+          sx={{ width: "40%", backgroundColor: "white" }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <AddSupplier fetchSuppliers={fetchSuppliers} />
+      </Box>
+      {isLoading ? (
+        <Typography>Đang tải dữ liệu nhà cung cấp...</Typography>
+      ) : (
+        <DataGrid
+          sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0 }}
+          rows={listSuppliersShow}
+          columns={columns}
+          getRowId={(row) => row.id}
+          initialState={{
+            pagination: { paginationModel: { page: 0, pageSize: 10 } },
+          }}
+          pageSizeOptions={[5, 10, 20]}
+          checkboxSelection
+          localeText={{
+            noRowsLabel: "Không có nhà cung cấp nào",
+          }}
+        />
+      )}
+    </Box>
   );
 }
