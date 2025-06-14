@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartChain.Application.Orders.Commands.CreateOrder;
 using SmartChain.Application.Orders.Commands.UpdateStatusOrder;
 using SmartChain.Application.Orders.Queries.GetOrderById;
+using SmartChain.Application.Orders.Queries.GetOrderDetailByOrderId;
 using SmartChain.Application.Orders.Queries.GetOrders;
 using SmartChain.Contracts.Orders;
 using SmartChain.Domain.Order;
@@ -71,6 +72,17 @@ public class OrdersController : ApiController
 
         return result.Match(
             orders => Ok(orders.Select(ToDto).ToList()),
+            Problem
+        );
+    }
+    [HttpGet("details/{OrderId:guid}")]
+    public async Task<IActionResult> GetOrderDetailByOrderId(Guid OrderId)
+    {
+        var query = new GetOrderDetailByOrderIdQuery(OrderId);
+        var result = await _mediator.Send(query);
+
+        return result.Match(
+            orderdetails => Ok(orderdetails),
             Problem
         );
     }

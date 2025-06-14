@@ -34,7 +34,7 @@ public class OrderDetailsRepository : IOrderDetailsRepository
     public async Task<List<OrderDetail>> ListByOrderIdAsync(Guid orderId, CancellationToken cancellationToken)
     {
         return await _context.OrderDetails
-            .Where(od => od.Id == orderId)
+            .Where(od => od.OrderId == orderId)
             .ToListAsync(cancellationToken);
     }
 

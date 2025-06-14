@@ -21,7 +21,7 @@ public class GetStoreQueryHandler : IRequestHandler<GetStoreQuery, ErrorOr<List<
         {
             return Error.NotFound(description: "Store not found.");
         }
-
+        
         return Store;
     }
 }
