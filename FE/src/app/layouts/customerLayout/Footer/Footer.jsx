@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import groceryshop from "../../../assets/images/Grocerylogo.png";
+import groceryshop from "../../../assets/icons/logo_CircleK.png";
 import amazonpay from "../../../assets/images/amazonpay.svg";
 import american from "../../../assets/images/american-express.svg";
 import mastercard from "../../../assets/images/mastercard.svg";

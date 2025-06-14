@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MagnifyingGlass } from "react-loader-spinner";
-import blog1 from "../../images/blog-img-1.jpg";
-import blog2 from "../../images/blog-img-2.jpg";
-import blog3 from "../../images/blog-img-3.jpg";
-import blog4 from "../../images/blog-img-4.jpg";
-import blog5 from "../../images/blog-img-5.jpg";
-import blog6 from "../../images/blog-img-6.jpg";
-import blog7 from "../../images/blog-img-7.jpg";
-import blog8 from "../../images/blog-img-8.jpg";
-import blog9 from "../../images/blog-img-9.jpg";
+import blog1 from "../../../../assets/images/blog-img-1.jpg";
+import blog2 from "../../../../assets/images/blog-img-2.jpg";
+import blog3 from "../../../../assets/images/blog-img-3.jpg";
+import blog4 from "../../../../assets/images/blog-img-4.jpg";
+import blog5 from "../../../../assets/images/blog-img-5.jpg";
+import blog6 from "../../../../assets/images/blog-img-6.jpg";
+import blog7 from "../../../../assets/images/blog-img-7.jpg";
+import blog8 from "../../../../assets/images/blog-img-8.jpg";
+import blog9 from "../../../../assets/images/blog-img-9.jpg";
 import { Zoom } from "react-awesome-reveal";
 import ScrollToTop from "../ScrollToTop";
 

@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
-import clutch from "../../images/clutch-dark.png";
-import member1 from "../../images/01.jpg";
-import member2 from "../../images/02.jpg";
-import member3 from "../../images/03.jpg";
-// import member4 from "../../images/04.jpg";
-import member5 from "../../images/member5.jpg";
-import member6 from "../../images/member6.jpg";
-import member7 from "../../images/member7.jpg";
-import member8 from "../../images/member8.jpg";
-import idea from "../../images/idea.gif";
-import team from "../../images/team.gif";
-import award from "../../images/award.gif";
+import clutch from "../../../../assets/images/clutch-dark.png";
+import member1 from "../../../../assets/images/01.jpg"
+import member2 from "../../../../assets/images/02.jpg";
+import member3 from "../../../../assets/images/03.jpg";
+// import member4 from "../../../../assets/images/04.jpg";
+import member5 from "../../../../assets/images/member5.jpg";
+import member6 from "../../../../assets/images/member6.jpg";
+import member7 from "../../../../assets/images/member7.jpg";
+import member8 from "../../../../assets/images/member8.jpg";
+import idea from "../../../../assets/images/idea.gif";
+import team from "../../../../assets/images/team.gif";
+import award from "../../../../assets/images/award.gif";
 
-import flipkartlogo from "../../images/flipkartlogo.png";
-import amazonlogo from "../../images/amazonlogo.png";
-import blinkit from "../../images/blinkit.png";
-import smartshop from "../../images/smartshop.png";
+import flipkartlogo from "../../../../assets/images/flipkartlogo.png";
+import amazonlogo from "../../../../assets/images/amazonlogo.png";
+import blinkit from "../../../../assets/images/blinkit.png";
+import smartshop from "../../../../assets/images/smartshop.png";
 
-// import bgimage from "../../images/contact-bg.png";
-// import cover from "../../images/cover.jpg";
+// import bgimage from "../../../../assets/images/contact-bg.png";
+// import cover from "../../../../assets/images/cover.jpg";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Link } from "react-router-dom";

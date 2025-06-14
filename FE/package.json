@@ -24,8 +24,10 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "font-awesome": "^4.7.0",
+    "jquery": "^3.7.1",
     "leaflet": "^1.9.4",
     "my-app": "file:",
+    "owl.carousel": "^2.3.4",
     "react": "^18.3.1",
     "react-awesome-reveal": "^4.3.1",
     "react-bootstrap": "^2.10.7",
@@ -36,6 +38,7 @@
     "react-leaflet": "^4.2.1",
     "react-loader-spinner": "^6.1.6",
     "react-modal": "^3.16.3",
+    "react-owl-carousel": "^2.3.3",
     "react-router-dom": "^6.26.1",
     "react-scripts": "^5.0.1",
     "react-signify": "^1.5.1",
@@ -45,6 +48,7 @@
     "recharts": "^2.15.0",
     "slick-carousel": "^1.8.1",
     "sweetalert2": "^11.22.0",
+    "swiper": "^11.2.8",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

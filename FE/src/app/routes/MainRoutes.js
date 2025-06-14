@@ -34,6 +34,15 @@ import MyAccountAddress from "../pages/Customer/CustomerHome/Accounts/MyAccountA
 import MyAccountForgetPassword from "../pages/Customer/CustomerHome/Accounts/MyAccountForgetPassword";
 import MyAccountSignIn from "../pages/Customer/CustomerHome/Accounts/MyAccountSignIn";
 import MyAccountSignUp from "../pages/Customer/CustomerHome/Accounts/MyAccountSignUp";
+// About pages
+import AboutUs from "../pages/Customer/CustomerHome/About/AboutUs";
+import Blog from "../pages/Customer/CustomerHome/About/Blog";
+import BlogCategory from "../pages/Customer/CustomerHome/About/BlogCategory";
+import Contact from "../pages/Customer/CustomerHome/About/Contact";
+import ShopCart from "../pages/Customer/CustomerHome/Shop/ShopCart";
+import ShopCheckOut from "../pages/Customer/CustomerHome/Shop/ShopCheckOut";
+import MyAcconutNotification from "../pages/Customer/CustomerHome/Accounts/MyAccountNotification.jsx";
+import MyAcconutPaymentMethod from "../pages/Customer/CustomerHome/Accounts/MyAccountPaymentMethod.jsx";
 
 export default function MainRoutes() {
   return (
@@ -43,20 +52,30 @@ export default function MainRoutes() {
         <Route path="/" element={<LayoutCustomer />}>
           <Route index element={<CustomerHome />} />
           <Route path="home" element={<Home />} />
-          <Route path="shop" element={<Shop />} />
-          <Route path="shop-grid-col3" element={<ShopGridCol3 />} />
-          <Route path="shop-list-col" element={<ShopListCol />} />
-          <Route path="shop-wishlist" element={<ShopWishList />} />
-          <Route path="store-list" element={<StoreList />} />
-          <Route path="store/:id" element={<SingleShop />} />
-          <Route path="my-account/order" element={<MyAccountOrder />} />
-          <Route path="my-account/setting" element={<MyAccountSetting />} />
-          <Route path="my-account/notification" element={<MyAccountNotification />} />
-          <Route path="my-account/payment-method" element={<MyAccountPaymentMethod />} />
-          <Route path="my-account/address" element={<MyAccountAddress />} />
-          <Route path="my-account/forget-password" element={<MyAccountForgetPassword />} />
-          <Route path="my-account/sign-in" element={<MyAccountSignIn />} />
-          <Route path="my-account/sign-up" element={<MyAccountSignUp />} />
+          {/* Shop pages */}
+          <Route path="/Shop" element={<Shop />} />
+          <Route path="/ShopGridCol3" element={<ShopGridCol3 />} />
+          <Route path="/ShopListCol" element={<ShopListCol />} />
+          <Route path="/ShopWishList" element={<ShopWishList />} />
+          <Route path="/ShopCheckOut" element={<ShopCheckOut />} />
+          <Route path="/ShopCart" element={<ShopCart />} />
+          {/* Store pages */}
+          <Route path="/StoreList" element={<StoreList />} />
+          <Route path="/SingleShop" element={<SingleShop />} />
+          {/* Accounts pages */}
+          <Route path="/MyAccountOrder" element={<MyAccountOrder />} />
+          <Route path="/MyAccountSetting" element={<MyAccountSetting />} />
+          <Route path="/MyAcconutNotification" element={<MyAcconutNotification />} />
+          <Route path="/MyAcconutPaymentMethod" element={<MyAcconutPaymentMethod />} />
+          <Route path="/MyAccountAddress" element={<MyAccountAddress />} />
+          <Route path="/MyAccountForgetPassword" element={<MyAccountForgetPassword />} />
+          <Route path="/MyAccountSignIn" element={<MyAccountSignIn />} />
+          <Route path="/MyAccountSignUp" element={<MyAccountSignUp />} />
+          {/* About pages */}
+          <Route path="/Blog" element={<Blog />} />
+          <Route path="/BlogCategory" element={<BlogCategory />} />
+          <Route path="/Contact" element={<Contact />} />
+          <Route path="/AboutUs" element={<AboutUs />} />
           <Route path="login" element={<Login />} />
         </Route>
 
