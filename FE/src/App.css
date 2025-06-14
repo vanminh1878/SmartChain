@@ -26882,6 +26882,7 @@ h4 {
   transition: all 0.3s ease 0s;
   vertical-align: middle;
   width: 34px;
+   display: none;
 }
 .card-product .btn-action:hover {
   background-color: #0aad0a;

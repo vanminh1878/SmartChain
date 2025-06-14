@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import Grocerylogo from "../../../assets/images/Grocerylogo.png";
+import React, { useState,useEffect,useCallback } from "react";
+import { fetchGet, fetchDelete } from "../../../lib/httpHandler";
+import Grocerylogo from "../../../assets/icons/logo_CircleK.png";
 import menubanner from "../../../assets/images/menu-banner.jpg";
 import productimage1 from '../../../assets/images/product-img-1.jpg'
 import productimage2 from '../../../assets/images/product-img-2.jpg'
@@ -7,9 +8,53 @@ import productimage3 from '../../../assets/images/product-img-3.jpg'
 import productimage4 from '../../../assets/images/product-img-4.jpg'
 import productimage5 from '../../../assets/images/product-img-5.jpg'
 import { Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 
 const Header = () => {
 
+    const [listCategories, setListCategories] = useState([]);
+
+  // Hàm fetch danh sách danh mục từ backend
+  const fetchCategories = useCallback(() => {
+    console.log("Bắt đầu fetch danh sách danh mục...");
+    fetchGet(
+      "/categories",
+      (sus) => {
+        const categories = Array.isArray(sus) ? sus : [];
+        console.log("Dữ liệu từ server:", categories);
+        if (!categories.length && sus) {
+          toast.error("Dữ liệu từ server không hợp lệ");
+        }
+        const validatedCategories = categories.map((item, index) => {
+          if (!item.id) {
+            console.warn(`Danh mục tại index ${index} thiếu id:`, item);
+            toast.warn(`Danh mục tại index ${index} thiếu id, sử dụng ID tạm thời`);
+          }
+          return {
+            ...item,
+            id: item.id || `temp-${Date.now()}-${index}`,
+            name: item.name || item.tenDanhMuc || "Không có tên",
+            isLocked: item.isLocked || false,
+          };
+        });
+        console.log("Danh sách danh mục đã xử lý:", validatedCategories);
+        setListCategories(validatedCategories);
+      },
+      (fail) => {
+        console.error("Lỗi khi lấy danh sách danh mục:", fail);
+        toast.error(fail.message || "Lỗi khi lấy danh sách danh mục");
+        setListCategories([]);
+      },
+      () => {
+        console.log("Yêu cầu fetch danh sách danh mục hoàn tất");
+      }
+    );
+  }, []);
+
+  // Fetch danh sách khi component mount
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -257,12 +302,12 @@ const Header = () => {
               <div className="bar3"></div>
             </div>
       </button>
-
+{/* categories */}
       <div className="collapse navbar-collapse" id="mobile_nav">
         <ul className="navbar-nav mr-auto mt-2 mt-lg-0 float-md-right"></ul>
         <ul className="navbar-nav navbar-light">
           <li className="nav-item">
-            <li className="nav-item dmenu dropdown">
+            {/* <li className="nav-item dmenu dropdown">
               <Link
                 className="nav-link dropdown-toggle"
                 to=""
@@ -291,7 +336,7 @@ const Header = () => {
                     <rect x="3" y="14" width="7" height="7"></rect>
                   </svg>
                 </span>{" "}
-                All Departments
+                Categories
               </Link>
               <div
                 className="dropdown-menu sm-menu"
@@ -319,8 +364,61 @@ const Header = () => {
                   Chicken, Meat &amp; Fish
                 </Link>
               </div>
-            </li>
+            </li> */}
+             <li className="nav-item dmenu dropdown">
+      <Link
+        className="nav-link dropdown-toggle"
+        to=""
+        id="navbarDropdown"
+        role="button"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <span className="me-1">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            className="feather feather-grid"
+          >
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </span>{" "}
+        Categories
+      </Link>
+      <div
+        className="dropdown-menu sm-menu"
+        aria-labelledby="navbarDropdown"
+      >
+        {listCategories.length > 0 ? (
+          listCategories.map((category) => (
+            <Link
+              key={category.id}
+              className="dropdown-item"
+              // to={`/Shop/${category.id}`} // Tùy chỉnh URL theo ý bạn
+              to="/Shop"
+            >
+              {category.name}
+            </Link>
+          ))
+        ) : (
+          <p className="dropdown-item text-muted">No categories available</p>
+        )}
+      </div>
+    </li>
           </li>
+
+          {/* home */}
           <li className="nav-item">
             <Link className="nav-link" to="/Grocery-react/">
               Home
@@ -463,7 +561,7 @@ const Header = () => {
                 </div>
               </li> */}
 
-          <li className="nav-item dropdown megamenu-li dmenu">
+          {/* <li className="nav-item dropdown megamenu-li dmenu">
             <Link
               className="nav-link dropdown-toggle"
               to="/Shop"
@@ -579,7 +677,7 @@ const Header = () => {
                   </div>
                 </div>
 
-                {/* <div className="row"> */}
+    
                 <div className="col-sm-6 col-lg-3 border-right mb-4">
                   <div className="card border-0">
                     <img
@@ -603,9 +701,9 @@ const Header = () => {
                   </div>
                 </div>
               </div>
-              {/* </div> */}
+          
             </div>
-          </li>
+          </li> */}
 
           <li className="nav-item dmenu dropdown">
             <Link
