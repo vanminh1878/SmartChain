@@ -1,6 +1,7 @@
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SmartChain.Application.Products.Queries.GetProductById;
 using SmartChain.Application.Products.Queries.GetProductByName;
 using SmartChain.Contracts.Products;
 using SmartChain.Domain.Product;
@@ -28,6 +29,16 @@ public class ProductsController : ApiController
             products => Ok(new GetProductsResponse(products.Select(ToDto).ToList())),
             Problem
         );
+    }
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetProductById(Guid id)
+    {
+        var query = new GetProductByIdQuery(id);
+        var result = await _mediator.Send(query);
+
+        return result.Match(
+            product => Ok(product),
+            Problem);
     }
 
     private ProductResponse ToDto(Product product) =>

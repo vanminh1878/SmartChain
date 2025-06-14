@@ -5,36 +5,35 @@ using ErrorOr;
 using SmartChain.Domain.Common;
 using SmartChain.Domain.Cart.Events;
 using SmartChain.Domain.Order;
+using SmartChain.Domain.CartDetail;
 using SmartChain.Domain.Order.Events;
+using System.Threading.Tasks;
 
 namespace SmartChain.Domain.Cart;
 
 public class Cart : Entity
 {
-    public Guid CustomerId { get; private set; }
+    public Guid? CustomerId { get; private set; } // Đổi thành Guid? để hỗ trợ nullable
     public Guid StoreId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
-    private readonly List<CartDetail> _cartDetails = new List<CartDetail>();
-    public IReadOnlyList<CartDetail> CartDetails => _cartDetails.AsReadOnly();
+    private readonly List<CartDetail.CartDetail> _cartDetails = new List<CartDetail.CartDetail>();
+    public IReadOnlyList<CartDetail.CartDetail> CartDetails => _cartDetails.AsReadOnly();
+    // public byte[] RowVersion { get; private set; }
 
-    public Cart(Guid customerId, Guid storeId, Guid? id = null) : base(id)
+    public Cart(Guid? customerId, Guid storeId, Guid? id = null) : base(id)
     {
-        if (customerId == Guid.Empty)
-        {
-            throw new ArgumentException("Customer ID cannot be empty");
-        }
         if (storeId == Guid.Empty)
         {
             throw new ArgumentException("Store ID cannot be empty");
         }
-        CustomerId = customerId;
+        CustomerId = customerId; // Cho phép CustomerId là null
         StoreId = storeId;
         CreatedAt = DateTime.UtcNow;
-        _domainEvents.Add(new CartCreatedEvent(id ?? Guid.NewGuid(), customerId, storeId));
+        _domainEvents.Add(new CartCreatedEvent(id ?? Guid.NewGuid(), customerId ?? Guid.Empty, storeId));
     }
 
-    public ErrorOr<Success> AddCartDetail(Guid productId, int quantity, decimal price)
+    public async Task<ErrorOr<Success>> AddCartDetail(Guid productId, int quantity, decimal price)
     {
         if (productId == Guid.Empty)
         {
@@ -49,30 +48,28 @@ public class Cart : Entity
             return Error.Failure("Unit Price cannot be negative");
         }
 
+        var cartDetails = CartDetails.ToList();
         var cartDetail = _cartDetails.FirstOrDefault(cd => cd.ProductId == productId);
         if (cartDetail != null)
         {
-            // Update quantity
-            cartDetail.UpdateQuantity(cartDetail.Quantity + quantity);
+            cartDetail.UpdateQuantity(1);
         }
         else
         {
-            // Add new CartDetail
-            cartDetail = new CartDetail(productId, quantity, price);
-            _cartDetails.Add(cartDetail);
+            var newDetail = new CartDetail.CartDetail(this.Id, productId, 1, price);
+            Console.WriteLine($"[DEBUG] CartDetail Id: {newDetail.Id}"); // Log ra console
+            _cartDetails.Add(newDetail);
+            
         }
 
         UpdatedAt = DateTime.UtcNow;
-        _domainEvents.Add(new CartUpdatedEvent(Id, productId, quantity, price));
+        //_domainEvents.Add(new CartUpdatedEvent(Id, productId, quantity, price));
         return Result.Success;
     }
 
     public ErrorOr<Success> UpdateCartDetail(Guid productId, int newQuantity)
     {
-        if (newQuantity <= 0)
-        {
-            return Error.Failure("Quantity must be greater than zero");
-        }
+       
 
         var cartDetail = _cartDetails.FirstOrDefault(cd => cd.ProductId == productId);
         if (cartDetail == null)
@@ -86,17 +83,33 @@ public class Cart : Entity
         return Result.Success;
     }
 
-    public ErrorOr<Success> RemoveCartDetail(Guid productId)
+     public ErrorOr<Success> UpdateNewQuantityCartDetail(Guid productId, int newQuantity)
     {
+       
+
         var cartDetail = _cartDetails.FirstOrDefault(cd => cd.ProductId == productId);
         if (cartDetail == null)
         {
             return Error.NotFound("Product not found in cart");
         }
 
+        cartDetail.UpdateNewQuantity(newQuantity);
+        UpdatedAt = DateTime.UtcNow;
+        _domainEvents.Add(new CartUpdatedEvent(Id, productId, newQuantity, cartDetail.Price));
+        return Result.Success;
+    }
+
+    public ErrorOr<Success> RemoveCartDetail(CartDetail.CartDetail cartDetail)
+    {
+        // var cartDetail = _cartDetails.FirstOrDefault(cd => cd.ProductId == productId);
+        // if (cartDetail == null)
+        // {
+        //     return Error.NotFound("Product not found in cart");
+        // }
+
         _cartDetails.Remove(cartDetail);
         UpdatedAt = DateTime.UtcNow;
-        _domainEvents.Add(new CartUpdatedEvent(Id, productId, 0, 0));
+
         return Result.Success;
     }
 
@@ -110,7 +123,8 @@ public class Cart : Entity
         decimal total = _cartDetails.Sum(cd => cd.Quantity * cd.Price);
         return total;
     }
-     public ErrorOr<Order.Order> ConvertSelectedToOrder(List<Guid> productIds, bool removeFromCart = true)
+
+    public ErrorOr<Order.Order> ConvertSelectedToOrder(List<Guid> productIds, bool removeFromCart = true)
     {
         if (productIds == null || !productIds.Any())
         {
@@ -123,13 +137,13 @@ public class Cart : Entity
             return Error.NotFound("None of the selected products found in cart");
         }
 
-        var order = new Order.Order(CustomerId, StoreId,"pending");
+        var order = new Order.Order(CustomerId ?? Guid.Empty, StoreId, "pending"); // Xử lý CustomerId null
         foreach (var detail in selectedDetails)
         {
             var result = order.AddOrderDetail(detail.ProductId, detail.Quantity, detail.Price);
             if (result.IsError)
             {
-                return ErrorOr<Order.Order>.From(result.Errors); 
+                return ErrorOr<Order.Order>.From(result.Errors);
             }
         }
 
@@ -145,5 +159,6 @@ public class Cart : Entity
 
         return order;
     }
+
     private Cart() { }
 }

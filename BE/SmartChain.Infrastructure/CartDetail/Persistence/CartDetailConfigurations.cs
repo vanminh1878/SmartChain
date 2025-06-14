@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartChain.Domain.Cart;
+using SmartChain.Domain.CartDetail;
 using SmartChain.Domain.Product;
 
 namespace SmartChain.Infrastructure.Persistence.Configurations;
@@ -19,7 +20,7 @@ public class CartDetailConfigurations : IEntityTypeConfiguration<CartDetail>
         builder.Property(cd => cd.Id)
             .HasColumnName("Id")
             .HasColumnType("uniqueidentifier")
-            .HasDefaultValueSql("newid()"); // Sinh Guid tự động
+            .HasDefaultValueSql("newid()");
 
         // Thuộc tính ProductId (Guid)
         builder.Property(cd => cd.ProductId)
@@ -37,6 +38,12 @@ public class CartDetailConfigurations : IEntityTypeConfiguration<CartDetail>
             .IsRequired()
             .HasColumnType("decimal(10,2)");
 
+        // Thuộc tính CartId
+        builder.Property(cd => cd.CartId)
+            .IsRequired()
+            .HasColumnName("Cart_id")
+            .HasColumnType("uniqueidentifier");
+
         // Thuộc tính CreatedAt
         builder.Property(cd => cd.CreatedAt)
             .IsRequired()
@@ -45,7 +52,7 @@ public class CartDetailConfigurations : IEntityTypeConfiguration<CartDetail>
 
         // Thuộc tính UpdatedAt
         builder.Property(cd => cd.UpdatedAt)
-            .IsRequired(false) // Nullable
+            .IsRequired(false)
             .HasColumnType("datetime")
             .HasColumnName("Updated_at");
 
@@ -55,11 +62,11 @@ public class CartDetailConfigurations : IEntityTypeConfiguration<CartDetail>
             .HasForeignKey(cd => cd.ProductId)
             .HasConstraintName("FK_CartDetail_Product");
 
-        // Mối quan hệ khóa ngoại với Cart (giả sử CartDetail có CartId)
-        builder.HasOne<Cart>()
+        // Mối quan hệ khóa ngoại với Cart
+        builder.HasOne(cd => cd.Cart)
             .WithMany(c => c.CartDetails)
-            .HasForeignKey("CartId") // Giả sử CartDetail có thuộc tính CartId
+            .HasForeignKey(cd => cd.CartId)
             .HasConstraintName("FK_CartDetail_Cart")
-            .OnDelete(DeleteBehavior.Cascade); // Xóa Cart thì xóa luôn CartDetail
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

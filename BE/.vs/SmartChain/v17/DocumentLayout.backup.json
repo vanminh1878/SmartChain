@@ -1,0 +1,153 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{F32B4D30-5F78-412F-B3B1-1434880995C9}|SmartChain.Application\\SmartChain.Application.csproj|c:\\users\\admin\\m\u00E1y t\u00EDnh\\smartchain\\smartchain\\be\\smartchain.application\\carts\\commands\\createcart\\createcartcommandhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F32B4D30-5F78-412F-B3B1-1434880995C9}|SmartChain.Application\\SmartChain.Application.csproj|solutionrelative:smartchain.application\\carts\\commands\\createcart\\createcartcommandhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F2B09F19-B969-4728-A6BF-6B31D3954B55}|SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj|c:\\users\\admin\\m\u00E1y t\u00EDnh\\smartchain\\smartchain\\be\\smartchain.infrastructure\\cart\\persistence\\cartsrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F2B09F19-B969-4728-A6BF-6B31D3954B55}|SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj|solutionrelative:smartchain.infrastructure\\cart\\persistence\\cartsrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{56BFE610-9041-43AE-B8D4-11EFBE3026DA}|SmartChain.Domain\\SmartChain.Domain.csproj|c:\\users\\admin\\m\u00E1y t\u00EDnh\\smartchain\\smartchain\\be\\smartchain.domain\\cart\\cart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{56BFE610-9041-43AE-B8D4-11EFBE3026DA}|SmartChain.Domain\\SmartChain.Domain.csproj|solutionrelative:smartchain.domain\\cart\\cart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{56BFE610-9041-43AE-B8D4-11EFBE3026DA}|SmartChain.Domain\\SmartChain.Domain.csproj|c:\\users\\admin\\m\u00E1y t\u00EDnh\\smartchain\\smartchain\\be\\smartchain.domain\\cartdetail\\cartdetail.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{56BFE610-9041-43AE-B8D4-11EFBE3026DA}|SmartChain.Domain\\SmartChain.Domain.csproj|solutionrelative:smartchain.domain\\cartdetail\\cartdetail.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F32B4D30-5F78-412F-B3B1-1434880995C9}|SmartChain.Application\\SmartChain.Application.csproj|c:\\users\\admin\\m\u00E1y t\u00EDnh\\smartchain\\smartchain\\be\\smartchain.application\\carts\\commands\\createcart\\createcartcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F32B4D30-5F78-412F-B3B1-1434880995C9}|SmartChain.Application\\SmartChain.Application.csproj|solutionrelative:smartchain.application\\carts\\commands\\createcart\\createcartcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F2B09F19-B969-4728-A6BF-6B31D3954B55}|SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj|c:\\users\\admin\\m\u00E1y t\u00EDnh\\smartchain\\smartchain\\be\\smartchain.infrastructure\\common\\persistence\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F2B09F19-B969-4728-A6BF-6B31D3954B55}|SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj|solutionrelative:smartchain.infrastructure\\common\\persistence\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F2B09F19-B969-4728-A6BF-6B31D3954B55}|SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj|c:\\users\\admin\\m\u00E1y t\u00EDnh\\smartchain\\smartchain\\be\\smartchain.infrastructure\\dependencyinjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F2B09F19-B969-4728-A6BF-6B31D3954B55}|SmartChain.Infrastructure\\SmartChain.Infrastructure.csproj|solutionrelative:smartchain.infrastructure\\dependencyinjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 530,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CartsRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\Cart\\Persistence\\CartsRepository.cs",
+              "RelativeDocumentMoniker": "SmartChain.Infrastructure\\Cart\\Persistence\\CartsRepository.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\Cart\\Persistence\\CartsRepository.cs",
+              "RelativeToolTip": "SmartChain.Infrastructure\\Cart\\Persistence\\CartsRepository.cs",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAUwD0AAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-14T06:49:22.793Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "CreateCartCommand.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\Carts\\Commands\\CreateCart\\CreateCartCommand.cs",
+              "RelativeDocumentMoniker": "SmartChain.Application\\Carts\\Commands\\CreateCart\\CreateCartCommand.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\Carts\\Commands\\CreateCart\\CreateCartCommand.cs",
+              "RelativeToolTip": "SmartChain.Application\\Carts\\Commands\\CreateCart\\CreateCartCommand.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-14T06:48:53.003Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CreateCartCommandHandler.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\Carts\\Commands\\CreateCart\\CreateCartCommandHandler.cs",
+              "RelativeDocumentMoniker": "SmartChain.Application\\Carts\\Commands\\CreateCart\\CreateCartCommandHandler.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Application\\Carts\\Commands\\CreateCart\\CreateCartCommandHandler.cs",
+              "RelativeToolTip": "SmartChain.Application\\Carts\\Commands\\CreateCart\\CreateCartCommandHandler.cs",
+              "ViewState": "AgIAACwAAAAAAAAAAAAhwD8AAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-14T06:37:28.466Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Cart.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\Cart\\Cart.cs",
+              "RelativeDocumentMoniker": "SmartChain.Domain\\Cart\\Cart.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\Cart\\Cart.cs",
+              "RelativeToolTip": "SmartChain.Domain\\Cart\\Cart.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAAASwD0AAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-14T06:36:22.95Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CartDetail.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\CartDetail\\CartDetail.cs",
+              "RelativeDocumentMoniker": "SmartChain.Domain\\CartDetail\\CartDetail.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Domain\\CartDetail\\CartDetail.cs",
+              "RelativeToolTip": "SmartChain.Domain\\CartDetail\\CartDetail.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAqwBIAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-14T06:36:04.669Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\Common\\Persistence\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "SmartChain.Infrastructure\\Common\\Persistence\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\Common\\Persistence\\AppDbContext.cs",
+              "RelativeToolTip": "SmartChain.Infrastructure\\Common\\Persistence\\AppDbContext.cs",
+              "ViewState": "AgIAADsAAAAAAAAAAAA6wAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-14T06:35:51.641Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "DependencyInjection.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\DependencyInjection.cs",
+              "RelativeDocumentMoniker": "SmartChain.Infrastructure\\DependencyInjection.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\M\u00E1y t\u00EDnh\\SmartChain\\SmartChain\\BE\\SmartChain.Infrastructure\\DependencyInjection.cs",
+              "RelativeToolTip": "SmartChain.Infrastructure\\DependencyInjection.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-14T06:35:37.88Z",
+              "EditorCaption": ""
+            }
+          ]
+        },
+        {
+          "DockedWidth": 114,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

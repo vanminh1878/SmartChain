@@ -25,21 +25,55 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function CartManagement() {
-  const [cart, setCart] = useState(null); // Giỏ hàng hiện tại
-  const [cartDetails, setCartDetails] = useState([]); // Chi tiết giỏ hàng
-  const [searchProduct, setSearchProduct] = useState(""); // Tìm kiếm sản phẩm
-  const [products, setProducts] = useState([]); // Danh sách sản phẩm tìm kiếm
-  const [isDialogOpen, setIsDialogOpen] = useState(false); // Dialog xác nhận đơn hàng
-  const [storeId] = useState("YOUR_STORE_ID"); // Thay bằng StoreId từ thông tin đăng nhập
-  const [customerId, setCustomerId] = useState(null); // CustomerId (null cho khách lẻ)
+  const [cart, setCart] = useState(null);
+  const [cartDetails, setCartDetails] = useState([]);
+  const [searchProduct, setSearchProduct] = useState("");
+  const [products, setProducts] = useState([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [storeId, setStoreId] = useState("");
+  const [customerId, setCustomerId] = useState(null);
+  const [tempQuantities, setTempQuantities] = useState({});
 
   // Lấy chi tiết giỏ hàng
   const fetchCartDetails = useCallback((cartId) => {
+    const fetchGetPromise = (uri) =>
+      new Promise((resolve, reject) => {
+        fetchGet(
+          uri,
+          (res) => resolve(res),
+          (err) => reject(err),
+          () => console.log(`Hoàn tất gọi API: ${uri}`)
+        );
+      });
+
     fetchGet(
       `/Carts/${cartId}`,
-      (res) => {
+      async (res) => {
+        const cartDetails = res.cartDetails || [];
+        const updatedCartDetails = await Promise.all(
+          cartDetails.map(async (detail) => {
+            try {
+              const productRes = await fetchGetPromise(`/Products/${detail.productId}`);
+              console.log("Tải thông tin sản phẩm:", productRes);
+              return {
+                ...detail,
+                name: productRes.name || "N/A",
+                image: productRes.image || "https://via.placeholder.com/50",
+              };
+            } catch (err) {
+              console.error(`Lỗi khi lấy sản phẩm ${detail.productId}:`, err.message);
+              return {
+                ...detail,
+                name: "N/A",
+                image: "https://via.placeholder.com/50",
+              };
+            }
+          })
+        );
         setCart(res);
-        setCartDetails(res.cartDetails || []);
+        setCartDetails(updatedCartDetails);
+        setTempQuantities({});
+        console.log("Cart detail:", updatedCartDetails);
       },
       (err) => {
         toast.error(err.title || "Lỗi khi lấy chi tiết giỏ hàng");
@@ -68,6 +102,23 @@ export default function CartManagement() {
     }
   }, []);
 
+  // Lấy thông tin cá nhân
+  useEffect(() => {
+    fetchGet(
+      "/users/profile",
+      (sus) => {
+        console.log("Dữ liệu người dùng:", sus);
+        setStoreId(sus.storeId);
+      },
+      (fail) => {
+        toast.error(fail.message || "Không thể tải thông tin cá nhân");
+      },
+      () => {
+        console.log("Hoàn tất lấy thông tin cá nhân");
+      }
+    );
+  }, []);
+
   // Thêm sản phẩm vào giỏ hàng
   const handleAddProduct = useCallback(
     (product) => {
@@ -77,7 +128,7 @@ export default function CartManagement() {
           CustomerId: customerId,
           StoreId: storeId,
           ProductId: product.id,
-          Quantity: 1
+          Quantity: 1,
         },
         (res) => {
           setCart(res);
@@ -93,24 +144,38 @@ export default function CartManagement() {
     [customerId, storeId, fetchCartDetails]
   );
 
-  // Cập nhật số lượng sản phẩm
+  // Cập nhật số lượng sản phẩm (tăng/giảm tương đối)
   const handleUpdateQuantity = useCallback(
-    (detail, newQuantity) => {
-      if (newQuantity < 1) {
-        handleRemoveProduct(detail.productId);
-        return;
-      }
+    (detail, delta) => {
+      const currentQuantity = tempQuantities[detail.productId] !== undefined 
+        ? parseInt(tempQuantities[detail.productId], 10) 
+        : detail.quantity;
+      const newQuantity = currentQuantity + delta;
+      
+      console.log("",currentQuantity,"delta:", delta, newQuantity);
+
+      // Cập nhật tempQuantities trước khi gửi API
+      setTempQuantities((prev) => ({
+        ...prev,
+        [detail.productId]: newQuantity,
+      }));
+
       fetchPut(
         `/Carts/${cart?.id}/details`,
         {
           ProductId: detail.productId,
-          Quantity: newQuantity
+          Quantity: delta, // Gửi delta (+1 hoặc -1) cho API tương đối
         },
         () => {
           fetchCartDetails(cart.id);
-          toast.success("Đã cập nhật số lượng");
+          //toast.success("Đã cập nhật số lượng");
         },
         (err) => {
+          // Reset tempQuantities nếu API thất bại
+          setTempQuantities((prev) => ({
+            ...prev,
+            [detail.productId]: detail.quantity,
+          }));
           toast.error(err.title || "Lỗi khi cập nhật số lượng");
         },
         () => console.log("Cập nhật số lượng hoàn tất")
@@ -119,17 +184,88 @@ export default function CartManagement() {
     [cart, fetchCartDetails]
   );
 
+  // Cập nhật số lượng tuyệt đối (khi nhập trực tiếp)
+  const handleUpdateQuantityAbsolute = useCallback(
+    (detail, newQuantity) => {
+      if (newQuantity < 1) {
+        handleRemoveProduct(detail.productId);
+        return;
+      }
+
+      // Cập nhật tempQuantities trước khi gửi API
+      setTempQuantities((prev) => ({
+        ...prev,
+        [detail.productId]: newQuantity,
+      }));
+
+      fetchPut(
+        `/Carts/${cart?.id}/details/newquantity`,
+        {
+          ProductId: detail.productId,
+          Quantity: newQuantity, // Gửi số lượng tuyệt đối
+        },
+        () => {
+          fetchCartDetails(cart.id);
+          toast.success("Đã cập nhật số lượng");
+        },
+        (err) => {
+          // Reset tempQuantities nếu API thất bại
+          setTempQuantities((prev) => ({
+            ...prev,
+            [detail.productId]: detail.quantity,
+          }));
+          toast.error(err.title || "Lỗi khi cập nhật số lượng");
+        },
+        () => console.log("Cập nhật số lượng hoàn tất")
+      );
+    },
+    [cart, fetchCartDetails]
+  );
+
+  // Xử lý khi nhập số lượng trực tiếp
+  const handleQuantityInputChange = useCallback(
+    (detail, value) => {
+      // Cập nhật giá trị tạm thời
+      setTempQuantities((prev) => ({
+        ...prev,
+        [detail.productId]: value,
+      }));
+    },
+    []
+  );
+
+  // Xử lý khi xác nhận số lượng (onBlur hoặc Enter)
+  const handleQuantityConfirm = useCallback(
+    (detail) => {
+      const value = tempQuantities[detail.productId] || detail.quantity;
+      const newQuantity = parseInt(value, 10);
+      if (isNaN(newQuantity) || newQuantity < 0) {
+        toast.error("Số lượng phải là số không âm");
+        // Reset về giá trị gốc nếu nhập sai
+        setTempQuantities((prev) => ({
+          ...prev,
+          [detail.productId]: detail.quantity,
+        }));
+        return;
+      }
+      handleUpdateQuantityAbsolute(detail, newQuantity);
+    },
+    [tempQuantities, handleUpdateQuantityAbsolute]
+  );
+
   // Xóa sản phẩm khỏi giỏ hàng
   const handleRemoveProduct = useCallback(
     (productId) => {
       fetchDelete(
         `/Carts/${cart?.id}/details/${productId}`,
+        null,
         () => {
           fetchCartDetails(cart.id);
           toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
         },
         (err) => {
           toast.error(err.title || "Lỗi khi xóa sản phẩm");
+          console.error("Xóa sản phẩm thất bại:", err); 
         },
         () => console.log("Xóa sản phẩm hoàn tất")
       );
@@ -149,10 +285,10 @@ export default function CartManagement() {
         CustomerId: customerId,
         StoreId: storeId,
         CartId: cart.id,
-        OrderDetails: cartDetails.map(detail => ({
+        OrderDetails: cartDetails.map((detail) => ({
           ProductId: detail.productId,
-          Quantity: detail.quantity
-        }))
+          Quantity: detail.quantity,
+        })),
       },
       (res) => {
         toast.success("Đơn hàng đã được tạo thành công!");
@@ -190,7 +326,6 @@ export default function CartManagement() {
         </Typography>
 
         <Grid container spacing={2} sx={{ mb: 3 }}>
-          {/* Tìm kiếm sản phẩm */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -207,19 +342,17 @@ export default function CartManagement() {
               variant="outlined"
             />
           </Grid>
-          {/* Thông tin khách hàng */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Khách hàng"
-              value={cart?.customerId ? "Khách hàng đã chọn" : "Khách lẻ"}
+              value={cart?.customerId ? "Khách vãng lai" : "Khách lẻ"}
               InputProps={{ readOnly: true }}
               variant="outlined"
             />
           </Grid>
         </Grid>
 
-        {/* Danh sách sản phẩm tìm kiếm */}
         {products.length > 0 && (
           <Box sx={{ mb: 2, maxHeight: 200, overflowY: "auto" }}>
             <TableContainer component={Paper}>
@@ -235,7 +368,9 @@ export default function CartManagement() {
                   {products.map((product) => (
                     <TableRow key={product.id}>
                       <TableCell>{product.name}</TableCell>
-                      <TableCell> {product.price != null ? product.price.toLocaleString() + ' VNĐ' : 'Chưa có giá'}</TableCell>
+                      <TableCell>
+                        {product.price != null ? product.price.toLocaleString() + " VNĐ" : "Chưa có giá"}
+                      </TableCell>
                       <TableCell>
                         <Button
                           variant="outlined"
@@ -254,7 +389,6 @@ export default function CartManagement() {
           </Box>
         )}
 
-        {/* Giỏ hàng hiện tại */}
         <Typography variant="h6" gutterBottom>
           Giỏ hàng
         </Typography>
@@ -288,14 +422,27 @@ export default function CartManagement() {
                       <Box sx={{ display: "flex", alignItems: "center" }}>
                         <IconButton
                           size="small"
-                          onClick={() => handleUpdateQuantity(detail, detail.quantity - 1)}
+                          onClick={() => handleUpdateQuantity(detail, -1)}
                         >
                           <Remove />
                         </IconButton>
-                        <Typography sx={{ mx: 2 }}>{detail.quantity}</Typography>
+                        <TextField
+                          size="small"
+                          type="number"
+                          value={tempQuantities[detail.productId] !== undefined ? tempQuantities[detail.productId] : detail.quantity}
+                          onChange={(e) => handleQuantityInputChange(detail, e.target.value)}
+                          onBlur={() => handleQuantityConfirm(detail)}
+                          onKeyPress={(e) => {
+                            if (e.key === "Enter") {
+                              handleQuantityConfirm(detail);
+                            }
+                          }}
+                          sx={{ width: 100, mx: 1 }}
+                          inputProps={{ min: 0 }}
+                        />
                         <IconButton
                           size="small"
-                          onClick={() => handleUpdateQuantity(detail, detail.quantity + 1)}
+                          onClick={() => handleUpdateQuantity(detail, 1)}
                         >
                           <Add />
                         </IconButton>
@@ -321,12 +468,10 @@ export default function CartManagement() {
           </Table>
         </TableContainer>
 
-        {/* Tổng tiền */}
         <Typography variant="h6" sx={{ mt: 2, textAlign: "right" }}>
           Tổng cộng: {cartDetails.reduce((total, item) => total + item.quantity * item.price, 0).toLocaleString()} VNĐ
         </Typography>
 
-        {/* Nút hoàn tất */}
         <Box sx={{ mt: 3, textAlign: "right" }}>
           <Button
             variant="contained"
@@ -338,7 +483,6 @@ export default function CartManagement() {
           </Button>
         </Box>
 
-        {/* Dialog xác nhận đơn hàng */}
         <Dialog
           open={isDialogOpen}
           onClose={handleCloseDialog}

@@ -20,11 +20,11 @@ public class CartConfigurations : IEntityTypeConfiguration<Cart>
         builder.Property(c => c.Id)
             .HasColumnName("Id")
             .HasColumnType("uniqueidentifier")
-            .HasDefaultValueSql("newid()"); // Sinh Guid tự động
+            .HasDefaultValueSql("newid()");
 
-        // Thuộc tính CustomerId (Guid)
+        // Thuộc tính CustomerId (Guid, nullable)
         builder.Property(c => c.CustomerId)
-            .IsRequired()
+            .IsRequired(false)
             .HasColumnName("Customer_id")
             .HasColumnType("uniqueidentifier");
 
@@ -42,21 +42,28 @@ public class CartConfigurations : IEntityTypeConfiguration<Cart>
 
         // Thuộc tính UpdatedAt
         builder.Property(c => c.UpdatedAt)
-            .IsRequired(false) // Nullable
+            .IsRequired(false)
             .HasColumnType("datetime")
             .HasColumnName("Updated_at");
 
-        // Thêm chỉ mục duy nhất trên CustomerId
-        builder.HasIndex(c => c.CustomerId)
-            .IsUnique()
-            .HasDatabaseName("IX_Cart_CustomerId_Unique");
+        // Thuộc tính RowVersion
+        // builder.Property(c => c.RowVersion)
+        //     .IsRowVersion()
+        //     .IsConcurrencyToken()
+        //     .HasColumnName("RowVersion");
 
-        // Mối quan hệ khóa ngoại với Customer
+        // Thêm chỉ mục duy nhất trên cặp CustomerId và StoreId
+        builder.HasIndex(c => new { c.CustomerId, c.StoreId })
+            .IsUnique()
+            .HasDatabaseName("IX_Cart_CustomerId_StoreId_Unique");
+
+        // Mối quan hệ khóa ngoại với Customer (cho phép NULL)
         builder.HasOne<Customer>()
-            .WithOne() // Mối quan hệ một-một với Customer
+            .WithOne()
             .HasForeignKey<Cart>(c => c.CustomerId)
             .HasConstraintName("FK_Cart_Customer")
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
 
         // Mối quan hệ khóa ngoại với Store
         builder.HasOne<Store>()
@@ -67,9 +74,9 @@ public class CartConfigurations : IEntityTypeConfiguration<Cart>
 
         // Mối quan hệ một-nhiều với CartDetail
         builder.HasMany(c => c.CartDetails)
-            .WithOne() // Không có navigation property ngược lại trong CartDetail
-            .HasForeignKey("CartId") // Giả sử CartDetail có thuộc tính CartId
+            .WithOne()
+            .HasForeignKey("CartId")
             .HasConstraintName("FK_CartDetail_Cart")
-            .OnDelete(DeleteBehavior.Cascade); // Xóa Cart thì xóa luôn CartDetail
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

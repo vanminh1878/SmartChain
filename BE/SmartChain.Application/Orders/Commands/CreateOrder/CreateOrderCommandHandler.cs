@@ -64,12 +64,14 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Err
             await _productsRepository.UpdateAsync(product, cancellationToken);
         }
 
-       var order = new Order(
+            var order = new Order(
             request.CustomerId,
             request.StoreId,
             "Pending",
             orderDetails
         );
+
+       
 
         await _ordersRepository.AddAsync(order, cancellationToken);
         await _cartsRepository.DeleteAsync(cart, cancellationToken); // Clear cart after order creation

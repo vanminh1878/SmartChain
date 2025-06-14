@@ -21,6 +21,7 @@ using SmartChain.Domain.Supplier;
 using SmartChain.Domain.User;
 using SmartChain.Domain.ProductSupplier;
 using SmartChain.Infrastructure.Common.Middleware;
+using SmartChain.Domain.CartDetail;
 
 namespace SmartChain.Infrastructure.Common.Persistence
 {
@@ -77,27 +78,27 @@ namespace SmartChain.Infrastructure.Common.Persistence
         private bool IsUserWaitingOnline() => _httpContextAccessor?.HttpContext is not null;
 
         // Ghi đè SaveChangesAsync để xử lý domain events
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            // Lấy danh sách domain events từ các entity
-            var domainEvents = ChangeTracker.Entries<Entity>()
-                .SelectMany(entry => entry.Entity.PopDomainEvents())
-                .ToList();
+        // public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        // {
+        //     // Lấy danh sách domain events từ các entity
+        //     var domainEvents = ChangeTracker.Entries<Entity>()
+        //         .SelectMany(entry => entry.Entity.PopDomainEvents())
+        //         .ToList();
 
-            if (IsUserWaitingOnline())
-            {
-                // Thêm domain events vào queue để xử lý offline nếu đang trong HTTP context
-                AddDomainEventsToOfflineProcessingQueue(domainEvents);
-            }
-            else
-            {
-                // Publish domain events trực tiếp nếu không trong HTTP context
-                await PublishDomainEvents(domainEvents);
-            }
+        //     if (IsUserWaitingOnline())
+        //     {
+        //         // Thêm domain events vào queue để xử lý offline nếu đang trong HTTP context
+        //         AddDomainEventsToOfflineProcessingQueue(domainEvents);
+        //     }
+        //     else
+        //     {
+        //         // Publish domain events trực tiếp nếu không trong HTTP context
+        //         await PublishDomainEvents(domainEvents);
+        //     }
 
-            // Lưu thay đổi vào database
-            return await base.SaveChangesAsync(cancellationToken);
-        }
+        //     // Lưu thay đổi vào database
+        //     return await base.SaveChangesAsync(cancellationToken);
+        // }
 
         // Publish domain events thông qua MediatR
         private async Task PublishDomainEvents(List<IDomainEvent> domainEvents)

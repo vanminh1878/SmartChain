@@ -5,7 +5,7 @@ using SmartChain.Domain.Cart;
 namespace SmartChain.Application.Carts.Commands.CreateCart;
 
 public record CreateCartCommand(
-    Guid CustomerId,
+    Guid? CustomerId,
     Guid StoreId,
     Guid ProductId,
     int Quantity

@@ -2,6 +2,7 @@ using ErrorOr;
 using MediatR;
 using SmartChain.Application.Common.Interfaces;
 using SmartChain.Domain.Cart;
+using SmartChain.Domain.CartDetail;
 
 namespace SmartChain.Application.CartDetails.Commands.CreateCartDetail;
 
@@ -18,7 +19,7 @@ public class CreateCartDetailCommandHandler : IRequestHandler<CreateCartDetailCo
     {
         try
         {
-            var CartDetail = new CartDetail(request.productId, request.quantity, request.unitPrice);
+            var CartDetail = new CartDetail(request.CartId,request.productId, request.quantity, request.unitPrice);
             await _CartDetailsRepository.AddAsync(CartDetail, cancellationToken);
             return CartDetail;
         }

@@ -5,7 +5,7 @@ using SmartChain.Domain.Order;
 namespace SmartChain.Application.Orders.Commands.CreateOrder;
 
 public record CreateOrderCommand(
-    Guid CustomerId,
+    Guid? CustomerId,
     Guid StoreId,
     Guid CartId,
     List<OrderDetailCommand> OrderDetails

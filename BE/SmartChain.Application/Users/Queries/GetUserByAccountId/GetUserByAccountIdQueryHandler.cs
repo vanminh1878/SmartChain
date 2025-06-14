@@ -11,12 +11,15 @@ public class GetUserByAccountIdQueryHandler : IRequestHandler<GetUserByAccountId
     private readonly IUsersRepository _UsersRepository;
     private readonly IRolesRepository _RolesRepository;
     private readonly IAccountsRepository _AccountsRepository;
+    private readonly IEmployeesRepository _EmployeesRepository;
 
-    public GetUserByAccountIdQueryHandler(IUsersRepository usersRepository, IRolesRepository rolesRepository, IAccountsRepository accountsRepository)
+    public GetUserByAccountIdQueryHandler(IUsersRepository usersRepository, IRolesRepository rolesRepository,
+                                            IAccountsRepository accountsRepository, IEmployeesRepository employeesRepository)
     {
         _UsersRepository = usersRepository;
         _RolesRepository = rolesRepository;
         _AccountsRepository = accountsRepository;
+        _EmployeesRepository = employeesRepository;
     }
 
     public async Task<ErrorOr<ProfileResponse>> Handle(GetUserByAccountIdQuery request, CancellationToken cancellationToken)
@@ -36,9 +39,14 @@ public class GetUserByAccountIdQueryHandler : IRequestHandler<GetUserByAccountId
         {
             return Error.NotFound(description: "Role not found.");
         }
+        var employee = await _EmployeesRepository.GetByUserIdAsync(user.Id, cancellationToken);
+        if (employee is null)
+        {
+            return Error.NotFound(description: "Employee not found");
+        }
         // Tạo DTO
         var response = new ProfileResponse(account.Username,user.Fullname, user.Email, user.PhoneNumber,
-                                         user.Birthday, user.Address, user.Sex, user.Avatar, role.Name,user.Id);
+                                         user.Birthday, user.Address, user.Sex, user.Avatar, role.Name,employee.StoreId,user.Id);
 
         return response; 
     }

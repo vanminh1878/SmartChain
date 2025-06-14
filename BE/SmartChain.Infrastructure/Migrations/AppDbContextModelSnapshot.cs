@@ -74,7 +74,7 @@ namespace SmartChain.Infrastructure.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("Created_at");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("Customer_id");
 
@@ -90,9 +90,14 @@ namespace SmartChain.Infrastructure.Migrations
 
                     b.HasIndex("CustomerId")
                         .IsUnique()
-                        .HasDatabaseName("IX_Cart_CustomerId_Unique");
+                        .HasFilter("[Customer_id] IS NOT NULL");
 
                     b.HasIndex("StoreId");
+
+                    b.HasIndex("CustomerId", "StoreId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Cart_CustomerId_StoreId_Unique")
+                        .HasFilter("[Customer_id] IS NOT NULL");
 
                     b.ToTable("Cart", (string)null);
                 });
@@ -105,8 +110,9 @@ namespace SmartChain.Infrastructure.Migrations
                         .HasColumnName("Id")
                         .HasDefaultValueSql("newid()");
 
-                    b.Property<Guid?>("CartId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<Guid>("CartId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Cart_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime")
@@ -276,7 +282,7 @@ namespace SmartChain.Infrastructure.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("Created_at");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("Customer_id");
 
@@ -808,7 +814,6 @@ namespace SmartChain.Infrastructure.Migrations
                         .WithOne()
                         .HasForeignKey("SmartChain.Domain.Cart.Cart", "CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
                         .HasConstraintName("FK_Cart_Customer");
 
                     b.HasOne("SmartChain.Domain.Store.Store", null)
@@ -821,10 +826,11 @@ namespace SmartChain.Infrastructure.Migrations
 
             modelBuilder.Entity("SmartChain.Domain.Cart.CartDetail", b =>
                 {
-                    b.HasOne("SmartChain.Domain.Cart.Cart", null)
+                    b.HasOne("SmartChain.Domain.Cart.Cart", "Cart")
                         .WithMany("CartDetails")
                         .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
                         .HasConstraintName("FK_CartDetail_Cart");
 
                     b.HasOne("SmartChain.Domain.Product.Product", null)
@@ -833,6 +839,8 @@ namespace SmartChain.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_CartDetail_Product");
+
+                    b.Navigation("Cart");
                 });
 
             modelBuilder.Entity("SmartChain.Domain.Customer.Customer", b =>
@@ -867,8 +875,7 @@ namespace SmartChain.Infrastructure.Migrations
                     b.HasOne("SmartChain.Domain.Customer.Customer", null)
                         .WithMany()
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
+                        .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Order_Customer");
 
                     b.HasOne("SmartChain.Domain.Store.Store", null)

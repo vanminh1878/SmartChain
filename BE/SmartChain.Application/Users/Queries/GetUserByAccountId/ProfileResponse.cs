@@ -10,4 +10,5 @@ namespace SmartChain.Application.Users.Queries.GetUserByAccountId;
         bool Sex,
         string Avatar,
         string RoleName,
+        Guid StoreId,
         Guid UserId);

@@ -7,6 +7,7 @@ using SmartChain.Application.Carts.Commands.DeleteCartDetail;
 using SmartChain.Application.Carts.Queries.GetCartById;
 using SmartChain.Contracts.Carts;
 using SmartChain.Domain.Cart;
+using SmartChain.Application.Carts.Commands.UpdateCartDetailNewQuantity;
 
 namespace SmartChain.Api.Controllers;
 
@@ -50,10 +51,23 @@ public class CartsController : ApiController
         );
     }
 
+    [HttpPut("{CartId:guid}/details/newquantity")]
+    public async Task<IActionResult> UpdateCartDetailNewQuantity(Guid CartId, UpdateCartDetailRequest request)
+    {
+        var command = new UpdateCartDetailNewQuantityCommand(CartId, request.ProductId, request.Quantity);
+        var result = await _mediator.Send(command);
+
+        return result.Match(
+            _ => NoContent(),
+            Problem
+        );
+    }
+
+
     [HttpDelete("{CartId:guid}/details/{ProductId:guid}")]
     public async Task<IActionResult> RemoveCartDetail(Guid CartId, Guid ProductId)
     {
-        var command = new DeleteCartDetailCommand(CartId, ProductId);
+        var command = new DeleteCartDetailCommand( ProductId, CartId);
         var result = await _mediator.Send(command);
 
         return result.Match(
@@ -66,7 +80,7 @@ public class CartsController : ApiController
     public async Task<IActionResult> GetCartById(Guid CartId)
     {
         var query = new GetCartByIdQuery(CartId);
-        ErrorOr<Cart> result = await _mediator.Send(query);
+        var result = await _mediator.Send(query);
 
         return result.Match(
             cart => Ok(ToDto(cart)),

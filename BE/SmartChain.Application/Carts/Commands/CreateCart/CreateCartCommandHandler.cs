@@ -10,13 +10,16 @@ public class CreateCartCommandHandler : IRequestHandler<CreateCartCommand, Error
 {
     private readonly ICartsRepository _cartsRepository;
     private readonly IProductsRepository _productsRepository;
+    private readonly ICartDetailsRepository _cartDetailsRepository;
 
     public CreateCartCommandHandler(
         ICartsRepository cartsRepository,
-        IProductsRepository productsRepository)
+        IProductsRepository productsRepository,
+        ICartDetailsRepository cartDetailsRepository)
     {
         _cartsRepository = cartsRepository;
         _productsRepository = productsRepository;
+        _cartDetailsRepository = cartDetailsRepository;
     }
 
     public async Task<ErrorOr<Cart>> Handle(CreateCartCommand request, CancellationToken cancellationToken)
@@ -27,17 +30,18 @@ public class CreateCartCommandHandler : IRequestHandler<CreateCartCommand, Error
             return Error.NotFound(description: $"Product {request.ProductId} not found.");
         }
 
-        // Kiểm tra giỏ hàng hiện tại của khách hàng tại cửa hàng
-        var cart = await _cartsRepository.GetByCustomerAndStoreAsync(request.CustomerId, request.StoreId, cancellationToken);
+        if (product.Price is null)
+        {
+            return Error.Validation(description: $"Product {request.ProductId} does not have a valid price.");
+        }
+
+        Guid? customerId = request.CustomerId == Guid.Empty ? null : request.CustomerId;
+
+        var cart = await _cartsRepository.GetByCustomerAndStoreAsync(customerId, request.StoreId, cancellationToken);
         if (cart is null)
         {
-            // Tạo giỏ hàng mới nếu chưa có
-            cart = new Cart(request.CustomerId, request.StoreId);
-            if (product.Price is null)
-            {
-                return Error.Validation(description: $"Product {request.ProductId} does not have a valid price.");
-            }
-            var addResult = cart.AddCartDetail(request.ProductId, request.Quantity, product.Price.Value);
+            cart = new Cart(customerId, request.StoreId);
+            var addResult = await cart.AddCartDetail(request.ProductId, request.Quantity, product.Price.Value);
             if (addResult.IsError)
             {
                 return addResult.Errors;
@@ -45,15 +49,12 @@ public class CreateCartCommandHandler : IRequestHandler<CreateCartCommand, Error
             await _cartsRepository.AddAsync(cart, cancellationToken);
         }
         else
-        {
-            // Thêm sản phẩm vào giỏ hàng hiện có
-            var addResult = cart.AddCartDetail(request.ProductId, request.Quantity, product.Price.Value);
-            if (addResult.IsError)
-            {
-                return addResult.Errors;
-            }
+        {// Thực hiện thay đổi trực tiếp trên entity này
+            await cart.AddCartDetail(request.ProductId, request.Quantity, product.Price.Value);
+            
             await _cartsRepository.UpdateAsync(cart, cancellationToken);
         }
+
         return cart;
     }
 }

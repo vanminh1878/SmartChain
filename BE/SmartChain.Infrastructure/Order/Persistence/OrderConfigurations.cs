@@ -22,9 +22,9 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
             .HasColumnType("uniqueidentifier")
             .HasDefaultValueSql("newid()"); // Sinh Guid tự động
 
-        // Thuộc tính CustomerId (Guid)
+        // Thuộc tính CustomerId (Guid, nullable)
         builder.Property(o => o.CustomerId)
-            .IsRequired()
+            .IsRequired(false) // Cho phép null
             .HasColumnName("Customer_id")
             .HasColumnType("uniqueidentifier");
 
@@ -57,12 +57,13 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
             .HasColumnType("datetime")
             .HasColumnName("Updated_at");
 
-        // Mối quan hệ khóa ngoại với Customer
+        // Mối quan hệ khóa ngoại với Customer (nullable)
         builder.HasOne<Customer>()
             .WithMany()
             .HasForeignKey(o => o.CustomerId)
             .HasConstraintName("FK_Order_Customer")
-            .OnDelete(DeleteBehavior.Restrict);
+            .IsRequired(false) // Không bắt buộc khóa ngoại
+            .OnDelete(DeleteBehavior.SetNull); // Nếu Customer bị xóa, đặt CustomerId thành null
 
         // Mối quan hệ khóa ngoại với Store
         builder.HasOne<Store>()
@@ -73,9 +74,9 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
 
         // Mối quan hệ một-nhiều với OrderDetail
         builder.HasMany(o => o.OrderDetails)
-            .WithOne() // Không có navigation property ngược lại trong OrderDetail
-            .HasForeignKey("OrderId") // Giả sử OrderDetail có thuộc tính OrderId
+            .WithOne()
+            .HasForeignKey("OrderId")
             .HasConstraintName("FK_OrderDetail_Order")
-            .OnDelete(DeleteBehavior.Cascade); // Xóa Order thì xóa luôn OrderDetail
+            .OnDelete(DeleteBehavior.Cascade); // Xóa Order thì xóa OrderDetail
     }
 }

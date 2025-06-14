@@ -9,7 +9,7 @@ namespace SmartChain.Domain.Order;
 
 public class Order : Entity
 {
-    public Guid CustomerId { get; private set; }
+    public Guid? CustomerId { get; private set; }
     public Guid StoreId { get; private set; }
     public decimal TotalAmount { get; private set; }
     public string Status { get; private set; }
@@ -18,7 +18,7 @@ public class Order : Entity
     private readonly List<OrderDetail> _orderDetails = new List<OrderDetail>();
     public IReadOnlyList<OrderDetail> OrderDetails => _orderDetails.AsReadOnly();
 
-    public Order(Guid customerId, Guid storeId, string status, List<OrderDetail> orderDetails = null, Guid? id = null) : base(id)
+    public Order(Guid? customerId, Guid storeId, string status, List<OrderDetail> orderDetails = null, Guid? id = null) : base(id)
     {
         if (customerId == Guid.Empty)
         {
@@ -51,7 +51,7 @@ public class Order : Entity
             }
         }
 
-        _domainEvents.Add(new OrderCreatedEvent(id ?? Guid.NewGuid(), customerId, storeId));
+
     }
 
     public ErrorOr<Success> AddOrderDetail(Guid productId, int quantity, decimal price)

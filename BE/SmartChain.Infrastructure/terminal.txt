@@ -10,7 +10,7 @@ To undo this action, use 'ef migrations remove'
 *add update
 dotnet ef migrations add DeleteStoreIdInCategories --startup-project "../SmartChain.Api"
 dotnet ef migrations add AddStockIntakeIdToStockIntakeDetail --startup-project "../SmartChain.Api"
-dotnet ef migrations add DeleteOwnerId --startup-project "../SmartChain.Api"
+dotnet ef migrations add delete --startup-project "../SmartChain.Api"
 
 *update
 dotnet ef database update --project ../SmartChain.Infrastructure --startup-project ../SmartChain.Api

@@ -2,7 +2,7 @@ namespace SmartChain.Contracts.Carts;
 
 public record CartResponse(
     Guid Id,
-    Guid CustomerId,
+    Guid? CustomerId,
     Guid StoreId,
     DateTime CreatedAt,
     DateTime? UpdatedAt,
@@ -16,7 +16,7 @@ public record CartDetailResponse(
 );
 
 public record CreateCartRequest(
-    Guid CustomerId,
+    Guid? CustomerId,
     Guid StoreId,
     Guid ProductId,
     int Quantity
