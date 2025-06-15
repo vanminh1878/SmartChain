@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartChain.Application.Orders.Commands.CreateOrder;
 using SmartChain.Application.Orders.Commands.UpdateStatusOrder;
+using SmartChain.Application.Orders.Queries.GetOrderByCustomerId;
 using SmartChain.Application.Orders.Queries.GetOrderById;
 using SmartChain.Application.Orders.Queries.GetOrderDetailByOrderId;
 using SmartChain.Application.Orders.Queries.GetOrders;
@@ -75,6 +76,19 @@ public class OrdersController : ApiController
             Problem
         );
     }
+
+    [HttpGet("customer/{CustomerId:guid}")]
+    public async Task<IActionResult> GetAllOrdersByCustomerId(Guid CustomerId)
+    {
+        var query = new GetOrderByCustomerIdQuery(CustomerId);
+        ErrorOr<List<Order>> result = await _mediator.Send(query);
+
+        return result.Match(
+            orders => Ok(orders.ToList()),
+            Problem
+        );
+    }
+
     [HttpGet("details/{OrderId:guid}")]
     public async Task<IActionResult> GetOrderDetailByOrderId(Guid OrderId)
     {

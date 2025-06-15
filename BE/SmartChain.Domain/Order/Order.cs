@@ -28,9 +28,9 @@ public class Order : Entity
         {
             throw new ArgumentException("Store ID cannot be empty.");
         }
-        if (!new[] { "pending", "confirmed", "cancelled" }.Contains(status.ToLower()))
+        if (!new[] { "pending", "confirmed", "cancelled","shipped","delivered" }.Contains(status.ToLower()))
         {
-            throw new ArgumentException("Invalid status. Allowed values: pending, confirmed, cancelled.");
+            throw new ArgumentException("Invalid status. Allowed values: pending, confirmed, cancelled,Shipped,Delivered");
         }
 
         CustomerId = customerId;
@@ -56,10 +56,7 @@ public class Order : Entity
 
     public ErrorOr<Success> AddOrderDetail(Guid productId, int quantity, decimal price)
     {
-        if (Status != "pending")
-        {
-            return Error.Conflict("Cannot modify order after status is no longer pending.");
-        }
+    
         if (productId == Guid.Empty)
         {
             return Error.Failure("Product ID cannot be empty.");
@@ -138,9 +135,9 @@ public class Order : Entity
 
     public ErrorOr<Success> UpdateStatus(string newStatus)
     {
-        if (!new[] { "pending", "confirmed", "cancelled" }.Contains(newStatus.ToLower()))
+        if (!new[] { "pending", "confirmed", "cancelled","shipped","delivered" }.Contains(newStatus.ToLower()))
         {
-            return Error.Failure("Invalid status. Allowed values: pending, confirmed, cancelled.");
+            throw new ArgumentException("Invalid status. Allowed values: pending, confirmed, cancelled,Shipped,Delivered");
         }
         if (Status == "confirmed" && newStatus.ToLower() == "pending")
         {
@@ -153,9 +150,6 @@ public class Order : Entity
 
         Status = newStatus.ToLower();
         UpdatedAt = DateTime.UtcNow;
-        _domainEvents.Add(newStatus.ToLower() == "cancelled"
-            ? new OrderCancelledEvent(Id)
-            : new OrderStatusUpdatedEvent(Id, newStatus));
         return Result.Success;
     }
 

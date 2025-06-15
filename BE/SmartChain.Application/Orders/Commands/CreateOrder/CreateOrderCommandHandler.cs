@@ -67,7 +67,7 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Err
             var order = new Order(
             request.CustomerId,
             request.StoreId,
-            "Pending",
+            request.CustomerId == null ? "Confirmed" : "Pending",
             orderDetails
         );
 

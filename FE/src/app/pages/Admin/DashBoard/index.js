@@ -118,110 +118,110 @@ export default function DashBoard() {
   console.log(diseaseData);
   const formatter = (value) => <CountUp end={value} separator=" " />;
 
-  return (
-    <div>
-      <div className="mb-5">
-        <Row className="my-3">
-          <Space direction="horizontal" size={12}>
-            <span>Chọn ngày</span>
-            <RangePicker
-              format="DD/MM/YYYY"
-              value={dateRange}
-              onChange={onChange}
-              suffixIcon={
-                <FontAwesomeIcon
-                  icon={faCalendarAlt}
-                  onClick={(e) =>
-                    e.preventDefault() ||
-                    document.querySelector(".ant-picker-input input").focus()
-                  }
-                />
-              }
-            />
-          </Space>
-        </Row>
+  // return (
+  //   <div>
+  //     <div className="mb-5">
+  //       <Row className="my-3">
+  //         <Space direction="horizontal" size={12}>
+  //           <span>Chọn ngày</span>
+  //           <RangePicker
+  //             format="DD/MM/YYYY"
+  //             value={dateRange}
+  //             onChange={onChange}
+  //             suffixIcon={
+  //               <FontAwesomeIcon
+  //                 icon={faCalendarAlt}
+  //                 onClick={(e) =>
+  //                   e.preventDefault() ||
+  //                   document.querySelector(".ant-picker-input input").focus()
+  //                 }
+  //               />
+  //             }
+  //           />
+  //         </Space>
+  //       </Row>
 
-        {/* Tổng các chỉ số - Now in one row */}
-        <Row gutter={16}>
-          {Object.keys(listThongSo).length > 0 &&
-            [
-              {
-                label: "Tổng doanh thu",
-                icon: faMoneyCheckDollar,
-                color: "#3F8600",
-                value: listThongSo.tongDoanhThu, // Loại bỏ [0]
-              },
-              {
-                label: "Tổng số thuốc",
-                icon: faPills,
-                color: "#3F8600",
-                value: listThongSo.tongSoThuoc, // Loại bỏ [0]
-              },
-              {
-                label: "Tổng số bệnh nhân",
-                icon: faHospitalUser,
-                color: "#9847FF",
-                value: listThongSo.tongSoBenhNhan, // Loại bỏ [0]
-              },
-              {
-                label: "Tổng số lượt khám",
-                icon: faUser,
-                color: "#CF1322",
-                value: listThongSo.tongSoLuotKham, // Loại bỏ [0]
-              },
-            ].map((metric, i) => (
-              <Col key={i} span={6}>
-                <Card
-                  bordered={false}
-                  className="flex flex-col items-center justify-center"
-                >
-                  <span className="text-[20px] font-medium">
-                    {metric.label}
-                  </span>
-                  <Statistic
-                    formatter={formatter}
-                    className="pt-3"
-                    value={metric.value}
-                    valueStyle={{ color: metric.color }}
-                    prefix={<FontAwesomeIcon icon={metric.icon} />}
-                  />
-                </Card>
-              </Col>
-            ))}
-        </Row>
-        {/* Biểu đồ */}
-        <div className="w-full flex flex-row gap-5">
-          {/* Biểu đồ doanh thu */}
-          <Card bordered={false} className="w-full">
-            <p className="mb-5 text-[20px] flex items-center justify-center font-medium">
-              Biểu đồ doanh thu
-            </p>
-            <LineChart
-              data={revenueData}
-              startDate={dateRange[0]}
-              endDate={dateRange[1]}
-              color="#00855f"
-            />
-          </Card>
-        </div>
-        {/* Biểu đồ tròn cho thuốc */}
-        <Card bordered={false} className="w-full">
-          <p className="mb-5 text-[20px] flex items-center justify-center font-medium">
-            Tỷ lệ sử dụng thuốc
-          </p>
-          <PieChart
-            data={medicineUsageData}
-            colors={["#FF6384", "#36A2EB", "#FFCE56"]}
-          />
-        </Card>
-        {/* Biểu đồ bệnh lý */}
-        <Card bordered={false} className="w-full">
-          <p className="mb-5 text-[20px] flex items-center justify-center font-medium">
-            Số lượng bệnh nhân theo bệnh lý
-          </p>
-          <BarChart data={diseaseData} color="#4CAF50" />
-        </Card>
-      </div>
-    </div>
-  );
+  //       {/* Tổng các chỉ số - Now in one row */}
+  //       <Row gutter={16}>
+  //         {Object.keys(listThongSo).length > 0 &&
+  //           [
+  //             {
+  //               label: "Tổng doanh thu",
+  //               icon: faMoneyCheckDollar,
+  //               color: "#3F8600",
+  //               value: listThongSo.tongDoanhThu, // Loại bỏ [0]
+  //             },
+  //             {
+  //               label: "Tổng số thuốc",
+  //               icon: faPills,
+  //               color: "#3F8600",
+  //               value: listThongSo.tongSoThuoc, // Loại bỏ [0]
+  //             },
+  //             {
+  //               label: "Tổng số bệnh nhân",
+  //               icon: faHospitalUser,
+  //               color: "#9847FF",
+  //               value: listThongSo.tongSoBenhNhan, // Loại bỏ [0]
+  //             },
+  //             {
+  //               label: "Tổng số lượt khám",
+  //               icon: faUser,
+  //               color: "#CF1322",
+  //               value: listThongSo.tongSoLuotKham, // Loại bỏ [0]
+  //             },
+  //           ].map((metric, i) => (
+  //             <Col key={i} span={6}>
+  //               <Card
+  //                 bordered={false}
+  //                 className="flex flex-col items-center justify-center"
+  //               >
+  //                 <span className="text-[20px] font-medium">
+  //                   {metric.label}
+  //                 </span>
+  //                 <Statistic
+  //                   formatter={formatter}
+  //                   className="pt-3"
+  //                   value={metric.value}
+  //                   valueStyle={{ color: metric.color }}
+  //                   prefix={<FontAwesomeIcon icon={metric.icon} />}
+  //                 />
+  //               </Card>
+  //             </Col>
+  //           ))}
+  //       </Row>
+  //       {/* Biểu đồ */}
+  //       <div className="w-full flex flex-row gap-5">
+  //         {/* Biểu đồ doanh thu */}
+  //         <Card bordered={false} className="w-full">
+  //           <p className="mb-5 text-[20px] flex items-center justify-center font-medium">
+  //             Biểu đồ doanh thu
+  //           </p>
+  //           <LineChart
+  //             data={revenueData}
+  //             startDate={dateRange[0]}
+  //             endDate={dateRange[1]}
+  //             color="#00855f"
+  //           />
+  //         </Card>
+  //       </div>
+  //       {/* Biểu đồ tròn cho thuốc */}
+  //       <Card bordered={false} className="w-full">
+  //         <p className="mb-5 text-[20px] flex items-center justify-center font-medium">
+  //           Tỷ lệ sử dụng thuốc
+  //         </p>
+  //         <PieChart
+  //           data={medicineUsageData}
+  //           colors={["#FF6384", "#36A2EB", "#FFCE56"]}
+  //         />
+  //       </Card>
+  //       {/* Biểu đồ bệnh lý */}
+  //       <Card bordered={false} className="w-full">
+  //         <p className="mb-5 text-[20px] flex items-center justify-center font-medium">
+  //           Số lượng bệnh nhân theo bệnh lý
+  //         </p>
+  //         <BarChart data={diseaseData} color="#4CAF50" />
+  //       </Card>
+  //     </div>
+  //   </div>
+  // );
 }

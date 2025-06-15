@@ -11,132 +11,100 @@ import { ToastContainer, toast } from "react-toastify";
 import { fetchGet, fetchPut,fetchDelete,fetchPost } from "../../../../lib/httpHandler";
 import { showSuccessMessageBox } from "../../../../components/MessageBox/SuccessMessageBox/showSuccessMessageBox"
 import {showErrorMessageBox } from "../../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox"
+import {showYesNoMessageBox } from "../../../../components/MessageBox/YesNoMessageBox/showYesNoMessgeBox"
 
 const ShopCart = () => {
   const [cart, setCart] = useState(null);
-    const [tempQuantities, setTempQuantities] = useState({});
-      const [cartDetails, setCartDetails] = useState([]);
+  const [tempQuantities, setTempQuantities] = useState({});
   const [customerId, setCustomerId] = useState(null);
   const [storeId, setStoreId] = useState(null);
+  const [loading, setLoading] = useState(false); // Thay setLoaderStatus bằng state loading
 
   // Hàm lấy chi tiết giỏ hàng
-  const fetchCartDetails = useCallback((cartId) => {
-    fetchGet(
-      `/Carts/${cartId}`,
-      async (response) => {
-        // Lấy thông tin sản phẩm cho từng productId trong cartDetails
-        const updatedCartDetails = await Promise.all(
-          response.cartDetails.map(async (detail) => {
-            try {
-              const product = await new Promise((resolve, reject) => {
-                fetchGet(
-                  `/Products/${detail.productId}`,
-                  (productData) => resolve(productData),
-                  (err) => reject(err),
-                  () => console.log(`Get product ${detail.productId} completed`)
-                );
-              });
-              return { ...detail, product };
-            } catch (err) {
-              console.error(`Error fetching product ${detail.productId}:`, err);
-              return { ...detail, product: null };
-            }
-          })
+  const fetchCartDetails = useCallback(async (cartId) => {
+    try {
+      setLoading(true);
+      const response = await new Promise((resolve, reject) => {
+        fetchGet(
+          `/Carts/${cartId}`,
+          (data) => resolve(data),
+          (err) => reject(err),
+          () => console.log("Get cart completed")
         );
+      });
 
-        // Cập nhật cart với cartDetails đã có thông tin sản phẩm
-        const updatedCart = { ...response, cartDetails: updatedCartDetails };
-        setCart(updatedCart);
-        console.log("Updated cart data:", updatedCart);
-        setLoaderStatus(false);
-      },
-      (err) => {
-        console.error("Get cart error:", err);
-        toast.error(err.message || "Không thể lấy thông tin giỏ hàng!");
-        setCart(null);
-        setLoaderStatus(false);
-      },
-      () => {
-        console.log("Get cart completed");
+      // Kiểm tra response có cartDetails hay không
+      if (!response.cartDetails) {
+        console.error("API /Carts/{cartId} trả về dữ liệu thiếu cartDetails:", response);
+        throw new Error("Dữ liệu giỏ hàng không hợp lệ!");
       }
-    );
+
+      // Lấy thông tin sản phẩm cho từng productId trong cartDetails
+      const updatedCartDetails = await Promise.all(
+        response.cartDetails.map(async (detail) => {
+          try {
+            const product = await new Promise((resolve, reject) => {
+              fetchGet(
+                `/Products/${detail.productId}`,
+                (productData) => resolve(productData),
+                (err) => reject(err),
+                () => console.log(`Get product ${detail.productId} completed`)
+              );
+            });
+            return { ...detail, product };
+          } catch (err) {
+            console.error(`Error fetching product ${detail.productId}:`, err);
+            return { ...detail, product: null };
+          }
+        })
+      );
+
+      // Cập nhật cart với cartDetails
+      const updatedCart = { ...response, cartDetails: updatedCartDetails };
+      setCart(updatedCart);
+      setStoreId(response.storeId);
+      console.log("Updated cart data:", updatedCart);
+    } catch (err) {
+      console.error("Get cart error:", err.response?.data || err.message);
+      toast.error(err.message || "Không thể lấy thông tin giỏ hàng!");
+      setCart(null);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    // Kiểm tra token
     const token = localStorage.getItem("jwtToken");
     if (!token) {
       toast.error("Vui lòng đăng nhập để xem giỏ hàng!");
-      setLoaderStatus(false);
+      setLoading(false);
       return;
     }
 
-    // Gọi API /Customers/Profile để lấy cartId
+    setLoading(true);
     fetchGet(
       "/Customers/Profile",
-      (profile) => {
+      async (profile) => {
         setCustomerId(profile.customerId);
         const cartId = profile.cartId;
         if (!cartId) {
           toast.info("Giỏ hàng của bạn hiện đang trống!");
-          setLoaderStatus(false);
           setCart(null);
+          setLoading(false);
           return;
         }
 
-        // Gọi API /Carts/{CartId} để lấy thông tin giỏ hàng
-        fetchGet(
-          `/Carts/${cartId}`,
-          async (response) => {
-            // Lấy thông tin sản phẩm cho từng productId trong cartDetails
-            const updatedCartDetails = await Promise.all(
-              response.cartDetails.map(async (detail) => {
-                try {
-                  const product = await new Promise((resolve, reject) => {
-                    fetchGet(
-                      `/Products/${detail.productId}`,
-                      (productData) => resolve(productData),
-                      (err) => reject(err),
-                      () => console.log(`Get product ${detail.productId} completed`)
-                    );
-                  });
-                  return { ...detail, product };
-                } catch (err) {
-                  console.error(`Error fetching product ${detail.productId}:`, err);
-                  return { ...detail, product: null };
-                }
-              })
-            );
-
-            // Cập nhật cart với cartDetails đã có thông tin sản phẩm
-            const updatedCart = { ...response, cartDetails: updatedCartDetails };
-            setCart(updatedCart);
-            setCartDetails(updatedCartDetails);
-            setStoreId(response.storeId);
-            console.log("Updated cart data:", updatedCart);
-            setLoaderStatus(false);
-          },
-          (err) => {
-            console.error("Get cart error:", err);
-            toast.error(err.message || "Không thể lấy thông tin giỏ hàng!");
-            setCart(null);
-            setLoaderStatus(false);
-          },
-          () => {
-            console.log("Get cart completed");
-          }
-        );
+        // Gọi hàm fetchCartDetails để lấy chi tiết giỏ hàng
+        await fetchCartDetails(cartId);
       },
       (err) => {
-        console.error("Get profile error:", err);
+        console.error("Get profile error:", err.response?.data || err.message);
         toast.error(err.message || "Không thể lấy thông tin hồ sơ người dùng!");
-        setLoaderStatus(false);
+        setLoading(false);
       },
-      () => {
-        console.log("Get profile completed");
-      }
+      () => console.log("Get profile completed")
     );
-  }, []);
+  }, [fetchCartDetails]);
 
 
     // Cập nhật số lượng sản phẩm (tăng/giảm tương đối)
@@ -270,34 +238,42 @@ const ShopCart = () => {
     [cart, fetchCartDetails]
   );
 
-   // Hoàn tất đơn hàng
-    const handleCompleteOrder = useCallback(() => {
-      if (!cart || cartDetails.length === 0) {
-        toast.error("Giỏ hàng trống!");
+
+    // Hoàn tất đơn hàng
+  const handleCompleteOrder = useCallback(async() => {
+    if (!cart || !cart.id || !cart.cartDetails || cart.cartDetails.length === 0) {
+      toast.error("Giỏ hàng trống hoặc chưa được tải!");
+      return;
+    }
+    const confirmOrder = await showYesNoMessageBox("Bạn có xác nhận đặt đơn hàng này không?");
+      if (!confirmOrder) {
+        console.log("Hủy đặt hàng");
         return;
       }
-      fetchPost(
-        "/Orders",
-        {
-          CustomerId: customerId,
-          StoreId: storeId,
-          CartId: cart.id,
-          OrderDetails: cartDetails.map((detail) => ({
-            ProductId: detail.productId,
-            Quantity: detail.quantity,
-          })),
-        },
-        (res) => {
-          toast.success("Đơn hàng đã được tạo thành công!");
-          setCart(null);
-          setCartDetails([]);
-        },
-        (err) => {
-          toast.error(err.title || "Lỗi khi tạo đơn hàng");
-        },
-        () => console.log("Tạo đơn hàng hoàn tất")
-      );
-    }, [cart, cartDetails, customerId, storeId]);
+
+    fetchPost(
+      "/Orders",
+      {
+        CustomerId: customerId,
+        StoreId: storeId,
+        CartId: cart.id,
+        OrderDetails: cart.cartDetails.map((detail) => ({
+          ProductId: detail.productId,
+          Quantity: detail.quantity,
+        })),
+      },
+      (res) => {
+        showSuccessMessageBox("Đơn hàng đã được tạo thành công!");
+        toast.success("Đơn hàng đã được tạo thành công!");
+        setCart(null);
+      },
+      (err) => {
+        toast.error(err.title || "Lỗi khi tạo đơn hàng");
+      },
+      () => console.log("Tạo đơn hàng hoàn tất")
+    );
+  }, [cart, customerId, storeId]);
+
    // loading
    const [loaderStatus, setLoaderStatus] = useState(true);
    useEffect(() => {
@@ -349,30 +325,31 @@ const ShopCart = () => {
               </div>
               {/* row */}
               <div className="row">
-                <div className="col-lg-8 col-md-7">
-                  <div className="py-3">
-                  {/* Danh sách sản phẩm */}
-                        <ul className="list-group list-group-flush">
-                      {cart.cartDetails.map((detail, index) => (
-                        <li
-                          key={detail.productId}
-                          className={`list-group-item py-3 py-lg-0 px-0 ${
-                            index === 0 ? "border-top" : index === cart.cartDetails.length - 1 ? "border-bottom" : ""
-                          }`}
-                        >
-                          <div className="row align-items-center">
-                            <div className="col-3 col-md-2">
-                              <img
-                                src={detail.product?.image || "https://via.placeholder.com/100"}
-                                alt={detail.product?.name || "Product"}
-                                className="img-fluid"
-                              />
-                            </div>
-                            <div className="col-4 col-md-6">
-                              <h6 className="mb-0">{detail.product?.name || `Sản phẩm ID: ${detail.productId}`}</h6>
-                              <span>
-                                <small className="text-muted">Số lượng: {detail.quantity}</small>
-                              </span>
+             <div className="col-lg-8 col-md-7">
+              <div className="py-3">
+                {/* Danh sách sản phẩm */}
+                {cart && cart.cartDetails && cart.cartDetails.length > 0 ? (
+                  <ul className="list-group list-group-flush">
+                    {cart.cartDetails.map((detail, index) => (
+                      <li
+                        key={detail.productId}
+                        className={`list-group-item py-3 py-lg-0 px-0 ${
+                          index === 0 ? "border-top" : index === cart.cartDetails.length - 1 ? "border-bottom" : ""
+                        }`}
+                      >
+                        <div className="row align-items-center">
+                          <div className="col-3 col-md-2">
+                            <img
+                              src={detail.product?.image || "https://via.placeholder.com/100"}
+                              alt={detail.product?.name || "Product"}
+                              className="img-fluid"
+                            />
+                          </div>
+                          <div className="col-4 col-md-6">
+                            <h6 className="mb-0">{detail.product?.name || `Sản phẩm ID: ${detail.productId}`}</h6>
+                            <span>
+                              <small className="text-muted">Số lượng: {detail.quantity}</small>
+                            </span>
                             <div className="mt-2 small">
                               <span
                                 onClick={() => handleRemoveProduct(detail.productId)}
@@ -400,59 +377,62 @@ const ShopCart = () => {
                                 <span className="text-muted">Remove</span>
                               </span>
                             </div>
-                            </div>
-                            {/* Nút tăng giảm SL */}
-                            <div className="col-3 col-md-3 col-lg-2">
-                              <div className="input-group flex-nowrap justify-content-center">
-                                <input
-                                  type="button"
-                                  value="-"
-                                  className="button-minus form-control text-center flex-xl-none w-xl-30 w-xxl-10 px-0"
-                                  data-field="quantity"
-                                  onClick={() => handleUpdateQuantity(detail, -1)}
-                                />
-                                <input
-                                  type="number"
-                                  step={1}
-                                  min={1}
-                                  max={10}
-                                  value={tempQuantities[detail.productId] ?? detail.quantity}
-                                  name="quantity"
-                                  className="quantity-field form-control text-center flex-xl-none w-xl-30 w-xxl-10 px-0"
-                                  onChange={(e) => handleQuantityInputChange(detail, e.target.value)}
-                                  onBlur={() => handleQuantityConfirm(detail)}
-                                  onKeyDown={(e) => e.key === "Enter" && handleQuantityConfirm(detail)}
-                                />
-                                <input
-                                  type="button"
-                                  value="+"
-                                  className="button-plus form-control text-center flex-xl-none w-xl-30 w-xxl-10 px-0"
-                                  data-field="quantity"
-                                  onClick={() => handleUpdateQuantity(detail, 1)}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-2 text-lg-end text-start text-md-end col-md-2">
-                              <span className="fw-bold">
-                                {(detail.quantity * detail.price || 0).toLocaleString("vi-VN", {
-                                  style: "currency",
-                                  currency: "VND",
-                                })}
-                              </span>
+                          </div>
+                          {/* Nút tăng giảm SL */}
+                          <div className="col-3 col-md-3 col-lg-2">
+                            <div className="input-group flex-nowrap justify-content-center">
+                              <input
+                                type="button"
+                                value="-"
+                                className="button-minus form-control text-center flex-xl-none w-xl-30 w-xxl-10 px-0"
+                                data-field="quantity"
+                                onClick={() => handleUpdateQuantity(detail, -1)}
+                              />
+                              <input
+                                type="number"
+                                step={1}
+                                min={1}
+                                max={10}
+                                value={tempQuantities[detail.productId] ?? detail.quantity}
+                                name="quantity"
+                                className="quantity-field form-control text-center flex-xl-none w-xl-30 w-xxl-10 px-0"
+                                onChange={(e) => handleQuantityInputChange(detail, e.target.value)}
+                                onBlur={() => handleQuantityConfirm(detail)}
+                                onKeyDown={(e) => e.key === "Enter" && handleQuantityConfirm(detail)}
+                              />
+                              <input
+                                type="button"
+                                value="+"
+                                className="button-plus form-control text-center flex-xl-none w-xl-30 w-xxl-10 px-0"
+                                data-field="quantity"
+                                onClick={() => handleUpdateQuantity(detail, 1)}
+                              />
                             </div>
                           </div>
-                        </li>
-                      ))}
-                    </ul>
-                    {/* btn */}
-                    <div className="d-flex justify-content-between mt-4">
-                      <Link to
-                      ="/Shop" className="btn btn-primary">
-                        Continue Shopping
-                      </Link>
-                    </div>
-                  </div>
+                          <div className="col-2 text-lg-end text-start text-md-end col-md-2">
+                            <span className="fw-bold">
+                              {(detail.quantity * detail.price || 0).toLocaleString("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>Giỏ hàng trống</p>
+                )}
+                {/* btn */}
+                <div className="d-flex justify-content-between mt-4">
+                  <Link to="/Shop" className="btn btn-primary">
+                    Continue Shopping
+                  </Link>
                 </div>
+              </div>
+            </div>
+
                 {/* sidebar */}
                 <div className="col-12 col-lg-4 col-md-5">
                   {/* card */}
@@ -479,18 +459,22 @@ const ShopCart = () => {
                         </ul>
                       </div>
                      <div className="d-grid mb-1 mt-4">
-                      <button
-                        className="btn btn-primary btn-lg d-flex justify-content-between align-items-center"
-                        type="button"
-                        onClick={() => handleCompleteOrder()}
-                      >
-                        Go to Checkout <span className="fw-bold">
-                          {(cartDetails.reduce((total, detail) => total + detail.quantity * detail.price, 0) || 0).toLocaleString("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                          })}
-                        </span>
-                      </button>
+                  <button
+                    className="btn btn-primary btn-lg d-flex justify-content-between align-items-center"
+                    type="button"
+                    onClick={handleCompleteOrder}
+                  >
+                    Go to Checkout{" "}
+                    <span className="fw-bold">
+                      {(cart && cart.cartDetails && cart.cartDetails.length > 0
+                        ? cart.cartDetails.reduce((total, detail) => total + detail.quantity * detail.price, 0)
+                        : 0
+                      ).toLocaleString("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </span>
+                  </button>
                     </div>
 
 

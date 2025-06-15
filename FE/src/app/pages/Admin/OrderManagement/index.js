@@ -38,37 +38,49 @@ export default function OrderManagement() {
   const [startDate, setStartDate] = useState(""); // Thêm state cho startDate
   const [endDate, setEndDate] = useState(""); // Thêm state cho endDate
 
-  const fetchStores = useCallback(() => {
+const fetchStores = useCallback(() => {
+  fetchGet(
+    "/Stores",
+    (res) => {
+      setStores(res);
+      // Cập nhật storeMap với danh sách cửa hàng
+      const newStoreMap = res.reduce((map, store) => {
+        map[store.id] = store.name;
+        return map;
+      }, {});
+      setStoreMap(newStoreMap);
+    },
+    (err) => {
+      toast.error(err.message || "Lỗi khi lấy danh sách cửa hàng");
+    }
+  );
+}, []);
+
+ const fetchStoreById = (storeId) => {
+  return new Promise((resolve, reject) => {
     fetchGet(
-      "/Stores",
+      `/Stores/${storeId}`,
       (res) => {
-        setStores(res);
+        console.log("Lấy thông tin cửa hàng thành công, phản hồi từ server:", res);
+        const storeData = { id: storeId, name: res.name || "N/A" };
+        // Cập nhật storeMap với thông tin cửa hàng mới
+        setStoreMap((prev) => ({
+          ...prev,
+          [storeId]: res.name || "N/A",
+        }));
+        resolve(storeData);
       },
       (err) => {
-        toast.error(err.message || "Lỗi khi lấy danh sách cửa hàng");
+        console.error(`Lỗi khi lấy cửa hàng ${storeId}:`, err);
+        reject(err.message || "Lỗi khi lấy thông tin cửa hàng");
+      },
+      () => {
+        console.log("Yêu cầu lấy thông tin cửa hàng hoàn tất");
       }
     );
-  }, []);
+  });
+};
 
-  const fetchStoreById = (storeId) => {
-    return new Promise((resolve, reject) => {
-      fetchGet(
-        `/Stores/${storeId}`,
-        (res) => {
-          console.log("Lấy thông tin cửa hàng thành công, phản hồi từ server:", res);
-          const storeData = { id: storeId, name: res.name || "N/A" };
-          resolve(storeId);
-        },
-        (err) => {
-          console.error(`Lỗi khi lấy cửa hàng ${storeId}:`, err);
-          reject(err.message || "Lỗi khi lấy thông tin cửa hàng");
-        },
-        () => {
-          console.log("Yêu cầu lấy thông tin cửa hàng hoàn tất");
-        }
-      );
-    });
-  };
 
   const fetchCustomerById = (customerId) => {
     return new Promise((resolve, reject) => {
@@ -90,48 +102,59 @@ export default function OrderManagement() {
     });
   };
 
-  const fetchOrders = useCallback(() => {
-    fetchGet(
-      "/orders",
-      async (res) => {
-        console.log("Dữ liệu đơn hàng từ BE:", res);
-        const storeIds = [...new Set(res.map((order) => order.storeId))];
-        const customerIds = [
-          ...new Set(res.filter((order) => order.customerId).map((order) => order.customerId)),
-        ];
+ const fetchOrders = useCallback(() => {
+  fetchGet(
+    "/orders",
+    async (res) => {
+      console.log("Dữ liệu đơn hàng từ BE:", res);
+      const storeIds = [...new Set(res.map((order) => order.storeId))];
+      const customerIds = [
+        ...new Set(res.filter((order) => order.customerId).map((order) => order.customerId)),
+      ];
 
-        const storePromises = storeIds.map((storeId) => fetchStoreById(storeId));
-        const storeResults = await Promise.all(storePromises);
-        const newStoreMap = storeResults.reduce(
-          (map, store) => ({ ...map, [store.id]: store.name }),
-          {}
-        );
+      // Chỉ lấy thông tin cửa hàng chưa có trong storeMap
+      const missingStoreIds = storeIds.filter((storeId) => !storeMap[storeId]);
+      const storePromises = missingStoreIds.map((storeId) => fetchStoreById(storeId));
+      const storeResults = await Promise.all(storePromises);
+      const newStoreMap = storeResults.reduce(
+        (map, store) => ({ ...map, [store.id]: store.name }),
+        { ...storeMap }
+      );
 
-        const customerPromises = customerIds.map((customerId) => fetchCustomerById(customerId));
-        const customerResults = await Promise.all(customerPromises);
-        const newCustomerMap = customerResults.reduce(
-          (map, customer) => ({ ...map, [customer.id]: customer.fullname }),
-          {}
-        );
+      const customerPromises = customerIds.map((customerId) => fetchCustomerById(customerId));
+      const customerResults = await Promise.all(customerPromises);
+      const newCustomerMap = customerResults.reduce(
+        (map, customer) => ({ ...map, [customer.id]: customer.fullname }),
+        {}
+      );
 
-        setStoreMap(newStoreMap);
-        setCustomerMap(newCustomerMap);
+      setStoreMap(newStoreMap);
+      setCustomerMap(newCustomerMap);
 
-        const ordersWithDetails = res.map((order) => ({
-          ...order,
-          storeName: newStoreMap[order.storeId] || "N/A",
-          customerName: order.customerId ? newCustomerMap[order.customerId] || "N/A" : "Khách lẻ",
-        }));
+      const ordersWithDetails = res.map((order) => ({
+        ...order,
+        storeName: newStoreMap[order.storeId] || "N/A",
+        customerName: order.customerId ? newCustomerMap[order.customerId] || "N/A" : "Khách lẻ",
+      }));
 
-        setListOrders(ordersWithDetails);
-        applySearchAndFilter(ordersWithDetails, dataSearch, selectedStore, startDate, endDate);
-      },
-      (err) => {
-        toast.error(err.message || "Có lỗi xảy ra khi lấy danh sách đơn hàng");
-      },
-      () => console.log("Lấy danh sách đơn hàng hoàn tất")
-    );
-  }, [dataSearch, selectedStore, startDate, endDate]); // Thêm startDate, endDate vào dependency
+      const atStoreOrders = ordersWithDetails.filter((order) => !order.customerId);
+      const onlineOrders = ordersWithDetails.filter((order) => order.customerId);
+
+      setListOrders(ordersWithDetails);
+      setListOrdersShow({
+        atStore: atStoreOrders,
+        online: onlineOrders,
+      });
+
+      // Áp dụng bộ lọc nếu cần
+      applySearchAndFilter(ordersWithDetails, dataSearch, selectedStore, startDate, endDate);
+    },
+    (err) => {
+      toast.error(err.message || "Có lỗi xảy ra khi lấy danh sách đơn hàng");
+    },
+    () => console.log("Lấy danh sách đơn hàng hoàn tất")
+  );
+}, [storeMap, dataSearch, selectedStore, startDate, endDate]); // Thêm startDate, endDate vào dependency
 
   const applySearchAndFilter = useCallback(
     (orders, searchValue, storeId, start, end) => {

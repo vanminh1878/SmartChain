@@ -116,11 +116,11 @@ const OrderDetailsDialog = ({
               onChange={(e) => handleUpdateStatus(selectedOrder.id, e.target.value)}
               label="Cập nhật trạng thái"
             >
-              <MenuItem value="Pending">Chờ xử lý</MenuItem>
-              <MenuItem value="Confirmed">Đã xác nhận</MenuItem>
-              <MenuItem value="Shipped">Đang giao</MenuItem>
-              <MenuItem value="Delivered">Đã giao</MenuItem>
-              <MenuItem value="Cancelled">Đã hủy</MenuItem>
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="confirmed">confirmed</MenuItem>
+              <MenuItem value="shipped">shipped</MenuItem>
+              <MenuItem value="delivered">delivered</MenuItem>
+              <MenuItem value="cancelled">cancelled</MenuItem>
             </Select>
           </FormControl>
         )}
