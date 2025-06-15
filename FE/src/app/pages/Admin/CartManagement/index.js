@@ -20,7 +20,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import { Search, Close, Add, Remove, Delete } from "@mui/icons-material";
-import { fetchGet, fetchPost, fetchDelete, fetchPut } from "../../../lib/httpHandler";
+import { BE_ENPOINT,fetchGet, fetchPost, fetchDelete, fetchPut } from "../../../lib/httpHandler";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -90,9 +90,11 @@ export default function CartManagement() {
       fetchGet(
         `/Products?search=${encodeURIComponent(value)}`,
         (res) => {
-          setProducts(res.items || []);
+          console.log("Đang lấy sp thành công")
+          setProducts(res || []);
         },
         (err) => {
+          console.log("Đang lấy sp thất bại")
           toast.error(err.title || "Lỗi khi tìm kiếm sản phẩm");
         },
         () => console.log("Tìm kiếm sản phẩm hoàn tất")
@@ -412,7 +414,9 @@ export default function CartManagement() {
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>
                       <img
-                        src={detail.image || "https://via.placeholder.com/50"}
+                        src={detail?.image ? `${BE_ENPOINT}/api/asset/view-image/${detail?.image}`
+                                                      : "https://via.placeholder.com/150"
+                                                  }
                         alt={detail.name || "N/A"}
                         style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 4 }}
                       />
