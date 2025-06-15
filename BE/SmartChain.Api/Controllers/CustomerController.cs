@@ -12,6 +12,8 @@ using SmartChain.Application.Stores.Queries.GetStoreById;
 using SmartChain.Application.Accounts.Queries.GetAccountByUserId;
 using SmartChain.Contracts.Customers;
 using SmartChain.Domain.Customer;
+using System.Security.Claims;
+using SmartChain.Application.Customers.Queries.GetCustomerByAccountId;
 
 namespace SmartChain.Api.Controllers;
 
@@ -40,6 +42,36 @@ public class CustomersController : ApiController
             Problem);
     }
 
+    [HttpPost]
+    public async Task<IActionResult> CreateCustomer(CreateCustomerRequest request)
+    {
+        var command = new CreateCustomerCommand(request.fullname, request.email, request.phoneNumber,
+                                                request.address, request.accountId);
+        var result = await _mediator.Send(command);
+
+        return result.Match(
+            Customer => CreatedAtAction(
+                actionName: nameof(GetAllCustomers),
+                routeValues: new { CustomerId = Customer.Id },
+                value: ToDto(Customer)),
+            Problem);
+    }
+     [HttpGet("Profile")]
+    public async Task<IActionResult> GetProfile()
+    {
+        var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (accountId == null)
+        {
+            return Unauthorized();
+        }
+
+        var query = new GetCustomerByAccountIdQuery(Guid.Parse(accountId));
+        var result = await _mediator.Send(query);
+
+        return result.Match(
+            customer => Ok(customer),
+            Problem);
+    }
     [HttpPut("lock/{CustomerId:Guid}")]
     public async Task<IActionResult> LockCustomer(Guid CustomerId)
     {

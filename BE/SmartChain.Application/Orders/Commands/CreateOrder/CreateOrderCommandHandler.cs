@@ -74,7 +74,7 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Err
        
 
         await _ordersRepository.AddAsync(order, cancellationToken);
-        await _cartsRepository.DeleteAsync(cart, cancellationToken); // Clear cart after order creation
+        // await _cartsRepository.DeleteAsync(cart, cancellationToken); // Clear cart after order creation
 
         return order;
     }

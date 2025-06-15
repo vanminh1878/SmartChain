@@ -4,7 +4,7 @@ using SmartChain.Application.Common.Interfaces;
 using SmartChain.Domain.Cart;
 using SmartChain.Domain.Product;
 
-namespace SmartChain.Application.Carts.Commands.CreateCart;
+namespace SmartChain.Application.Carts.Commands.CreateCarts;
 
 public class CreateCartCommandHandler : IRequestHandler<CreateCartCommand, ErrorOr<Cart>>
 {

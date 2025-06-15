@@ -2,7 +2,7 @@ using ErrorOr;
 using MediatR;
 using SmartChain.Domain.Cart;
 
-namespace SmartChain.Application.Carts.Commands.CreateCart;
+namespace SmartChain.Application.Carts.Commands.CreateCarts;
 
 public record CreateCartCommand(
     Guid? CustomerId,

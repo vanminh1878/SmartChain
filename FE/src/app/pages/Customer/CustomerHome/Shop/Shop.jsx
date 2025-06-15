@@ -4,7 +4,7 @@ import assortment from "../../../../assets/images/assortment-citrus-fruits.png";
 import { Link } from "react-router-dom";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { ToastContainer, toast } from "react-toastify";
-import { fetchGet, fetchDelete } from "../../../../lib/httpHandler";
+import { fetchGet, fetchPost } from "../../../../lib/httpHandler";
 import product1 from "../../../../assets/images/category-baby-care.jpg";
 import product2 from "../../../../assets/images/category-atta-rice-dal.jpg";
 import product3 from "../../../../assets/images/category-bakery-biscuits.jpg";
@@ -16,6 +16,8 @@ import product8 from "../../../../assets/images/category-pet-care.jpg";
 import product9 from "../../../../assets/images/category-snack-munchies.jpg";
 import product10 from "../../../../assets/images/category-tea-coffee-drinks.jpg";
 import ScrollToTop from "../ScrollToTop";
+import { showSuccessMessageBox } from "../../../../components/MessageBox/SuccessMessageBox/showSuccessMessageBox"
+import {showErrorMessageBox } from "../../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox"
 
 function Dropdown() {
   const [openDropdowns, setOpenDropdowns] = useState([]);
@@ -115,6 +117,58 @@ function Dropdown() {
       }
     );
   }, []);
+
+
+// Hàm xử lý thêm sản phẩm vào giỏ hàng
+  const handleAddToCart = (productId, quantity = 1) => {
+    // Lấy token từ localStorage
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+      return;
+    }
+
+    // Gọi API /Customers/Profile để lấy customerId và storeId
+    fetchGet(
+      "/Customers/Profile",
+      (profile) => {
+        const { customerId, storeId } = profile;
+        if (!customerId || !storeId) {
+          toast.error("Không thể lấy thông tin hồ sơ người dùng!");
+          return;
+        }
+
+        const cartData = {
+          customerId,
+          storeId,
+          productId,
+          quantity,
+        };
+
+        fetchPost(
+          "/Carts",
+          cartData,
+          () => {
+            showSuccessMessageBox("Thêm sản phẩm vào giỏ hàng thành công!");
+          },
+          (err) => {
+            console.error("Add to cart error:", err);
+            showErrorMessageBox(err.message || "Thêm sản phẩm vào giỏ hàng thất bại!");
+          },
+          () => {
+            console.log("Add to cart completed");
+          }
+        );
+      },
+      (err) => {
+        console.error("Get profile error:", err);
+        toast.error(err.message || "Không thể lấy thông tin hồ sơ người dùng!");
+      },
+      () => {
+        console.log("Get profile completed");
+      }
+    );
+  };
 
     // Fetch danh sách khi component mount
     useEffect(() => {
@@ -405,26 +459,27 @@ color="#0aad0a"
                   <span className="text-muted">Price unavailable</span>
                 )}
               </div>
+              {/* Nút add to cart */}
               <div>
-                <Link to="#!" className="btn btn-primary btn-sm">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={16}
-                    height={16}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="feather feather-plus"
-                  >
-                    <line x1={12} y1={5} x2={12} y2={19} />
-                    <line x1={5} y1={12} x2={19} y2={12} />
-                  </svg>
-                  Add
-                </Link>
-              </div>
+      <button className="btn btn-primary btn-sm"onClick={() => handleAddToCart(product.id, 1)}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width={16}
+          height={16}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="feather feather-plus"
+        >
+          <line x1={12} y1={5} x2={12} y2={19} />
+          <line x1={5} y1={12} x2={19} y2={12} />
+        </svg>
+        Add
+      </button>
+    </div>
             </div>
           </div>
         </div>

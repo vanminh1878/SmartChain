@@ -1,4 +1,4 @@
-.login-page {
+.register-page {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -6,7 +6,7 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #efa6b0 100%);
 }
 
-.login-container {
+.register-container {
   display: flex;
   width: 900px;
   background: #fff;
@@ -15,30 +15,30 @@
   overflow: hidden;
 }
 
-.login-left {
+.register-left {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: #ff4d4f; /* Màu chủ đạo của Circle K */
+  background: #ff4d4f;
   padding: 40px;
   color: #fff;
 }
 
-.login-logo {
+.register-logo {
   width: 150px;
   margin-bottom: 20px;
 }
 
-.login-title {
+.register-title {
   font-size: 2rem;
   font-weight: bold;
   text-align: center;
   text-transform: uppercase;
 }
 
-.login-right {
+.register-right {
   flex: 1;
   display: flex;
   justify-content: center;
@@ -47,7 +47,7 @@
   background: #fff;
 }
 
-.login-form {
+.register-form {
   width: 100%;
   max-width: 400px;
 }
@@ -94,13 +94,13 @@
   box-shadow: 0 0 5px rgba(255, 77, 79, 0.3);
 }
 
-.form-links-login {
+.form-links {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   margin-top: 10px;
 }
 
-.form-link-login {
+.form-link {
   color: #ff4d4f;
   text-decoration: none;
   font-size: 0.9rem;

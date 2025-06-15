@@ -1,13 +1,14 @@
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SmartChain.Application.Carts.Commands.CreateCart;
+using SmartChain.Application.Carts.Commands.CreateCarts;
 using SmartChain.Application.Carts.Commands.UpdateCartDetail;
 using SmartChain.Application.Carts.Commands.DeleteCartDetail;
 using SmartChain.Application.Carts.Queries.GetCartById;
 using SmartChain.Contracts.Carts;
 using SmartChain.Domain.Cart;
 using SmartChain.Application.Carts.Commands.UpdateCartDetailNewQuantity;
+using SmartChain.Application.Carts.Commands.CreateCartForCustomer;
 
 namespace SmartChain.Api.Controllers;
 
@@ -35,6 +36,21 @@ public class CartsController : ApiController
 
         return result.Match(
             cart => CreatedAtAction(nameof(GetCartById), new { CartId = cart.Id }, ToDto(cart)),
+            Problem
+        );
+    }
+
+    [HttpPost("Customer")]
+    public async Task<IActionResult> CreateCartForCustomer(CreateCartRequest request)
+    {
+        var command = new CreateCartForCustomerCommand(
+            request.CustomerId,
+            request.StoreId
+        );
+        var result = await _mediator.Send(command);
+
+        return result.Match(
+            cart => CreatedAtAction(nameof(GetCartById), new { CartId = cart.Id }, cart),
             Problem
         );
     }

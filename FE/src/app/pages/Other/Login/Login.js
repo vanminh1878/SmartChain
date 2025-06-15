@@ -33,12 +33,12 @@ export default function Login() {
         localStorage.setItem("jwtToken", sus.token);
         sIsLoggedIn.set(true);
         toast.success("Đăng nhập thành công!");
-        if (sus.user.roleId === "5aabf246-b367-464f-a151-8c967ccd1580") {
+        if (sus.user?.roleId === "5aabf246-b367-464f-a151-8c967ccd1580") {
           navigate("/");
-        } else if (sus.user.roleId === "b17cdfca-dcde-46b3-bd60-d126ff2de7bd") {
+        } else if (sus.user?.roleId === "b17cdfca-dcde-46b3-bd60-d126ff2de7bd") {
           navigate("/admin");
         } else {
-          navigate("/staff");
+          navigate("/"); // Điều hướng cho khách hàng hoặc vai trò không xác định
         }
       },
       (fail) => {
@@ -83,11 +83,11 @@ export default function Login() {
                     className="input-field"
                   />
                 </div>
-                <div className="form-links">
-                  <Link to="/register" className="form-link">
+                <div className="form-links-login">
+                  <Link to="/register" className="form-link-login">
                     Tạo tài khoản
                   </Link>
-                  <Link to="/forget-password" className="form-link">
+                  <Link to="/forget-password" className="form-link-login">
                     Quên mật khẩu
                   </Link>
                 </div>

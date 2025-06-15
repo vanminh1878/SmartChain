@@ -35,6 +35,11 @@ public class CustomersRepository : ICustomersRepository
         return await _context.Customers
             .FirstOrDefaultAsync(c => c.Email == email, cancellationToken);
     }
+     public async Task<Customer?> GetByAccountIdAsync(Guid accountId, CancellationToken cancellationToken)
+    {
+        return await _context.Customers
+            .FirstOrDefaultAsync(u => u.AccountId == accountId, cancellationToken);
+    }
         public async Task<List<Customer>> ListAllAsync(CancellationToken cancellationToken)
     {
         return await _context.Customers

@@ -16,6 +16,7 @@ import CartManagement from "../pages/Admin/CartManagement";
 import OrderManagement from "../pages/Admin/OrderManagement";
 import AccountManagement from "../pages/Admin/AccountManagement";
 import Login from "../pages/Other/Login";
+import Register from "../pages/Other/Register";
 import ProtectedRoute from "../components/ProtectedRoute";
 import LayoutStaff from "../layouts/staffLayout";
 // Từ App.js
@@ -77,6 +78,7 @@ export default function MainRoutes() {
           <Route path="/Contact" element={<Contact />} />
           <Route path="/AboutUs" element={<AboutUs />} />
           <Route path="login" element={<Login />} />
+           <Route path="register" element={<Register />} />
         </Route>
 
         {/* Layout quản trị viên - Bảo vệ bằng ProtectedRoute */}

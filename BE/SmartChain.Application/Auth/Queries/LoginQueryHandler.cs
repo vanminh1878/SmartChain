@@ -1,4 +1,3 @@
-// Application/Auth/Queries/LoginQueryHandler.cs
 using ErrorOr;
 using MediatR;
 using SmartChain.Application.Common.Interfaces;
@@ -53,21 +52,29 @@ namespace SmartChain.Application.Auth.Queries
             if (account.Status == false)
                 return Error.Failure("Tài khoản đã bị khóa.");
 
-            var userInfo = await _usersRepository.GetByAccountIdAsync(account.Id, cancellationToken);
-            if (userInfo == null)
-                return Error.NotFound("Thông tin người dùng không tồn tại.");
-
-            var role = await _rolesRepository.GetByIdAsync(userInfo.RoleId, cancellationToken);
-            if (role == null)
-                return Error.NotFound("Role không tồn tại.");
-
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
-                new Claim(ClaimTypes.Name, account.Username),
-                new Claim(ClaimTypes.Email, userInfo.Email),
-                new Claim(ClaimTypes.Role, role.Name)
+                new Claim(ClaimTypes.Name, account.Username)
             };
+
+            // Thử lấy thông tin người dùng từ UsersRepository (cho admin, staff, v.v.)
+            var userInfo = await _usersRepository.GetByAccountIdAsync(account.Id, cancellationToken);
+            if (userInfo != null)
+            {
+                // Thêm Claim cho email nếu userInfo tồn tại
+                claims.Add(new Claim(ClaimTypes.Email, userInfo.Email));
+
+                // Thêm Claim cho vai trò nếu RoleId tồn tại
+                if (userInfo.RoleId != null)
+                {
+                    var role = await _rolesRepository.GetByIdAsync(userInfo.RoleId, cancellationToken);
+                    if (role != null)
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, role.Name));
+                    }
+                }
+            }
 
             var token = _jwtTokenService.GenerateToken(claims);
             return new LoginResponse(token, userInfo);
