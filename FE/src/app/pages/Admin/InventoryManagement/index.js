@@ -9,6 +9,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  IconButton,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { ToastContainer, toast } from "react-toastify";
@@ -17,7 +18,10 @@ import { fetchGet, fetchPost } from "../../../lib/httpHandler";
 import SearchIcon from "@mui/icons-material/Search";
 import { Avatar } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
 import AddStockIntake from "../../../components/Admin/InventoryManagement/AddStockIntake/AddStockIntake";
+import DetailProduct from "../../../components/Admin/InventoryManagement/DetailProduct/DetailProduct.jsx";
+import { BE_ENPOINT } from "../../../lib/httpHandler";
 
 const Product = ({ productName }) => (
   <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -33,6 +37,7 @@ const Product = ({ productName }) => (
 export default function InventoryManagement() {
   const [stores, setStores] = useState([]);
   const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [stockIntakes, setStockIntakes] = useState([]);
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -42,7 +47,9 @@ export default function InventoryManagement() {
   const [intakeSearchText, setIntakeSearchText] = useState("");
   const [orderSearchText, setOrderSearchText] = useState("");
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [isLoadingAllProducts, setIsLoadingAllProducts] = useState(false);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const fetchStores = useCallback(() => {
     fetchGet(
@@ -78,14 +85,16 @@ export default function InventoryManagement() {
           .map((item) => ({
             id: item.productId,
             name: item.tenSanPham || "Không xác định",
+            description: item.moTa || "Không có mô tả",
             category: item.danhMuc || "Không xác định",
             supplier: item.nhaCungCap || "Không xác định",
             store: item.cuaHang || "Không xác định",
             unit_price: Number(item.giaNhap) || 0,
             price: Number(item.giaBan) || 0,
-            stock_quantity: Number(item.tonKho) || 0,
+            stockQuantity: Number(item.tonKho) || 0,
+            image: item.hinhAnh || null,
           }));
-        console.log("validatedProducts: ",validatedProducts);
+        console.log("validatedProducts: ", validatedProducts);
         setProducts(validatedProducts);
         setIsLoadingProducts(false);
       },
@@ -97,6 +106,37 @@ export default function InventoryManagement() {
       }
     );
   }, [selectedStore]);
+
+  const fetchAllProducts = useCallback(() => {
+    setIsLoadingAllProducts(true);
+    fetchGet(
+      "/Products",
+      (res) => {
+        console.log("All products fetched:", res);
+        const productList = Array.isArray(res) ? res : [];
+        const validatedAllProducts = productList
+          .filter((item) => item && typeof item === "object" && item.id)
+          .map((item) => ({
+            id: item.id,
+            name: item.name || "Không xác định",
+            description: item.description || "Không có mô tả",
+            category: item.category || "Không xác định",
+            price: Number(item.price) || 0,
+            stockQuantity: Number(item.stockQuantity) || 0,
+            image: item.image || null,
+          }));
+        setAllProducts(validatedAllProducts);
+        setIsLoadingAllProducts(false);
+      },
+      (err) => {
+        console.error("Fetch products error:", err);
+        toast.error("Lỗi khi lấy danh sách sản phẩm.");
+        setAllProducts([]);
+        setIsLoadingAllProducts(false);
+      },
+      () => console.log("Fetch products completed")
+    );
+  }, []);
 
   const fetchSuppliers = useCallback(() => {
     fetchGet(
@@ -151,7 +191,6 @@ export default function InventoryManagement() {
                         resolveIfDone();
                       },
                       (error) => {
-                        //console.error(`Lỗi khi lấy thông tin user ${item.createdBy}:`, error);
                         resolveIfDone();
                       }
                     );
@@ -203,7 +242,7 @@ export default function InventoryManagement() {
         const validatedOrders = orderList
           .filter((item) => item && typeof item === "object" && item.supplierId)
           .map((item, index) => ({
-            id: item.id || item.supplierId || `temp-id-${index}`, // Sử dụng id từ API hoặc supplierId làm fallback
+            id: item.id || item.supplierId || `temp-id-${index}`,
             supplierId: item.supplierId,
             supplier: item.supplier || "Không xác định",
             intakeDate: item.intakeDate || "Không xác định",
@@ -241,6 +280,15 @@ export default function InventoryManagement() {
     [fetchStockIntakes, fetchProducts]
   );
 
+  const handleEditProduct = useCallback((productId) => {
+    const product = allProducts.find((p) => p.id === productId);
+    if (product) {
+      setSelectedProduct(product);
+    } else {
+      toast.error("Không tìm thấy sản phẩm để chỉnh sửa");
+    }
+  }, [allProducts]);
+
   const filteredProducts = useMemo(() => {
     if (!Array.isArray(products)) return [];
     const validProducts = products.filter((item) => item && item.id);
@@ -248,6 +296,14 @@ export default function InventoryManagement() {
     const lowercasedSearch = productSearchText.toLowerCase();
     return validProducts.filter((item) => item.name?.toLowerCase().includes(lowercasedSearch));
   }, [products, productSearchText]);
+
+  const filteredAllProducts = useMemo(() => {
+    if (!Array.isArray(allProducts)) return [];
+    const validProducts = allProducts.filter((item) => item && item.id);
+    if (!productSearchText.trim()) return validProducts;
+    const lowercasedSearch = productSearchText.toLowerCase();
+    return validProducts.filter((item) => item.name?.toLowerCase().includes(lowercasedSearch));
+  }, [allProducts, productSearchText]);
 
   const filteredStockIntakes = useMemo(() => {
     if (!Array.isArray(stockIntakes)) return [];
@@ -274,7 +330,8 @@ export default function InventoryManagement() {
     fetchSuppliers();
     fetchStockIntakes();
     fetchPurchaseOrders();
-  }, [fetchStores, fetchSuppliers, fetchStockIntakes, fetchPurchaseOrders]);
+    fetchAllProducts();
+  }, [fetchStores, fetchSuppliers, fetchStockIntakes, fetchPurchaseOrders, fetchAllProducts]);
 
   useEffect(() => {
     if (selectedStore) {
@@ -307,12 +364,12 @@ export default function InventoryManagement() {
       },
     },
     {
-      field: "stock_quantity",
+      field: "stockQuantity",
       headerName: "Tồn kho",
       width: 120,
-       renderCell: (params) => {
-        return params.row.stock_quantity != null
-          ? `${Number(params.row.stock_quantity)} cái`
+      renderCell: (params) => {
+        return params.row.stockQuantity != null
+          ? `${Number(params.row.stockQuantity)} cái`
           : "0 cái";
       },
     },
@@ -321,23 +378,23 @@ export default function InventoryManagement() {
   const intakeColumns = [
     { field: "stockIntakeId", headerName: "ID", width: 300 },
     {
-    field: "intakeDate",
-    headerName: "Ngày nhập",
-    width: 200,
-    renderCell: (params) => {
-      const date = params.row.intakeDate
-        ? new Date(params.row.intakeDate).toLocaleString("vi-VN", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          })
-        : "Không xác định";
-      return date;
+      field: "intakeDate",
+      headerName: "Ngày nhập",
+      width: 200,
+      renderCell: (params) => {
+        const date = params.row.intakeDate
+          ? new Date(params.row.intakeDate).toLocaleString("vi-VN", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })
+          : "Không xác định";
+        return date;
+      },
     },
-  },
     { field: "created_By_Name", headerName: "Người tạo", width: 150 },
     { field: "status", headerName: "Trạng thái", width: 120 },
     { field: "approved_By_Name", headerName: "Người phê duyệt", width: 150 },
@@ -345,24 +402,24 @@ export default function InventoryManagement() {
 
   const orderColumns = [
     { field: "supplier", headerName: "Nhà cung cấp", width: 300 },
-     {
-    field: "intakeDate",
-    headerName: "Ngày nhập",
-    width: 300,
-    renderCell: (params) => {
-      const date = params.row.intakeDate
-        ? new Date(params.row.intakeDate).toLocaleString("vi-VN", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          })
-        : "Không xác định";
-      return date;
+    {
+      field: "intakeDate",
+      headerName: "Ngày nhập",
+      width: 300,
+      renderCell: (params) => {
+        const date = params.row.intakeDate
+          ? new Date(params.row.intakeDate).toLocaleString("vi-VN", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })
+          : "Không xác định";
+        return date;
+      },
     },
-  },
     {
       field: "totalAmount",
       headerName: "Tổng tiền",
@@ -373,6 +430,58 @@ export default function InventoryManagement() {
           : "0 VNĐ";
       },
     },
+  ];
+
+  const manageProductColumns = [
+    {
+      field: "image",
+      headerName: "Ảnh",
+      width: 100,
+      renderCell: (params) => (
+        <Avatar
+          src={params.row.image ? `${BE_ENPOINT}/api/asset/view-image/${params.row.image}` : null}
+          alt={params.row.name}
+          sx={{ width: 40, height: 40 }}
+          variant="square"
+        >
+          {params.row.name ? params.row.name[0].toUpperCase() : "A"}
+        </Avatar>
+      ),
+    },
+    { field: "name", headerName: "Tên", width: 200 },
+    { field: "description", headerName: "Mô tả", width: 250 },
+    {
+      field: "price",
+      headerName: "Giá",
+      width: 150,
+      renderCell: (params) => {
+        return params.row.price != null
+          ? `${Number(params.row.price).toLocaleString("vi-VN")} VNĐ`
+          : "0 VNĐ";
+      },
+    },
+    {
+      field: "stockQuantity",
+      headerName: "Tồn kho",
+      width: 120,
+      renderCell: (params) => {
+        return params.row.stockQuantity != null
+          ? `${Number(params.row.stockQuantity)} cái`
+          : "0 cái";
+      },
+    },
+
+    {
+  field: "actions",
+  headerName: "Thao tác",
+  width: 150,
+  renderCell: (params) => (
+    <Box display="flex" gap={1}>
+      <DetailProduct item={params.row} setListProducts={setAllProducts} setSelectedProduct={setSelectedProduct} />    
+  
+    </Box>
+  ),
+},
   ];
 
   return (
@@ -483,12 +592,45 @@ export default function InventoryManagement() {
         <Typography>Đang tải dữ liệu phiếu đặt hàng...</Typography>
       ) : (
         <DataGrid
-          sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0 }}
+          sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0, mb: 4 }}
           rows={filteredPurchaseOrders}
           columns={orderColumns}
           getRowId={(row) => row.id}
           initialState={{
             pagination: { paginationModel: { page: 0, pageSize: 5 } },
+          }}
+          pageSizeOptions={[5, 10, 20]}
+          checkboxSelection
+        />
+      )}
+      <Typography variant="h5" sx={{ mb: 2 }}>
+        Quản lý sản phẩm
+      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+        <TextField
+          placeholder="Tìm kiếm sản phẩm"
+          value={productSearchText}
+          onChange={(e) => setProductSearchText(e.target.value)}
+          sx={{ width: "40%", backgroundColor: "white" }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
+      {isLoadingAllProducts ? (
+        <Typography>Đang tải dữ liệu sản phẩm...</Typography>
+      ) : (
+        <DataGrid
+          sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0 }}
+          rows={filteredAllProducts}
+          columns={manageProductColumns}
+          getRowId={(row) => row.id}
+          initialState={{
+            pagination: { paginationModel: { page: 0, pageSize: 10 } },
           }}
           pageSizeOptions={[5, 10, 20]}
           checkboxSelection
@@ -502,6 +644,7 @@ export default function InventoryManagement() {
         products={products}
         onCreateIntake={handleCreateIntake}
       />
+      
     </Box>
   );
 }

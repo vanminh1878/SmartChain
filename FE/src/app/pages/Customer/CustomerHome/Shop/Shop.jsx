@@ -18,6 +18,7 @@ import product10 from "../../../../assets/images/category-tea-coffee-drinks.jpg"
 import ScrollToTop from "../ScrollToTop";
 import { showSuccessMessageBox } from "../../../../components/MessageBox/SuccessMessageBox/showSuccessMessageBox"
 import {showErrorMessageBox } from "../../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox"
+import { BE_ENPOINT } from "../../../../lib/httpHandler";
 
 function Dropdown() {
   const [openDropdowns, setOpenDropdowns] = useState([]);
@@ -389,50 +390,19 @@ color="#0aad0a"
           <div className="card-body">
             {/* Badge */}
             {product.stockQuantity > 0 && (
-              <div className="text-center position-relative">
-               
+            <div className="text-center position-relative">
                 <Link to={`/product/${product.id}`}>
                   <img
-                    src={product.image || 'https://via.placeholder.com/150'} // Ảnh mặc định nếu image null
-                    alt={product.name}
+                    src={
+                      product.image
+                        ? `${BE_ENPOINT}/api/asset/view-image/${product.image}`
+                        : "https://via.placeholder.com/150"
+                    }
+                    alt={product.name || "Sản phẩm"}
                     className="mb-3 img-fluid"
-                    style={{ height: '150px', objectFit: 'cover' }}
+                    style={{ height: "150px", objectFit: "cover" }}
                   />
                 </Link>
-                {/* Action buttons */}
-                <div className="card-product-action">
-                  <Link
-                    to="#!"
-                    className="btn-action"
-                    data-bs-toggle="modal"
-                    data-bs-target="#quickViewModal"
-                  >
-                    <i
-                      className="bi bi-eye"
-                      data-bs-toggle="tooltip"
-                      data-bs-html="true"
-                      title="Quick View"
-                    />
-                  </Link>
-                  <Link
-                    to="/shop-wishlist.html"
-                    className="btn-action"
-                    data-bs-toggle="tooltip"
-                    data-bs-html="true"
-                    title="Wishlist"
-                  >
-                    <i className="bi bi-heart" />
-                  </Link>
-                  <Link
-                    to="#!"
-                    className="btn-action"
-                    data-bs-toggle="tooltip"
-                    data-bs-html="true"
-                    title="Compare"
-                  >
-                    <i className="bi bi-arrow-left-right" />
-                  </Link>
-                </div>
               </div>
             )}
             {/* Category */}

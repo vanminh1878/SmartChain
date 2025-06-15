@@ -23,6 +23,20 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import { fetchGet, fetchPost } from "../../../../lib/httpHandler";
 
+// Hàm tính khoảng cách Haversine (tính bằng km)
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return "N/A";
+  const toRad = (value) => (value * Math.PI) / 180;
+  const R = 6371; // Bán kính trái đất (km)
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return (R * c).toFixed(2); // Trả về khoảng cách làm tròn 2 chữ số
+};
+
 // Component Product để hiển thị tên sản phẩm với Avatar
 const Product = ({ productName }) => (
   <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -66,6 +80,8 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
   const [userFullname, setUserFullname] = useState(user?.fullname || "Không xác định");
   const [productSearchText, setProductSearchText] = useState("");
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [productSuppliersDetails, setProductSuppliersDetails] = useState({}); // Lưu chi tiết nhà cung cấp theo productId
+  const [storeDetails, setStoreDetails] = useState({}); // Lưu chi tiết cửa hàng theo storeId
 
   // Fetch thông tin người dùng
   useEffect(() => {
@@ -142,6 +158,99 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
     }
   }, [categoryList]);
 
+  // Fetch chi tiết cửa hàng
+  const fetchStoreDetails = useCallback((storeId) => {
+    if (!storeId || storeDetails[storeId]) return; // Tránh gọi lại nếu đã có dữ liệu
+    fetchGet(
+      `/Stores/${storeId}`,
+      (res) => {
+        console.log("Store details fetched:", res);
+        setStoreDetails((prev) => ({
+          ...prev,
+          [storeId]: {
+            id: res.id,
+            name: res.name || "Không xác định",
+            latitude: res.latitude || null,
+            longitude: res.longitude || null,
+            address: res.address || null,
+          },
+        }));
+      },
+      (fail) => {
+        console.error(`Lỗi khi lấy chi tiết cửa hàng ${storeId}:`, fail);
+        toast.error("Lỗi khi lấy chi tiết cửa hàng");
+        setStoreDetails((prev) => ({
+          ...prev,
+          [storeId]: {
+            id: storeId,
+            name: "Không xác định",
+            latitude: null,
+            longitude: null,
+            address: null,
+          },
+        }));
+      }
+    );
+  }, [storeDetails]);
+
+  // Fetch danh sách nhà cung cấp theo sản phẩm và chi tiết nhà cung cấp
+  const fetchSuppliersByProductId = useCallback((productId) => {
+    if (!productId) return;
+    fetchGet(
+      `/ProductSuppliers/product/${productId}`,
+      async (res) => {
+        console.log("Suppliers for product fetched:", res);
+        const productSuppliers = Array.isArray(res) ? res : [res];
+        if (!productSuppliers.length) {
+          setProductSuppliersDetails((prev) => ({
+            ...prev,
+            [productId]: [],
+          }));
+          return;
+        }
+
+        // Gọi API GET /Suppliers/{SupplierId} cho từng supplierId
+        const supplierDetailsPromises = productSuppliers.map((productSupplier) =>
+          fetchGet(
+            `/Suppliers/${productSupplier.supplierId}`,
+            (supplierRes) => ({
+              id: productSupplier.supplierId,
+              name: supplierRes.name || "Không xác định",
+              latitude: supplierRes.latitude || null,
+              longitude: supplierRes.longitude || null,
+              address: supplierRes.address || null,
+            }),
+            (fail) => {
+              console.error(`Lỗi khi lấy chi tiết nhà cung cấp ${productSupplier.supplierId}:`, fail);
+              return {
+                id: productSupplier.supplierId,
+                name: "Không xác định",
+                latitude: null,
+                longitude: null,
+                address: null,
+              };
+            }
+          )
+        );
+
+        const supplierDetails = await Promise.all(supplierDetailsPromises);
+        console.log("Supplier details fetched:", supplierDetails);
+        setProductSuppliersDetails((prev) => ({
+          ...prev,
+          [productId]: supplierDetails,
+        }));
+      },
+      (fail) => {
+        console.error("Lỗi khi lấy danh sách nhà cung cấp:", fail);
+        toast.error("Lỗi khi lấy danh sách nhà cung cấp cho sản phẩm");
+        setProductSuppliersDetails((prev) => ({
+          ...prev,
+          [productId]: [],
+        }));
+      }
+    );
+  }, []);
+
   // Lọc sản phẩm theo tìm kiếm
   const filteredProducts = useMemo(() => {
     if (!Array.isArray(productList)) return [];
@@ -198,6 +307,13 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
           if (field === "product_id") {
             const selectedProduct = productList.find((p) => p.id === value);
             updatedDetail.category_id = selectedProduct?.category || "";
+            // Gọi API để lấy danh sách nhà cung cấp khi chọn sản phẩm
+            fetchSuppliersByProductId(value);
+            // Reset supplier_id khi chọn sản phẩm mới
+            updatedDetail.supplier_id = "";
+          } else if (field === "store_id") {
+            // Gọi API để lấy chi tiết cửa hàng khi chọn cửa hàng
+            fetchStoreDetails(value);
           }
           return updatedDetail;
         }
@@ -219,7 +335,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
           quantity: 0,
           unit_price: 0,
           store_id: prev.details[0]?.store_id || "",
-          supplier_id: prev.details[0]?.supplier_id || "",
+          supplier_id: "",
           profit_margin: 0,
           intake_date: prev.intake_date,
           category_id: "",
@@ -514,127 +630,142 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
         <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
           Chi tiết nhập kho
         </Typography>
-        {newIntake.details.map((detail, index) => (
-          <Grid container spacing={1} key={detail.id} sx={{ mb: 2, alignItems: "center" }}>
-            <Grid item xs={2}>
-              <FormControl fullWidth>
-                <InputLabel>Sản phẩm</InputLabel>
-                <Select
-                  value={detail.product_id || ""}
-                  onChange={(e) => handleDetailChange(detail.id, "product_id", e.target.value)}
-                  onOpen={() => {
-                    fetchProducts();
-                    fetchCategoryList();
-                  }}
-                  sx={{ backgroundColor: "white", minWidth: 200 }}
-                >
-                  {Array.isArray(productList) && productList.length > 0 ? (
-                    productList.map((product) => (
-                      <MenuItem key={product.id} value={product.id}>
-                        {product.name}
-                      </MenuItem>
-                    ))
-                  ) : (
-                    <MenuItem disabled>Không có sản phẩm</MenuItem>
-                  )}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={2}>
-              <TextField
-                label="Danh mục"
-                value={
-                  categoryList.find((category) => category.id === detail.category_id)?.name || ""
-                }
-                fullWidth
-                sx={{ backgroundColor: "white" }}
-                InputProps={{ readOnly: true }}
-              />
-            </Grid>
-            <Grid item xs={1}>
-              <TextField
-                label="Số lượng"
-                type="number"
-                value={detail.quantity || ""}
-                onChange={(e) => handleDetailChange(detail.id, "quantity", parseInt(e.target.value) || 0)}
-                fullWidth
-                sx={{ backgroundColor: "white" }}
-                slotProps={{ input: { min: 0 } }}
-              />
-            </Grid>
-            <Grid item xs={1.5}>
-              <TextField
-                label="Giá nhập"
-                type="number"
-                value={detail.unit_price || ""}
-                onChange={(e) => handleDetailChange(detail.id, "unit_price", parseFloat(e.target.value) || 0)}
-                fullWidth
-                sx={{ backgroundColor: "white" }}
-                slotProps={{ input: { min: 0 } }}
-              />
-            </Grid>
-            <Grid item xs={1}>
-              <TextField
-                label="% Lợi nhuận"
-                type="number"
-                value={detail.profit_margin || ""}
-                onChange={(e) => handleDetailChange(detail.id, "profit_margin", parseFloat(e.target.value) || 0)}
-                fullWidth
-                sx={{ backgroundColor: "white" }}
-                slotProps={{ input: { min: 0 } }}
-              />
-            </Grid>
-            <Grid item xs={2}>
-              <FormControl fullWidth>
-                <InputLabel>Cửa hàng</InputLabel>
-                <Select
-                  value={detail.store_id}
-                  onChange={(e) => handleDetailChange(detail.id, "store_id", e.target.value)}
+        {newIntake.details.map((detail, index) => {
+          const storeDetail = storeDetails[detail.store_id] || {};
+          const storeLat = storeDetail.latitude || null;
+          const storeLon = storeDetail.longitude || null;
+          const availableSuppliers = productSuppliersDetails[detail.product_id] || [];
+
+          return (
+            <Grid container spacing={1} key={detail.id} sx={{ mb: 2, alignItems: "center" }}>
+              <Grid item xs={2}>
+                <FormControl fullWidth>
+                  <InputLabel>Sản phẩm</InputLabel>
+                  <Select
+                    value={detail.product_id || ""}
+                    onChange={(e) => handleDetailChange(detail.id, "product_id", e.target.value)}
+                    onOpen={() => {
+                      fetchProducts();
+                      fetchCategoryList();
+                    }}
+                    sx={{ backgroundColor: "white", minWidth: 200 }}
+                  >
+                    {Array.isArray(productList) && productList.length > 0 ? (
+                      productList.map((product) => (
+                        <MenuItem key={product.id} value={product.id}>
+                          {product.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>Không có sản phẩm</MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={2}>
+                <TextField
+                  label="Danh mục"
+                  value={
+                    categoryList.find((category) => category.id === detail.category_id)?.name || ""
+                  }
+                  fullWidth
                   sx={{ backgroundColor: "white" }}
-                >
-                  {Array.isArray(stores) &&
-                    stores.map((store) => (
-                      <MenuItem key={store.id} value={store.id}>
-                        {store.name}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={1.5}>
-              <TextField
-                label="Ngày nhập"
-                type="date"
-                value={detail.intake_date}
-                onChange={(e) => handleDetailChange(detail.id, "intake_date", e.target.value)}
-                fullWidth
-                sx={{ backgroundColor: "white" }}
-              />
-            </Grid>
-            <Grid item xs={1}>
-              <FormControl fullWidth>
-                <InputLabel>Nhà cung cấp</InputLabel>
-                <Select
-                  value={detail.supplier_id}
-                  onChange={(e) => handleDetailChange(detail.id, "supplier_id", e.target.value)}
+                  InputProps={{ readOnly: true }}
+                />
+              </Grid>
+              <Grid item xs={1}>
+                <TextField
+                  label="Số lượng"
+                  type="number"
+                  value={detail.quantity || ""}
+                  onChange={(e) => handleDetailChange(detail.id, "quantity", parseInt(e.target.value) || 0)}
+                  fullWidth
                   sx={{ backgroundColor: "white" }}
-                >
-                  {Array.isArray(suppliers) &&
-                    suppliers.map((supplier) => (
-                      <MenuItem key={supplier.id} value={supplier.id}>
-                        {supplier.name}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
+                  slotProps={{ input: { min: 0 } }}
+                />
+              </Grid>
+              <Grid item xs={1.5}>
+                <TextField
+                  label="Giá nhập"
+                  type="number"
+                  value={detail.unit_price || ""}
+                  onChange={(e) => handleDetailChange(detail.id, "unit_price", parseFloat(e.target.value) || 0)}
+                  fullWidth
+                  sx={{ backgroundColor: "white" }}
+                  slotProps={{ input: { min: 0 } }}
+                />
+              </Grid>
+              <Grid item xs={1}>
+                <TextField
+                  label="% Lợi nhuận"
+                  type="number"
+                  value={detail.profit_margin || ""}
+                  onChange={(e) => handleDetailChange(detail.id, "profit_margin", parseFloat(e.target.value) || 0)}
+                  fullWidth
+                  sx={{ backgroundColor: "white" }}
+                  slotProps={{ input: { min: 0 } }}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <FormControl fullWidth>
+                  <InputLabel>Cửa hàng</InputLabel>
+                  <Select
+                    value={detail.store_id}
+                    onChange={(e) => handleDetailChange(detail.id, "store_id", e.target.value)}
+                    sx={{ backgroundColor: "white" }}
+                  >
+                    {Array.isArray(stores) &&
+                      stores.map((store) => (
+                        <MenuItem key={store.id} value={store.id}>
+                          {store.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={1.5}>
+                <TextField
+                  label="Ngày nhập"
+                  type="date"
+                  value={detail.intake_date}
+                  onChange={(e) => handleDetailChange(detail.id, "intake_date", e.target.value)}
+                  fullWidth
+                  sx={{ backgroundColor: "white" }}
+                />
+              </Grid>
+              <Grid item xs={1}>
+                <FormControl fullWidth>
+                  <InputLabel>Nhà cung cấp</InputLabel>
+                  <Select
+                    value={detail.supplier_id}
+                    onChange={(e) => handleDetailChange(detail.id, "supplier_id", e.target.value)}
+                    sx={{ backgroundColor: "white" }}
+                  >
+                    {Array.isArray(availableSuppliers) && availableSuppliers.length > 0 ? (
+                      availableSuppliers.map((supplier) => {
+                        const distance = storeLat && storeLon && supplier.latitude && supplier.longitude
+                          ? calculateDistance(storeLat, storeLon, supplier.latitude, supplier.longitude)
+                          : "N/A";
+                        return (
+                          <MenuItem key={supplier.id} value={supplier.id}>
+                            {supplier.name} ({distance} km)
+                          </MenuItem>
+                        );
+                      })
+                    ) : (
+                      <MenuItem disabled>Không có nhà cung cấp</MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={0.5}>
+                <IconButton onClick={() => handleRemoveDetail(detail.id)} color="error">
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
             </Grid>
-            <Grid item xs={0.5}>
-              <IconButton onClick={() => handleRemoveDetail(detail.id)} color="error">
-                <DeleteIcon />
-              </IconButton>
-            </Grid>
-          </Grid>
-        ))}
+          );
+        })}
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
           <Button onClick={handleAddDetail} startIcon={<AddIcon />}>
             Thêm sản phẩm

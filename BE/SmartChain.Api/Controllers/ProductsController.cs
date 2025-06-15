@@ -1,6 +1,7 @@
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SmartChain.Application.Products.Commands.UpdateProduct;
 using SmartChain.Application.Products.Queries.GetProductByCategoryId;
 using SmartChain.Application.Products.Queries.GetProductById;
 using SmartChain.Application.Products.Queries.GetProductByName;
@@ -27,7 +28,7 @@ public class ProductsController : ApiController
         ErrorOr<List<Product>> result = await _mediator.Send(query);
 
         return result.Match(
-            products => Ok(new GetProductsResponse(products.Select(ToDto).ToList())),
+            products => Ok(products),
             Problem
         );
     }
@@ -50,6 +51,17 @@ public class ProductsController : ApiController
 
         return result.Match(
             product => Ok(product),
+            Problem);
+    }
+     [HttpPut("{ProductId:guid}")]
+    public async Task<IActionResult> UpdateStore(Guid ProductId, UpdateProductRequest request)
+    {
+
+        var command = new UpdateProductCommand(ProductId, request.name, request.description, request.price.Value, request.Image);
+        var result = await _mediator.Send(command);
+
+        return result.Match(
+            _ => NoContent(),
             Problem);
     }
 

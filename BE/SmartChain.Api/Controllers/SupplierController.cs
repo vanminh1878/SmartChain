@@ -68,7 +68,7 @@ public class SupplierController : ApiController
         var result = await _mediator.Send(query);
 
         return result.Match(
-            Supplier => Ok(ToDto(Supplier)),
+            Supplier => Ok(Supplier),
             Problem);
     }
      [HttpGet("")]

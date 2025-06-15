@@ -2,6 +2,7 @@ using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SmartChain.Application.ProductSuppliers.Commands.CreateProductSupplier;
+using SmartChain.Application.ProductSuppliers.Queries.GetProductSuppliersByProductId;
 using SmartChain.Application.ProductSuppliers.Queries.GetProductSuppliersBySupplierId;
 using SmartChain.Contracts.ProductSuppliers;
 using SmartChain.Domain.ProductSupplier;
@@ -34,6 +35,17 @@ public class ProductSuppliersController : ApiController
     public async Task<IActionResult> GetProductSuppliersBySupplierId(Guid supplierId)
     {
         var query = new GetProductSuppliersBySupplierIdQuery(supplierId);
+        ErrorOr<List<ProductSupplier>> result = await _mediator.Send(query);
+
+        return result.Match(
+            productSuppliers => Ok(productSuppliers.Select(ToDto).ToList()),
+            Problem
+        );
+    }
+     [HttpGet("product/{productId:guid}")]
+    public async Task<IActionResult> GetProductSuppliersByProductId(Guid productId)
+    {
+        var query = new GetProductSuppliersByProductIdQuery(productId);
         ErrorOr<List<ProductSupplier>> result = await _mediator.Send(query);
 
         return result.Match(

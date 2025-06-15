@@ -31,4 +31,10 @@ public class ProductSuppliersRepository : IProductSuppliersRepository
             .Where(ps => ps.SupplierId == supplierId)
             .ToListAsync(cancellationToken);
     }
+     public async Task<List<ProductSupplier>> GetByProductIdAsync(Guid productId, CancellationToken cancellationToken)
+    {
+        return await _context.ProductSuppliers
+            .Where(ps => ps.ProductId == productId)
+            .ToListAsync(cancellationToken);
+    }
 }

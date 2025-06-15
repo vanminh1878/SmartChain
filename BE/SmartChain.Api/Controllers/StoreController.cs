@@ -80,7 +80,7 @@ public class StoresController : ApiController
         var result = await _mediator.Send(query);
 
         return result.Match(
-            store => Ok(ToDto(store)),
+            store => Ok(store),
             Problem);
     }
 

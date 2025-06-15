@@ -37,20 +37,13 @@ public class Product : Entity
         _domainEvents.Add(new ProductCreatedEvent(id ?? Guid.NewGuid(), name, categoryId));
     }
 
-    public ErrorOr<Success> Update(string name, string description, decimal price, int stockQuantity, Guid categoryId, string? image = null)
+    public ErrorOr<Success> Update(string name, string description, decimal price, string? image = null)
     {
         if (string.IsNullOrEmpty(name))
         {
             return Error.Failure("Product name cannot be empty.");
         }
-        if (stockQuantity < 0)
-        {
-            return Error.Failure("Stock quantity cannot be negative.");
-        }
-        if (categoryId == Guid.Empty)
-        {
-            return Error.Failure("Category ID cannot be empty.");
-        }
+       
         if (image != null && image.Length > 500)
         {
             return Error.Failure("Image URL cannot exceed 500 characters.");
@@ -59,12 +52,10 @@ public class Product : Entity
         Name = name;
         Description = description ?? string.Empty;
         Price = price;
-        StockQuantity = stockQuantity;
-        CategoryId = categoryId; 
+       
         Image = image ?? Image;
         UpdatedAt = DateTime.UtcNow;
 
-        _domainEvents.Add(new ProductUpdatedEvent(Id, name, categoryId));
         return Result.Success;
     }
 

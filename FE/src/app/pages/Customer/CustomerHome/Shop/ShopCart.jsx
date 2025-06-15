@@ -12,6 +12,7 @@ import { fetchGet, fetchPut,fetchDelete,fetchPost } from "../../../../lib/httpHa
 import { showSuccessMessageBox } from "../../../../components/MessageBox/SuccessMessageBox/showSuccessMessageBox"
 import {showErrorMessageBox } from "../../../../components/MessageBox/ErrorMessageBox/showErrorMessageBox"
 import {showYesNoMessageBox } from "../../../../components/MessageBox/YesNoMessageBox/showYesNoMessgeBox"
+import { BE_ENPOINT } from "../../../../lib/httpHandler";
 
 const ShopCart = () => {
   const [cart, setCart] = useState(null);
@@ -340,7 +341,9 @@ const ShopCart = () => {
                         <div className="row align-items-center">
                           <div className="col-3 col-md-2">
                             <img
-                              src={detail.product?.image || "https://via.placeholder.com/100"}
+                              src={detail.product?.image ? `${BE_ENPOINT}/api/asset/view-image/${detail.product?.image}`
+                                                      : "https://via.placeholder.com/150"
+                                                  }
                               alt={detail.product?.name || "Product"}
                               className="img-fluid"
                             />

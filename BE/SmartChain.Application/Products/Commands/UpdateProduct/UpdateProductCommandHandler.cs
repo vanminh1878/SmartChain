@@ -22,7 +22,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
             return Error.NotFound(description: "Product not found.");
         }
 
-        var result = Product.Update(request.name, request.description, request.price, request.stockQuantity, request.categoryId);
+        var result = Product.Update(request.name, request.description, request.price, request.Image);
         if (result.IsError)
         {
             return result.Errors;
