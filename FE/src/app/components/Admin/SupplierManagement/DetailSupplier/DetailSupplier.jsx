@@ -26,7 +26,7 @@ import { Info as InfoIcon, Edit as EditIcon, Close, Search, Delete as DeleteIcon
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { fetchGet, fetchPut, fetchPost, fetchDelete } from "../../../../lib/httpHandler";
+import { fetchGet, fetchPost, fetchPut, fetchDelete } from "../../../../lib/httpHandler";
 import { showErrorMessageBox } from "../../../MessageBox/ErrorMessageBox/showErrorMessageBox";
 import { showSuccessMessageBox } from "../../../MessageBox/SuccessMessageBox/showSuccessMessageBox";
 
@@ -104,14 +104,14 @@ export default React.memo(function DetailSupplier({ item, fetchSuppliers }) {
   const fetchSupplierProducts = useCallback(() => {
     if (!item?.id || item.id.startsWith("temp-")) return;
     fetchGet(
-      `/suppliers/${item.id}/products`,
+      `/ProductSuppliers/supplier/${item.id}`, // Gọi API mới
       (res) => {
         console.log("Supplier products fetched:", res);
         setSupplierProducts(res || []);
       },
       (err) => {
         console.error("Fetch supplier products error:", err);
-        showErrorMessageBox("Lỗi khi lấy danh sách sản phẩm nhà cung cấp.");
+        
       },
       () => console.log("Fetch supplier products completed")
     );
@@ -120,10 +120,10 @@ export default React.memo(function DetailSupplier({ item, fetchSuppliers }) {
   // Hàm lấy danh sách tất cả sản phẩm
   const fetchAllProducts = useCallback(() => {
     fetchGet(
-      "/products",
+      "/Products",
       (res) => {
         console.log("All products fetched:", res);
-        setProducts(res || []);
+        setProducts(Array.isArray(res.items) ? res.items : []);
       },
       (err) => {
         console.error("Fetch products error:", err);
@@ -298,13 +298,13 @@ export default React.memo(function DetailSupplier({ item, fetchSuppliers }) {
 
   // Xử lý xóa sản phẩm khỏi nhà cung cấp
   const handleDeleteProduct = useCallback(
-    (productId) => {
+    (productSupplierId) => {
       if (!item?.id || item.id.startsWith("temp-")) {
         showErrorMessageBox("ID nhà cung cấp không hợp lệ.");
         return;
       }
       fetchDelete(
-        `/suppliers/${item.id}/products/${productId}`,
+        `/ProductSuppliers/${productSupplierId}`, // Cần API xóa ProductSupplier nếu có
         async () => {
           await showSuccessMessageBox("Xóa sản phẩm khỏi nhà cung cấp thành công");
           fetchSupplierProducts();
@@ -330,8 +330,8 @@ export default React.memo(function DetailSupplier({ item, fetchSuppliers }) {
       return;
     }
     fetchPost(
-      `/suppliers/${item.id}/products`,
-      { productId: selectedProductId },
+      `/ProductSuppliers`, // Gọi API POST mới
+      { productId: selectedProductId, supplierId: item.id },
       async () => {
         await showSuccessMessageBox("Thêm sản phẩm thành công");
         fetchSupplierProducts();
@@ -553,8 +553,7 @@ export default React.memo(function DetailSupplier({ item, fetchSuppliers }) {
                     <Button
                       variant="contained"
                       onClick={openAddProductModal}
-                      
-                      sx={{ borderRadius: 2,ml: '50px' }}
+                      sx={{ borderRadius: 2, ml: "50px" }}
                     >
                       Thêm sản phẩm
                     </Button>
@@ -569,12 +568,14 @@ export default React.memo(function DetailSupplier({ item, fetchSuppliers }) {
                       </TableHead>
                       <TableBody>
                         {supplierProducts.length > 0 ? (
-                          supplierProducts.map((product) => (
-                            <TableRow key={product.Id}>
-                              <TableCell>{product.Name}</TableCell>
+                          supplierProducts.map((productSupplier) => (
+                            <TableRow key={productSupplier.id}>
+                              <TableCell>
+                                {products.find((p) => p.id === productSupplier.productId)?.name || "Không xác định"}
+                              </TableCell>
                               <TableCell align="right">
                                 <IconButton
-                                  onClick={() => handleDeleteProduct(product.Id)}
+                                  onClick={() => handleDeleteProduct(productSupplier.id)}
                                   color="error"
                                   title="Xóa sản phẩm"
                                 >
@@ -632,11 +633,15 @@ export default React.memo(function DetailSupplier({ item, fetchSuppliers }) {
               label="Chọn sản phẩm"
               onChange={(e) => setSelectedProductId(e.target.value)}
             >
-              {products.map((product) => (
-                <MenuItem key={product.Id} value={product.Id}>
-                  {product.Name}
-                </MenuItem>
-              ))}
+              {Array.isArray(products) && products.length > 0 ? (
+                products.map((product) => (
+                  <MenuItem key={product.id} value={product.id}>
+                    {product.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>Không có sản phẩm</MenuItem>
+              )}
             </Select>
           </FormControl>
         </DialogContent>

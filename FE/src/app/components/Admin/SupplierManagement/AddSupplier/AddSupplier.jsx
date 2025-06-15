@@ -78,7 +78,7 @@ export default React.memo(function AddSupplier({ fetchSuppliers }) {
       "/products",
       (res) => {
         console.log("All products fetched:", res);
-        setProducts(res || []);
+         setProducts(Array.isArray(res.items) ? res.items : []);
       },
       (err) => {
         console.error("Fetch products error:", err);
@@ -463,7 +463,7 @@ export default React.memo(function AddSupplier({ fetchSuppliers }) {
                   </MapContainer>
                 </Grid>
                 {/* Bảng sản phẩm của nhà cung cấp */}
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, mt: 2 }}>
                     <Typography variant="subtitle1" gutterBottom>
                       Sản phẩm của nhà cung cấp
@@ -510,7 +510,7 @@ export default React.memo(function AddSupplier({ fetchSuppliers }) {
                       </TableBody>
                     </Table>
                   </TableContainer>
-                </Grid>
+                </Grid> */}
               </Grid>
             </Grid>
           </Box>
@@ -531,7 +531,7 @@ export default React.memo(function AddSupplier({ fetchSuppliers }) {
         </DialogActions>
       </Dialog>
       {/* Dialog thêm sản phẩm */}
-      <Dialog
+      {/* <Dialog
         open={isAddProductModalOpen}
         onClose={closeAddProductModal}
         maxWidth="sm"
@@ -549,8 +549,8 @@ export default React.memo(function AddSupplier({ fetchSuppliers }) {
               onChange={(e) => setSelectedProductId(e.target.value)}
             >
               {products.map((product) => (
-                <MenuItem key={product.Id} value={product.Id}>
-                  {product.Name}
+                <MenuItem key={product.id} value={product.id}>
+                  {product.name}
                 </MenuItem>
               ))}
             </Select>
@@ -568,7 +568,7 @@ export default React.memo(function AddSupplier({ fetchSuppliers }) {
             Thêm
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 });
