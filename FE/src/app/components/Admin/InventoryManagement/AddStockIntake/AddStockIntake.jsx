@@ -58,6 +58,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
       {
         id: Date.now(),
         product_id: "",
+        category_id: "",
         quantity: 0,
         unit_price: 0,
         store_id: "",
@@ -128,7 +129,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
             price: Number(item.giaBan) || 0,
             stock_quantity: Number(item.tonKho) || 0,
           }));
-        console.log("validatedProducts: ", validatedProducts);
+        //console.log("validatedProducts: ", validatedProducts);
         setProductList(validatedProducts);
         setIsLoadingProducts(false);
       },
@@ -148,11 +149,14 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
         "/Categories",
         (res) => {
           console.log("Danh sách danh mục đã được tải thành công", res);
-          setCategoryList(Array.isArray(res) ? res : []);
+          setCategoryList(Array.isArray(res) ? res: []);
         },
         (fail) => {
           console.error("Lỗi khi tải danh sách danh mục", fail);
           toast.error("Không thể tải danh sách danh mục");
+        },
+        ()=>{
+          console.log("Tải danh mục hoành thành");
         }
       );
     }
@@ -192,7 +196,9 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
       }
     );
   }, [storeDetails]);
-
+useEffect(() => {
+  console.log("Danh sách danh mục đã được cập nhật:", categoryList);
+}, [categoryList]);
   // Fetch danh sách nhà cung cấp theo sản phẩm và chi tiết nhà cung cấp
   const fetchSuppliersByProductId = useCallback((productId) => {
     if (!productId) return;
@@ -306,7 +312,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
           const updatedDetail = { ...detail, [field]: value };
           if (field === "product_id") {
             const selectedProduct = productList.find((p) => p.id === value);
-            updatedDetail.category_id = selectedProduct?.category || "";
+            updatedDetail.category_id = selectedProduct?.categoryId || "";
             // Gọi API để lấy danh sách nhà cung cấp khi chọn sản phẩm
             fetchSuppliersByProductId(value);
             // Reset supplier_id khi chọn sản phẩm mới
@@ -489,8 +495,9 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
   useEffect(() => {
     if (selectedStoreId) {
       fetchProducts();
+      fetchStoreDetails(selectedStoreId);
     }
-  }, [selectedStoreId, fetchProducts]);
+  }, [selectedStoreId, fetchProducts,fetchStoreDetails]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
@@ -646,7 +653,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                     onChange={(e) => handleDetailChange(detail.id, "product_id", e.target.value)}
                     onOpen={() => {
                       fetchProducts();
-                      fetchCategoryList();
+                     
                     }}
                     sx={{ backgroundColor: "white", minWidth: 200 }}
                   >
@@ -666,8 +673,8 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                 <TextField
                   label="Danh mục"
                   value={
-                    categoryList.find((category) => category.id === detail.category_id)?.name || ""
-                  }
+   productList.find((product) => product.id === detail.product_id)?.category || ""
+}
                   fullWidth
                   sx={{ backgroundColor: "white" }}
                   InputProps={{ readOnly: true }}
@@ -697,14 +704,18 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
               </Grid>
               <Grid item xs={1}>
                 <TextField
-                  label="% Lợi nhuận"
-                  type="number"
-                  value={detail.profit_margin || ""}
-                  onChange={(e) => handleDetailChange(detail.id, "profit_margin", parseFloat(e.target.value) || 0)}
-                  fullWidth
-                  sx={{ backgroundColor: "white" }}
-                  slotProps={{ input: { min: 0 } }}
-                />
+  label="% Lợi nhuận"
+  type="number" // Sử dụng type="number" để xử lý số tốt hơn
+  value={detail.profit_margin ?? ""} // Giữ giá trị 0
+  onChange={(e) => {
+    const value = e.target.value;
+    console.log("Input value:", value); // Log để kiểm tra
+    handleDetailChange(detail.id, "profit_margin", value === "" ? 0 : parseFloat(value) || 0);
+  }}
+  fullWidth
+  sx={{ backgroundColor: "white" }}
+  slotProps={{ input: { min: 0, step: "0.01" } }} // Step nhỏ hơn để hỗ trợ số thập phân như 0.2
+/>
               </Grid>
               <Grid item xs={2}>
                 <FormControl fullWidth>
@@ -712,7 +723,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                   <Select
                     value={detail.store_id}
                     onChange={(e) => handleDetailChange(detail.id, "store_id", e.target.value)}
-                    sx={{ backgroundColor: "white" }}
+                    sx={{ backgroundColor: "white", minWidth: 200 }}
                   >
                     {Array.isArray(stores) &&
                       stores.map((store) => (
@@ -739,7 +750,7 @@ const AddStockIntake = ({ open, onClose, stores, suppliers, products, categories
                   <Select
                     value={detail.supplier_id}
                     onChange={(e) => handleDetailChange(detail.id, "supplier_id", e.target.value)}
-                    sx={{ backgroundColor: "white" }}
+                    sx={{ backgroundColor: "white", minWidth: 200 }}
                   >
                     {Array.isArray(availableSuppliers) && availableSuppliers.length > 0 ? (
                       availableSuppliers.map((supplier) => {

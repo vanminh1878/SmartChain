@@ -10,15 +10,25 @@ import {
   Select,
   MenuItem,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { fetchGet, fetchPost } from "../../../lib/httpHandler";
+import { fetchGet, fetchPost, fetchPut } from "../../../lib/httpHandler";
 import SearchIcon from "@mui/icons-material/Search";
+import InfoIcon from "@mui/icons-material/Info";
+import CloseIcon from "@mui/icons-material/Close";
 import { Avatar } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
 import AddStockIntake from "../../../components/Admin/InventoryManagement/AddStockIntake/AddStockIntake";
 import DetailProduct from "../../../components/Admin/InventoryManagement/DetailProduct/DetailProduct.jsx";
 import { BE_ENPOINT } from "../../../lib/httpHandler";
@@ -33,6 +43,245 @@ const Product = ({ productName }) => (
     </Typography>
   </Box>
 );
+
+// Component chi tiết phiếu nhập kho
+const DetailStockIntake = ({ open, onClose, intake }) => {
+  const [status, setStatus] = useState(intake?.status || 0);
+  const [detailsData, setDetailsData] = useState([]);
+
+  useEffect(() => {
+    if (intake?.status != null) {
+      setStatus(Number(intake.status));
+    }
+  }, [intake]);
+
+  useEffect(() => {
+    if (!intake?.stockIntakeDetails?.length) {
+      setDetailsData([]);
+      return;
+    }
+
+const fetchDetails = async () => {
+  try {
+    const detailsWithNames = await Promise.all(
+      intake.stockIntakeDetails.map(async (detail) => {
+        let supplierName = "Không xác định";
+        let productName = "Không xác định";
+        let storeName = "Không xác định";
+
+        await Promise.all([
+          fetchGet(`/Suppliers/${detail.supplierId}`, (res) => {
+            console.log("hehehh Supplier:", res);
+            supplierName = res?.name || "Không xác định";
+          }, (err) => {
+            console.error("Error fetching supplier:", err);
+          }),
+          fetchGet(`/Products/${detail.productId}`, (res) => {
+            console.log("hehehh Product:", res);
+            productName = res?.name || "Không xác định";
+          }, (err) => {
+            console.error("Error fetching product:", err);
+          }),
+          fetchGet(`/Stores/${detail.storeId}`, (res) => {
+            console.log("hehehh Store:", res);
+            storeName = res?.name || "Không xác định";
+          }, (err) => {
+            console.error("Error fetching store:", err);
+          }),
+        ]);
+
+        return {
+          ...detail,
+          supplierName,
+          productName,
+          storeName,
+        };
+      })
+    );
+        setDetailsData(detailsWithNames);
+        console.log("đây nè:", detailsWithNames)
+      } catch (error) {
+        console.error("Error fetching details:", error);
+        toast.error("Lỗi khi lấy thông tin chi tiết");
+      }
+    };
+
+    fetchDetails();
+  }, [intake]);
+useEffect(() => {
+  console.log("Updated detailsData:", detailsData);
+}, [detailsData]);
+  const handleSave = useCallback(() => {
+    if (!intake?.stockIntakeId) {
+      toast.error("Không tìm thấy ID phiếu nhập kho");
+      return;
+    }
+
+    fetchPut(
+      `/Inventory/${intake.stockIntakeId}/status`,
+      { Status: status },
+      (res) => {
+        toast.success("Cập nhật trạng thái thành công");
+        onClose();
+      },
+      (err) => {
+        console.error("Lỗi khi cập nhật trạng thái:", err);
+        toast.error("Lỗi khi cập nhật trạng thái");
+      }
+    );
+  }, [intake, status, onClose]);
+
+  if (!intake) return null;
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        Chi tiết phiếu nhập kho
+        <IconButton onClick={onClose}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+          <Typography><strong>ID:</strong> {intake.stockIntakeId}</Typography>
+          <Typography>
+            <strong>Ngày nhập:</strong>{" "}
+            {intake.intakeDate
+              ? new Date(intake.intakeDate).toLocaleString("vi-VN", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                })
+              : "Không xác định"}
+          </Typography>
+          <Typography><strong>Người tạo:</strong> {intake.created_By_Name}</Typography>
+          <FormControl fullWidth variant="outlined">
+            <InputLabel>Trạng thái</InputLabel>
+            <Select
+              value={status}
+              onChange={(e) => setStatus(Number(e.target.value))}
+              label="Trạng thái"
+            >
+              <MenuItem value={0}>Pending</MenuItem>
+              <MenuItem value={1}>Approved</MenuItem>
+              <MenuItem value={2}>Intaked</MenuItem>
+            </Select>
+          </FormControl>
+          <Typography variant="h6" sx={{ mt: 2 }}>
+            Chi tiết nhập kho
+          </Typography>
+          <Table sx={{ minWidth: 650 }} size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Nhà cung cấp</TableCell>
+                <TableCell>Sản phẩm</TableCell>
+                <TableCell>Cửa hàng</TableCell>
+                <TableCell align="right">Biên lợi nhuận</TableCell>
+                <TableCell align="right">Số lượng</TableCell>
+                <TableCell align="right">Đơn giá</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {detailsData.map((detail) => (
+                <TableRow key={detail.id}>
+                  <TableCell>{detail.supplierName}</TableCell>
+                  <TableCell>{detail.productName}</TableCell>
+                  <TableCell>{detail.storeName}</TableCell>
+                  <TableCell align="right">
+                    {(detail.profit_margin * 100).toFixed(2)}%
+                  </TableCell>
+                  <TableCell align="right">{detail.quantity}</TableCell>
+                  <TableCell align="right">
+                    {Number(detail.unitPrice).toLocaleString("vi-VN")} VNĐ
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} variant="outlined">Đóng</Button>
+        <Button onClick={handleSave} variant="contained">Lưu</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Component chi tiết phiếu đặt hàng
+const DetailPurchaseOrder = ({ open, onClose, order }) => {
+  if (!order) return null;
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        Chi tiết phiếu đặt hàng
+        <IconButton onClick={onClose}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+          <Typography><strong>Nhà cung cấp:</strong> {order.supplier || "Không xác định"}</Typography>
+          <Typography>
+            <strong>Ngày nhập:</strong>{" "}
+            {order.intakeDate
+              ? new Date(order.intakeDate).toLocaleString("vi-VN", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                })
+              : "Không xác định"}
+          </Typography>
+          <Typography>
+            <strong>Tổng tiền:</strong>{" "}
+            {order.totalAmount != null
+              ? `${Number(order.totalAmount).toLocaleString("vi-VN")} VNĐ`
+              : "0 VNĐ"}
+          </Typography>
+          <Typography variant="h6" sx={{ mt: 2 }}>Chi tiết cửa hàng</Typography>
+          <Table sx={{ minWidth: 650 }} size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Cửa hàng</TableCell>
+                <TableCell>Sản phẩm</TableCell>
+                <TableCell align="right">Tổng tiền</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {order.purchaseOrders?.map((po, index) => (
+                <TableRow key={index}>
+                  <TableCell>{po.storeName || "Không xác định"}</TableCell>
+                  <TableCell>
+                    {po.products?.map((product, idx) => (
+                      <Typography key={idx} variant="body2">
+                        {product.productName || "Không xác định"} (Số lượng: {product.quantity || 0})
+                      </Typography>
+                    ))}
+                  </TableCell>
+                  <TableCell align="right">
+                    {po.totalAmountPerStore != null
+                      ? `${Number(po.totalAmountPerStore).toLocaleString("vi-VN")} VNĐ`
+                      : "0 VNĐ"}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} variant="outlined">Đóng</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
 export default function InventoryManagement() {
   const [stores, setStores] = useState([]);
@@ -50,6 +299,8 @@ export default function InventoryManagement() {
   const [isLoadingAllProducts, setIsLoadingAllProducts] = useState(false);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedIntake, setSelectedIntake] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const fetchStores = useCallback(() => {
     fetchGet(
@@ -289,6 +540,43 @@ export default function InventoryManagement() {
     }
   }, [allProducts]);
 
+  const handleViewIntake = useCallback((intakeId) => {
+    const intake = stockIntakes.find((i) => i.stockIntakeId === intakeId);
+    if (intake) {
+      setSelectedIntake(intake);
+    } else {
+      toast.error("Không tìm thấy phiếu nhập kho");
+    }
+  }, [stockIntakes]);
+
+  const handleUpdateStatus = useCallback((intakeId, newStatus) => {
+    fetchPut(
+      `/Inventory/${intakeId}/status`,
+      { Status: Number(newStatus) },
+      () => {
+        toast.success("Cập nhật trạng thái thành công");
+        setStockIntakes((prev) =>
+          prev.map((intake) =>
+            intake.stockIntakeId === intakeId ? { ...intake, status: Number(newStatus) } : intake
+          )
+        );
+      },
+      (err) => {
+        console.error("Lỗi khi cập nhật trạng thái:", err);
+        toast.error("Lỗi khi cập nhật trạng thái");
+      }
+    );
+  }, []);
+
+  const handleViewOrder = useCallback((orderId) => {
+    const order = purchaseOrders.find((o) => o.id === orderId);
+    if (order) {
+      setSelectedOrder(order);
+    } else {
+      toast.error("Không tìm thấy phiếu đặt hàng");
+    }
+  }, [purchaseOrders]);
+
   const filteredProducts = useMemo(() => {
     if (!Array.isArray(products)) return [];
     const validProducts = products.filter((item) => item && item.id);
@@ -376,11 +664,11 @@ export default function InventoryManagement() {
   ];
 
   const intakeColumns = [
-    { field: "stockIntakeId", headerName: "ID", width: 300 },
+    { field: "stockIntakeId", headerName: "ID", width: 250 },
     {
       field: "intakeDate",
       headerName: "Ngày nhập",
-      width: 200,
+      width: 180,
       renderCell: (params) => {
         const date = params.row.intakeDate
           ? new Date(params.row.intakeDate).toLocaleString("vi-VN", {
@@ -396,8 +684,39 @@ export default function InventoryManagement() {
       },
     },
     { field: "created_By_Name", headerName: "Người tạo", width: 150 },
-    { field: "status", headerName: "Trạng thái", width: 120 },
-    { field: "approved_By_Name", headerName: "Người phê duyệt", width: 150 },
+    {
+      field: "status",
+      headerName: "Trạng thái",
+      width: 150,
+      renderCell: (params) => (
+        <FormControl fullWidth variant="outlined" sx={{ mt: 0.625 }} size="small">
+          <InputLabel>Trạng thái</InputLabel>
+          <Select
+            value={params.row.status ?? 0}
+            onChange={(e) => handleUpdateStatus(params.row.stockIntakeId, e.target.value)}
+            label="Trạng thái"
+          >
+            <MenuItem value={0}>Pending</MenuItem>
+            <MenuItem value={1}>Approved</MenuItem>
+            <MenuItem value={2}>Intaked</MenuItem>
+          </Select>
+        </FormControl>
+      ),
+    },
+    {
+      field: "actions",
+      headerName: "Thao tác",
+      width: 200,
+      renderCell: (params) => (
+        <IconButton
+          color="primary"
+          onClick={() => handleViewIntake(params.row.stockIntakeId)}
+          title="Xem chi tiết"
+        >
+          <InfoIcon />
+        </IconButton>
+      ),
+    },
   ];
 
   const orderColumns = [
@@ -429,6 +748,20 @@ export default function InventoryManagement() {
           ? `${Number(params.row.totalAmount).toLocaleString("vi-VN")} VNĐ`
           : "0 VNĐ";
       },
+    },
+    {
+      field: "actions",
+      headerName: "Thao tác",
+      width: 100,
+      renderCell: (params) => (
+        <IconButton
+          color="primary"
+          onClick={() => handleViewOrder(params.row.id)}
+          title="Xem chi tiết"
+        >
+          <InfoIcon />
+        </IconButton>
+      ),
     },
   ];
 
@@ -470,18 +803,16 @@ export default function InventoryManagement() {
           : "0 cái";
       },
     },
-
     {
-  field: "actions",
-  headerName: "Thao tác",
-  width: 150,
-  renderCell: (params) => (
-    <Box display="flex" gap={1}>
-      <DetailProduct item={params.row} setListProducts={setAllProducts} setSelectedProduct={setSelectedProduct} />    
-  
-    </Box>
-  ),
-},
+      field: "actions",
+      headerName: "Thao tác",
+      width: 150,
+      renderCell: (params) => (
+        <Box display="flex" gap={1}>
+          <DetailProduct item={params.row} setListProducts={setAllProducts} setSelectedProduct={setSelectedProduct} />
+        </Box>
+      ),
+    },
   ];
 
   return (
@@ -560,7 +891,8 @@ export default function InventoryManagement() {
         />
       </Box>
       <DataGrid
-        sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0, mb: 4 }}
+        rowHeight={80}
+        sx={{ borderLeft: 0, borderRight: 0, borderRadius: 0, mb: 4, '& .MuiDataGrid-row': { height: 80 } }}
         rows={filteredStockIntakes}
         columns={intakeColumns}
         getRowId={(row) => row.stockIntakeId}
@@ -644,7 +976,16 @@ export default function InventoryManagement() {
         products={products}
         onCreateIntake={handleCreateIntake}
       />
-      
+      <DetailStockIntake
+        open={!!selectedIntake}
+        onClose={() => setSelectedIntake(null)}
+        intake={selectedIntake}
+      />
+      <DetailPurchaseOrder
+        open={!!selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+        order={selectedOrder}
+      />
     </Box>
   );
 }

@@ -72,6 +72,17 @@ public class StockIntake : Entity
         _domainEvents.Add(new StockIntakeUpdatedEvent(Id, productId, quantity, unitPrice));
         return Result.Success;
     }
+      public ErrorOr<Success> UpdateStatus(int newStatus)
+    {
+
+
+
+        Status = newStatus;
+        UpdatedAt = DateTime.UtcNow;
+        return Result.Success;
+    }
+
+
 
     public ErrorOr<Success> UpdateStockIntakeDetail(Guid productId, int newQuantity)
     {

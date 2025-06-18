@@ -84,7 +84,7 @@ export default React.memo(function DetailSupplier({ item, fetchSuppliers }) {
         console.log("Supplier info fetched:", res);
         setDataForm({
           name: decodeURIComponent(res.name || res.Name || ""),
-          contactName: decodeURIComponent(res.contactName || res.contact_Name || ""),
+          contactName: decodeURIComponent(res.contactName || res.contact_name || ""),
           phoneNumber: res.phoneNumber || "",
           email: res.email || "",
           address: res.address || "",
@@ -123,7 +123,7 @@ export default React.memo(function DetailSupplier({ item, fetchSuppliers }) {
       "/Products",
       (res) => {
         console.log("All products fetched:", res);
-        setProducts(Array.isArray(res.items) ? res.items : []);
+        setProducts(Array.isArray(res) ? res : []);
       },
       (err) => {
         console.error("Fetch products error:", err);

@@ -12,6 +12,8 @@ using SmartChain.Application.StockIntakeDetails.Commands.CreateStockIntakeDetail
 using SmartChain.Application.StockIntakes.Queries;
 using SmartChain.Application.StockIntakes.Queries.GetStockIntakeById;
 using SmartChain.Application.StockIntakes.Queries.GetStockIntake;
+using SmartChain.Contracts.StockIntakes;
+using SmartChain.Application.StockIntakes.Commands.UpdateStatusStockIntake;
 
 namespace SmartChain.Api.Controllers;
 
@@ -115,7 +117,7 @@ public class InventoryController : ApiController
             Problem);
     }
 
-     [HttpGet("PurchaseOrders")]
+    [HttpGet("PurchaseOrders")]
     public async Task<IActionResult> GetAllPurchaseOrders()
     {
         var query = new GetPurchaseOrdersForInventoryQuery();
@@ -124,5 +126,17 @@ public class InventoryController : ApiController
         return result.Match(
             products => Ok(products),
             Problem);
+    }
+
+     [HttpPut("{StockIntakeId:guid}/status")]
+    public async Task<IActionResult> UpdateOrderStatus(Guid StockIntakeId, UpdateStockIntakeStatusRequest request)
+    {
+        var command = new UpdateStatusStockIntakeCommand( request.Status,StockIntakeId);
+        var result = await _mediator.Send(command);
+
+        return result.Match(
+            _ => NoContent(),
+            Problem
+        );
     }
 }

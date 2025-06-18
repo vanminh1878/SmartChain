@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "hWTDn2E86KhtSloAsMKpwGz0jZxYi7hoVlQSnNQKboU=",
+  "Hash": "S5f6HyN/QRmTliE3oC7DDS5AX7lQTYkHvHgOaDgu0Qw=",
   "Source": "SmartChain.Api",
   "BasePath": "_content/SmartChain.Api",
   "Mode": "Default",
@@ -55,6 +55,25 @@
       "OriginalItemSpec": "wwwroot\\uploads\\1avi05wn.lvw.jpg"
     },
     {
+      "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\25rvee1p.wk1.jpg",
+      "SourceId": "SmartChain.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\",
+      "BasePath": "_content/SmartChain.Api",
+      "RelativePath": "uploads/25rvee1p.wk1.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\25rvee1p.wk1.jpg"
+    },
+    {
       "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\3x3iuptq.zqx.jpg",
       "SourceId": "SmartChain.Api",
       "SourceType": "Discovered",
@@ -93,6 +112,25 @@
       "OriginalItemSpec": "wwwroot\\uploads\\3xsjjjnc.vjz.jpg"
     },
     {
+      "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\452o3hz0.nta.jpg",
+      "SourceId": "SmartChain.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\",
+      "BasePath": "_content/SmartChain.Api",
+      "RelativePath": "uploads/452o3hz0.nta.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\452o3hz0.nta.jpg"
+    },
+    {
       "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\4jfzolna.q31.jpg",
       "SourceId": "SmartChain.Api",
       "SourceType": "Discovered",
@@ -110,6 +148,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\4jfzolna.q31.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\5fwb5b05.5bk.jpg",
+      "SourceId": "SmartChain.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\",
+      "BasePath": "_content/SmartChain.Api",
+      "RelativePath": "uploads/5fwb5b05.5bk.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\5fwb5b05.5bk.jpg"
     },
     {
       "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\abkcpm5s.3zh.jpg",
@@ -188,6 +245,25 @@
       "OriginalItemSpec": "wwwroot\\uploads\\bcgxva3w.jia.jpg"
     },
     {
+      "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\bh3kb02q.jpv.jpg",
+      "SourceId": "SmartChain.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\",
+      "BasePath": "_content/SmartChain.Api",
+      "RelativePath": "uploads/bh3kb02q.jpv.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\bh3kb02q.jpv.jpg"
+    },
+    {
       "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\d4hamp1t.tsf.jpg",
       "SourceId": "SmartChain.Api",
       "SourceType": "Discovered",
@@ -243,6 +319,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\eiuffdxi.5mw.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\fne3huti.4on.jpg",
+      "SourceId": "SmartChain.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\",
+      "BasePath": "_content/SmartChain.Api",
+      "RelativePath": "uploads/fne3huti.4on.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\fne3huti.4on.jpg"
     },
     {
       "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\kiwxly53.bw2.jpg",
@@ -357,6 +452,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\rl4jkts1.to1.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\siwcux0k.1jk.jpg",
+      "SourceId": "SmartChain.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\",
+      "BasePath": "_content/SmartChain.Api",
+      "RelativePath": "uploads/siwcux0k.1jk.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\siwcux0k.1jk.jpg"
     },
     {
       "Identity": "C:\\Users\\ADMIN\\Máy tính\\SmartChain\\SmartChain\\BE\\SmartChain.Api\\wwwroot\\uploads\\sjcm2pns.giq.jpg",
